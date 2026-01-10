@@ -39,6 +39,7 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.history/
 
 # Testing
 coverage/
