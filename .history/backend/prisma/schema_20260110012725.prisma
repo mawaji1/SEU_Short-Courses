@@ -1,0 +1,475 @@
+// Prisma Schema for SEU Short Courses Platform
+// Epic E1.1 — Catalog Foundation
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER & AUTH
+// =============================================================================
+
+enum UserRole {
+  LEARNER
+  COORDINATOR
+  OPERATIONS
+  FINANCE
+  ADMIN
+}
+
+model User {
+  id              String          @id @default(cuid())
+  email           String          @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  phone           String?
+  role            UserRole        @default(LEARNER)
+  organizationId  String?
+  isActive        Boolean         @default(true)
+  emailVerified   Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  organization    Organization?   @relation(fields: [organizationId], references: [id])
+  registrations   Registration[]
+  enrollments     Enrollment[]
+  payments        Payment[]
+  certificates    Certificate[]
+  passwordResets  PasswordResetToken[]
+
+  @@map("users")
+}
+
+// Password Reset Tokens - Production-ready token storage
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// =============================================================================
+// CATALOG — CATEGORIES
+// =============================================================================
+
+model Category {
+  id        String     @id @default(cuid())
+  nameAr    String
+  nameEn    String
+  slug      String     @unique
+  parentId  String?
+  sortOrder Int        @default(0)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
+  programs  Program[]
+
+  @@map("categories")
+}
+
+// =============================================================================
+// CATALOG — INSTRUCTORS
+// =============================================================================
+
+model Instructor {
+  id        String    @id @default(cuid())
+  nameAr    String
+  nameEn    String
+  titleAr   String
+  titleEn   String
+  bioAr     String?
+  bioEn     String?
+  imageUrl  String?
+  email     String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  programs  Program[]
+
+  @@map("instructors")
+}
+
+// =============================================================================
+// CATALOG — PROGRAMS
+// =============================================================================
+
+enum ProgramStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProgramType {
+  COURSE
+  WORKSHOP
+  BOOTCAMP
+  CERTIFICATION
+}
+
+enum DeliveryMode {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+model Program {
+  id                  String        @id @default(cuid())
+  titleAr             String
+  titleEn             String
+  descriptionAr       String
+  descriptionEn       String
+  shortDescriptionAr  String
+  shortDescriptionEn  String
+  slug                String        @unique
+  type                ProgramType   @default(COURSE)
+  deliveryMode        DeliveryMode  @default(ONLINE)
+  durationHours       Int
+  price               Decimal       @db.Decimal(10, 2)
+  currency            String        @default("SAR")
+  status              ProgramStatus @default(DRAFT)
+  categoryId          String
+  instructorId        String?
+  imageUrl            String?
+  prerequisitesAr     String?
+  prerequisitesEn     String?
+  learningOutcomesAr  String[]      @default([])
+  learningOutcomesEn  String[]      @default([])
+  targetAudienceAr    String?
+  targetAudienceEn    String?
+  blackboardCourseId  String?
+  isFeatured          Boolean       @default(false)
+  sortOrder           Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  category            Category      @relation(fields: [categoryId], references: [id])
+  instructor          Instructor?   @relation(fields: [instructorId], references: [id])
+  cohorts             Cohort[]
+
+  @@index([status])
+  @@index([categoryId])
+  @@map("programs")
+}
+
+// =============================================================================
+// COHORTS
+// =============================================================================
+
+enum CohortStatus {
+  UPCOMING
+  OPEN
+  FULL
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Cohort {
+  id                    String       @id @default(cuid())
+  programId             String
+  nameAr                String
+  nameEn                String
+  startDate             DateTime
+  endDate               DateTime
+  registrationStartDate DateTime
+  registrationEndDate   DateTime
+  capacity              Int
+  enrolledCount         Int          @default(0)
+  status                CohortStatus @default(UPCOMING)
+  blackboardCourseId    String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  // Relations
+  program               Program      @relation(fields: [programId], references: [id])
+  registrations         Registration[]
+  enrollments           Enrollment[]
+  certificates          Certificate[]
+
+  @@index([programId])
+  @@index([status])
+  @@map("cohorts")
+}
+
+// =============================================================================
+// REGISTRATIONS
+// =============================================================================
+
+enum RegistrationStatus {
+  PENDING_PAYMENT
+  PAYMENT_FAILED
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+}
+
+model Registration {
+  id           String             @id @default(cuid())
+  userId       String
+  cohortId     String
+  status       RegistrationStatus @default(PENDING_PAYMENT)
+  registeredAt DateTime           @default(now())
+  confirmedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  // Relations
+  user         User               @relation(fields: [userId], references: [id])
+  cohort       Cohort             @relation(fields: [cohortId], references: [id])
+  payment      Payment?
+  enrollment   Enrollment?
+
+  @@unique([userId, cohortId])
+  @@index([status])
+  @@map("registrations")
+}
+
+// =============================================================================
+// ENROLLMENTS
+// =============================================================================
+
+enum EnrollmentStatus {
+  PENDING
+  ENROLLED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  WITHDRAWN
+}
+
+model Enrollment {
+  id                    String           @id @default(cuid())
+  registrationId        String           @unique
+  userId                String
+  cohortId              String
+  status                EnrollmentStatus @default(PENDING)
+  blackboardEnrollmentId String?
+  progress              Int              @default(0)
+  completedAt           DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  // Relations
+  registration          Registration     @relation(fields: [registrationId], references: [id])
+  user                  User             @relation(fields: [userId], references: [id])
+  cohort                Cohort           @relation(fields: [cohortId], references: [id])
+  certificate           Certificate?
+
+  @@index([status])
+  @@map("enrollments")
+}
+
+// =============================================================================
+// PAYMENTS
+// =============================================================================
+
+enum PaymentMethod {
+  CARD
+  TABBY
+  TAMARA
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  registrationId        String        @unique
+  userId                String
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("SAR")
+  method                PaymentMethod
+  status                PaymentStatus @default(PENDING)
+  providerPaymentId     String?
+  providerTransactionId String?
+  paidAt                DateTime?
+  refundedAt            DateTime?
+  refundAmount          Decimal?      @db.Decimal(10, 2)
+  metadata              Json?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  // Relations
+  registration          Registration  @relation(fields: [registrationId], references: [id])
+  user                  User          @relation(fields: [userId], references: [id])
+  invoice               Invoice?
+
+  @@index([status])
+  @@map("payments")
+}
+
+model Invoice {
+  id         String   @id @default(cuid())
+  paymentId  String   @unique
+  number     String   @unique
+  amount     Decimal  @db.Decimal(10, 2)
+  currency   String   @default("SAR")
+  vatAmount  Decimal  @db.Decimal(10, 2)
+  totalAmount Decimal @db.Decimal(10, 2)
+  issuedAt   DateTime @default(now())
+  pdfUrl     String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  payment    Payment  @relation(fields: [paymentId], references: [id])
+
+  @@map("invoices")
+}
+
+// =============================================================================
+// CERTIFICATES
+// =============================================================================
+
+enum CertificateStatus {
+  PENDING
+  ISSUED
+  REVOKED
+}
+
+model Certificate {
+  id            String            @id @default(cuid())
+  enrollmentId  String            @unique
+  userId        String
+  cohortId      String
+  number        String            @unique
+  issueDate     DateTime          @default(now())
+  expiryDate    DateTime?
+  status        CertificateStatus @default(PENDING)
+  verificationCode String         @unique @default(cuid())
+  pdfUrl        String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // Relations
+  enrollment    Enrollment        @relation(fields: [enrollmentId], references: [id])
+  user          User              @relation(fields: [userId], references: [id])
+  cohort        Cohort            @relation(fields: [cohortId], references: [id])
+
+  @@map("certificates")
+}
+
+// =============================================================================
+// PROMO CODES
+// =============================================================================
+
+enum PromoCodeType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model PromoCode {
+  id              String        @id @default(cuid())
+  code            String        @unique
+  type            PromoCodeType @default(PERCENTAGE)
+  value           Decimal       @db.Decimal(10, 2) // Percentage (0-100) or fixed amount
+  maxUses         Int?          // Null = unlimited
+  usedCount       Int           @default(0)
+  minPurchase     Decimal?      @db.Decimal(10, 2) // Minimum order value
+  maxDiscount     Decimal?      @db.Decimal(10, 2) // Cap for percentage discounts
+  programId       String?       // If null, applies to all programs
+  validFrom       DateTime      @default(now())
+  validUntil      DateTime?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  usages          PromoCodeUsage[]
+
+  @@index([code])
+  @@map("promo_codes")
+}
+
+model PromoCodeUsage {
+  id             String     @id @default(cuid())
+  promoCodeId    String
+  registrationId String
+  discountAmount Decimal    @db.Decimal(10, 2)
+  usedAt         DateTime   @default(now())
+
+  // Relations
+  promoCode      PromoCode  @relation(fields: [promoCodeId], references: [id])
+
+  @@unique([promoCodeId, registrationId])
+  @@map("promo_code_usages")
+}
+
+// =============================================================================
+// WAITLIST
+// =============================================================================
+
+enum WaitlistStatus {
+  WAITING
+  NOTIFIED
+  CONVERTED
+  EXPIRED
+}
+
+model WaitlistEntry {
+  id            String         @id @default(cuid())
+  userId        String
+  cohortId      String
+  position      Int
+  status        WaitlistStatus @default(WAITING)
+  notifiedAt    DateTime?
+  expiresAt     DateTime?      // Deadline to register after notification
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([userId, cohortId])
+  @@index([cohortId, position])
+  @@map("waitlist_entries")
+}
+
+// =============================================================================
+// ORGANIZATIONS (B2B)
+// =============================================================================
+
+model Organization {
+  id           String   @id @default(cuid())
+  nameAr       String
+  nameEn       String
+  crNumber     String?
+  vatNumber    String?
+  contactEmail String
+  contactPhone String?
+  address      String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  users        User[]
+
+  @@map("organizations")
+}
+
