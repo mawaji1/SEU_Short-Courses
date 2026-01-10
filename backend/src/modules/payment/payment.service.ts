@@ -1,7 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { PaymentStatus, RegistrationStatus } from '@prisma/client';
 import axios from 'axios';
+import { NotificationService } from '../notification/notification.service';
 
 /**
  * Payment Service
@@ -10,10 +11,14 @@ import axios from 'axios';
  */
 @Injectable()
 export class PaymentService {
+    private readonly logger = new Logger(PaymentService.name);
     private readonly moyasarApiUrl = 'https://api.moyasar.com/v1';
     private readonly moyasarSecretKey: string;
 
-    constructor(private prisma: PrismaService) {
+    constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService,
+    ) {
         this.moyasarSecretKey = process.env.MOYASAR_SECRET_KEY || '';
     }
 
@@ -161,7 +166,12 @@ export class PaymentService {
             include: {
                 registration: {
                     include: {
-                        cohort: true,
+                        user: true,
+                        cohort: {
+                            include: {
+                                program: true,
+                            },
+                        },
                     },
                 },
             },
@@ -203,6 +213,26 @@ export class PaymentService {
                     enrolledCount: { increment: 1 },
                 },
             });
+
+            // Send payment receipt email
+            try {
+                await this.notificationService.sendPaymentReceipt(
+                    payment.registration.userId,
+                    payment.registration.user.email,
+                    {
+                        userName: `${payment.registration.user.firstName} ${payment.registration.user.lastName}`,
+                        programName: payment.registration.cohort.program.titleAr,
+                        cohortName: payment.registration.cohort.nameAr,
+                        amount: payment.amount.toString(),
+                        paymentId: payment.id,
+                        registrationId: payment.registration.id,
+                    },
+                    'ar',
+                );
+            } catch (error) {
+                this.logger.warn('Failed to send payment receipt email:', error);
+                // Don't fail the payment if email fails
+            }
 
             return {
                 success: true,

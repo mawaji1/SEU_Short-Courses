@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إيصال الدفع</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .receipt-box {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #d1fae5;
+        }
+        .receipt-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .button {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ تم استلام الدفع بنجاح</h1>
+        </div>
+        
+        <div class="content">
+            <p>عزيزي/عزيزتي <strong>{{userName}}</strong>،</p>
+            
+            <p>تم استلام دفعتك بنجاح. شكراً لك!</p>
+            
+            <div class="receipt-box">
+                <h3 style="margin-top: 0;">تفاصيل الدفع</h3>
+                <div class="receipt-row">
+                    <span>البرنامج:</span>
+                    <span><strong>{{programName}}</strong></span>
+                </div>
+                <div class="receipt-row">
+                    <span>الموعد:</span>
+                    <span><strong>{{cohortName}}</strong></span>
+                </div>
+                <div class="receipt-row">
+                    <span>رقم الدفع:</span>
+                    <span><strong>{{paymentId}}</strong></span>
+                </div>
+                <div class="receipt-row">
+                    <span>رقم التسجيل:</span>
+                    <span><strong>{{registrationId}}</strong></span>
+                </div>
+                <div class="receipt-row">
+                    <span>المبلغ المدفوع:</span>
+                    <span><strong>{{amount}} ريال</strong></span>
+                </div>
+            </div>
+            
+            <p><strong>ماذا بعد؟</strong></p>
+            <ul>
+                <li>تم تأكيد مقعدك في البرنامج</li>
+                <li>ستصلك معلومات الدخول للمنصة التعليمية قبل بدء البرنامج بـ 48 ساعة</li>
+                <li>يمكنك متابعة تفاصيل التسجيل من لوحة التحكم</li>
+            </ul>
+            
+            <center>
+                <a href="{{platformUrl}}/dashboard" class="button">عرض لوحة التحكم</a>
+                {{#if invoiceUrl}}
+                <a href="{{invoiceUrl}}" class="button" style="background: #6b7280;">تحميل الفاتورة</a>
+                {{/if}}
+            </center>
+            
+            <p style="margin-top: 30px; padding: 15px; background: #fef3c7; border-right: 4px solid #f59e0b; border-radius: 4px;">
+                <strong>ملاحظة:</strong> احتفظ بهذا الإيصال لسجلاتك. يمكنك طباعته أو حفظه كملف PDF.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>الجامعة السعودية الإلكترونية - التدريب الاحترافي</p>
+            <p>البريد الإلكتروني: {{supportEmail}} | الموقع: {{platformUrl}}</p>
+            <p>&copy; {{year}} جميع الحقوق محفوظة</p>
+        </div>
+    </div>
+</body>
+</html>

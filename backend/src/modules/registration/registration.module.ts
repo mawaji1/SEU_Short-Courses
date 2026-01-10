@@ -6,8 +6,10 @@ import { WaitlistService } from './waitlist.service';
 import { CohortService } from './cohort.service';
 import { PrismaService } from '../../common/prisma.service';
 import { RegistrationCleanupService } from './registration-cleanup.service';
+import { NotificationModule } from '../notification';
 
 @Module({
+    imports: [NotificationModule],
     controllers: [RegistrationController],
     providers: [
         RegistrationService,

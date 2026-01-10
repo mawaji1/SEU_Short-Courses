@@ -1,7 +1,8 @@
 import {
     Injectable,
-    NotFoundException,
     BadRequestException,
+    NotFoundException,
+    Logger,
     ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
@@ -14,6 +15,7 @@ import {
     RegistrationResponseDto,
     WaitlistPositionDto,
 } from './dto';
+import { NotificationService } from '../notification/notification.service';
 
 /**
  * Registration Service
@@ -27,10 +29,14 @@ import {
  */
 @Injectable()
 export class RegistrationService {
+    private readonly logger = new Logger(RegistrationService.name);
     // Seat hold duration in minutes
     private readonly SEAT_HOLD_DURATION = 15;
 
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService,
+    ) { }
 
     /**
      * Initiate a new registration with seat hold
@@ -159,9 +165,29 @@ export class RegistrationService {
                             program: true,
                         },
                     },
+                    user: true,
                 },
             });
         });
+
+        // Send registration confirmation email
+        try {
+            await this.notificationService.sendRegistrationConfirmation(
+                userId,
+                registration.user?.email || '',
+                {
+                    userName: `${registration.user?.firstName} ${registration.user?.lastName}`,
+                    programName: cohort.program.titleAr,
+                    cohortName: cohort.nameAr,
+                    registrationId: registration.id,
+                    amount: Number(cohort.program.price).toString(),
+                },
+                'ar',
+            );
+        } catch (error) {
+            this.logger.warn('Failed to send registration confirmation email:', error);
+            // Don't fail the registration if email fails
+        }
 
         const expiresAt = registration.expiresAt || undefined;
 

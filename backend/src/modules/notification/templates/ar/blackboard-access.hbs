@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معلومات الدخول للمنصة التعليمية</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .credentials-box {
+            background: #faf5ff;
+            border: 2px solid #a78bfa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .credential-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-right: 4px solid #7c3aed;
+        }
+        .button {
+            display: inline-block;
+            background: #7c3aed;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .warning-box {
+            background: #fef3c7;
+            border-right: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .footer {
+            background: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 معلومات الدخول للمنصة التعليمية</h1>
+        </div>
+        
+        <div class="content">
+            <p>عزيزي/عزيزتي <strong>{{userName}}</strong>،</p>
+            
+            <p>مرحباً بك في برنامج <strong>{{programName}}</strong> - {{cohortName}}!</p>
+            
+            <p>يمكنك الآن الدخول إلى المنصة التعليمية (Blackboard) باستخدام المعلومات التالية:</p>
+            
+            <div class="credentials-box">
+                <h3 style="margin-top: 0;">بيانات الدخول</h3>
+                
+                <div class="credential-item">
+                    <strong>رابط المنصة:</strong><br>
+                    <a href="{{blackboardUrl}}" style="color: #7c3aed; word-break: break-all;">{{blackboardUrl}}</a>
+                </div>
+                
+                <div class="credential-item">
+                    <strong>اسم المستخدم:</strong><br>
+                    <code style="background: #f3f4f6; padding: 5px 10px; border-radius: 4px; font-size: 16px;">{{blackboardUsername}}</code>
+                </div>
+                
+                <div class="credential-item">
+                    <strong>كلمة المرور:</strong><br>
+                    <code style="background: #f3f4f6; padding: 5px 10px; border-radius: 4px; font-size: 16px;">{{blackboardPassword}}</code>
+                </div>
+            </div>
+            
+            <center>
+                <a href="{{blackboardUrl}}" class="button">الدخول إلى المنصة التعليمية</a>
+            </center>
+            
+            <div class="warning-box">
+                <strong>⚠️ تعليمات مهمة:</strong>
+                <ul style="margin: 10px 0;">
+                    <li>احتفظ بهذه المعلومات في مكان آمن</li>
+                    <li>لا تشارك بيانات الدخول مع أي شخص</li>
+                    <li>يُنصح بتغيير كلمة المرور عند أول تسجيل دخول</li>
+                    <li>في حالة نسيان كلمة المرور، استخدم خيار "نسيت كلمة المرور" في المنصة</li>
+                </ul>
+            </div>
+            
+            <p><strong>الدعم الفني:</strong></p>
+            <p>إذا واجهت أي مشكلة في الدخول، تواصل معنا على:</p>
+            <ul>
+                <li>البريد الإلكتروني: {{supportEmail}}</li>
+                <li>الدعم الفني: متاح على مدار الساعة</li>
+            </ul>
+            
+            <p>نتمنى لك تجربة تعليمية مثمرة!</p>
+        </div>
+        
+        <div class="footer">
+            <p>الجامعة السعودية الإلكترونية - التدريب الاحترافي</p>
+            <p>البريد الإلكتروني: {{supportEmail}} | الموقع: {{platformUrl}}</p>
+            <p>&copy; {{year}} جميع الحقوق محفوظة</p>
+        </div>
+    </div>
+</body>
+</html>
