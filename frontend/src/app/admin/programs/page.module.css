@@ -1,0 +1,198 @@
+.page {
+    max-width: 1400px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-6);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.subtitle {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.addButton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-action-primary);
+    color: var(--color-text-inverse);
+    border-radius: var(--button-border-radius);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: background var(--duration-fast) var(--easing-default);
+}
+
+.addButton:hover {
+    background: var(--color-action-primary-hover);
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.filterButton {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--easing-default);
+}
+
+.filterButton:hover {
+    border-color: var(--seu-primary-300);
+    color: var(--color-text-primary);
+}
+
+.filterButton.active {
+    background: var(--seu-primary-50);
+    border-color: var(--seu-primary-600);
+    color: var(--seu-primary-700);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Table */
+.tableContainer {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.table th {
+    background: var(--seu-neutral-50);
+    padding: var(--space-4);
+    text-align: start;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    border-block-end: 1px solid var(--color-border-default);
+}
+
+.table td {
+    padding: var(--space-4);
+    border-block-end: 1px solid var(--color-border-default);
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: var(--seu-neutral-50);
+}
+
+.programInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.programTitle {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.programTitleEn {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+/* Badges */
+.typeBadge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    background: var(--seu-neutral-100);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.statusDraft {
+    background: var(--color-feedback-warning-bg);
+    color: var(--color-feedback-warning);
+}
+
+.statusPublished {
+    background: var(--color-feedback-success-bg);
+    color: var(--color-feedback-success);
+}
+
+.statusArchived {
+    background: var(--seu-neutral-100);
+    color: var(--color-text-muted);
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.actionButton {
+    padding: var(--space-1) var(--space-3);
+    background: var(--seu-neutral-100);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--easing-default);
+}
+
+.actionButton:hover {
+    background: var(--seu-neutral-200);
+    color: var(--color-text-primary);
+}
+
+.publishButton {
+    background: var(--color-feedback-success-bg);
+    color: var(--color-feedback-success);
+}
+
+.publishButton:hover {
+    background: var(--color-feedback-success);
+    color: white;
+}
+
+.unpublishButton {
+    background: var(--color-feedback-warning-bg);
+    color: var(--color-feedback-warning);
+}
+
+.archiveButton {
+    background: var(--seu-neutral-100);
+    color: var(--color-text-muted);
+}

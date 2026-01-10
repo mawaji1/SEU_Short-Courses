@@ -1,0 +1,310 @@
+.page {
+    min-height: 100vh;
+    background: var(--color-bg-secondary);
+}
+
+/* Hero */
+.hero {
+    background: linear-gradient(135deg, var(--seu-primary-700), var(--seu-primary-600));
+    color: var(--color-text-inverse);
+    padding: var(--space-8) var(--space-6) var(--space-12);
+}
+
+.heroContent {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.breadcrumb {
+    display: flex;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-4);
+    opacity: 0.8;
+}
+
+.breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.badges {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.categoryBadge,
+.typeBadge {
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+}
+
+.categoryBadge {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.typeBadge {
+    background: var(--seu-secondary-600);
+    color: var(--seu-neutral-900);
+}
+
+.title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--space-4) 0;
+}
+
+.shortDescription {
+    font-size: var(--font-size-lg);
+    opacity: 0.9;
+    margin: 0 0 var(--space-6) 0;
+    max-width: 700px;
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-base);
+}
+
+.metaIcon {
+    font-size: var(--font-size-lg);
+}
+
+/* Main Layout */
+.main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-8);
+    position: relative;
+    margin-top: calc(-1 * var(--space-8));
+}
+
+@media (max-width: 968px) {
+    .main {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Details Column */
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.section {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--seu-primary-700);
+    margin: 0 0 var(--space-4) 0;
+    padding-block-end: var(--space-3);
+    border-block-end: 2px solid var(--seu-primary-100);
+}
+
+.description p {
+    margin: 0 0 var(--space-4) 0;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text-primary);
+}
+
+.description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Outcomes */
+.outcomesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.outcomesList li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    color: var(--color-text-primary);
+}
+
+.checkIcon {
+    color: var(--color-feedback-success);
+    font-weight: var(--font-weight-bold);
+    flex-shrink: 0;
+}
+
+/* Instructor */
+.instructorCard {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+}
+
+.instructorAvatar {
+    width: 64px;
+    height: 64px;
+    background: var(--seu-primary-100);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.instructorInfo {
+    flex: 1;
+}
+
+.instructorName {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-1) 0;
+}
+
+.instructorTitle {
+    font-size: var(--font-size-sm);
+    color: var(--seu-primary-600);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.instructorBio {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    position: sticky;
+    top: var(--space-6);
+    height: fit-content;
+}
+
+@media (max-width: 968px) {
+    .sidebar {
+        position: static;
+        order: -1;
+    }
+}
+
+.registrationCard {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+}
+
+.priceContainer {
+    text-align: center;
+    margin-bottom: var(--space-6);
+}
+
+.priceLabel {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-1);
+}
+
+.price {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--seu-primary-700);
+}
+
+/* Cohorts */
+.cohorts {
+    margin-bottom: var(--space-6);
+}
+
+.cohortsTitle {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-3) 0;
+}
+
+.cohortItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    background: var(--seu-neutral-50);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+}
+
+.cohortInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.cohortName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.cohortDates {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.cohortSeats {
+    font-size: var(--font-size-xs);
+    color: var(--color-feedback-success);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Register Button */
+.registerButton {
+    width: 100%;
+    padding: var(--space-4);
+    background: var(--color-action-primary);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--button-border-radius);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--easing-default);
+}
+
+.registerButton:hover {
+    background: var(--color-action-primary-hover);
+}
+
+.guarantee {
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: var(--space-4) 0 0 0;
+}

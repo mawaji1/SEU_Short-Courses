@@ -1,0 +1,125 @@
+.header {
+    height: 64px;
+    background: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border-default);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.container {
+    max-width: 1280px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+}
+
+/* Brand Section */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.brandText {
+    display: flex;
+    flex-direction: column;
+}
+
+.orgName {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.platformName {
+    font-size: var(--font-size-lg);
+    color: var(--seu-primary-600);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Navigation */
+.nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    flex: 1;
+    justify-content: center;
+}
+
+.navLink {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast);
+}
+
+.navLink:hover {
+    color: var(--seu-primary-600);
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.loginBtn {
+    color: var(--seu-primary-600);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-fast);
+}
+
+.loginBtn:hover {
+    background: var(--seu-primary-50);
+}
+
+.registerBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 var(--space-5);
+    background: var(--seu-primary-600);
+    color: var(--color-text-inverse);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-fast);
+}
+
+.registerBtn:hover {
+    background: var(--seu-primary-700);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .nav {
+        display: none;
+    }
+
+    .brandText {
+        display: none;
+    }
+}
