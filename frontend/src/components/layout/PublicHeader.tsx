@@ -58,7 +58,7 @@ export function PublicHeader({ locale = 'ar' }: PublicHeaderProps) {
         {/* Actions */}
         <div className="flex items-center gap-4">
           <div className="hidden xl:flex items-center gap-2 border-e pe-6 me-2 border-slate-100">
-            <Button variant="ghost" size="icon" className="h-12 w-12 text-slate-400">
+            <Button variant="ghost" className="h-12 w-12 text-slate-400">
               <Search className="h-6 w-6" />
             </Button>
             <Button variant="ghost" className="h-12 font-bold text-lg text-slate-500 gap-2 px-4 hover:bg-slate-50">
@@ -79,7 +79,7 @@ export function PublicHeader({ locale = 'ar' }: PublicHeaderProps) {
             </Link>
           </Button>
 
-          <Button variant="ghost" size="icon" className="lg:hidden text-slate-700 scale-125">
+          <Button variant="ghost" className="lg:hidden text-slate-700 scale-125 h-12 w-12">
             <Menu className="h-8 w-8" />
           </Button>
         </div>

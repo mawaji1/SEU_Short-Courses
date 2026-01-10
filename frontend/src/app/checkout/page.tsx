@@ -25,6 +25,7 @@ import {
 } from '@/services/registration';
 import { createPayment } from '@/services/payment';
 import { MoyasarPaymentForm } from '@/components/payment';
+import BNPLOptions from '@/components/payment/BNPLOptions';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
