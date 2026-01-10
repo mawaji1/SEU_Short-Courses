@@ -9,13 +9,17 @@ import {
     Request,
     HttpCode,
     HttpStatus,
+    Req,
+    Query,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { BNPLService } from './bnpl.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BNPLProvider } from './interfaces/bnpl.interface';
 
 @Controller('api/payments')
 export class PaymentController {
-    constructor(private readonly paymentService: PaymentService) {}
+    constructor(private readonly paymentService: PaymentService, private readonly bnplService: BNPLService) {}
 
     /**
      * Create payment for a registration
@@ -81,5 +85,57 @@ export class PaymentController {
     @HttpCode(HttpStatus.OK)
     async handleWebhook(@Body() payload: any) {
         return this.paymentService.handleWebhook(payload);
+    }
+
+    /**
+     * Check BNPL eligibility for a registration
+     * GET /api/payments/bnpl/eligibility/:registrationId
+     */
+    @Get('bnpl/eligibility/:registrationId')
+    @UseGuards(JwtAuthGuard)
+    async checkBNPLEligibility(@Param('registrationId') registrationId: string) {
+        return this.bnplService.checkEligibility(registrationId);
+    }
+
+    /**
+     * Create BNPL checkout session
+     * POST /api/payments/bnpl/checkout
+     */
+    @Post('bnpl/checkout')
+    @UseGuards(JwtAuthGuard)
+    async createBNPLCheckout(
+        @Body() body: { registrationId: string; provider: BNPLProvider },
+    ) {
+        return this.bnplService.createCheckout(body.registrationId, body.provider);
+    }
+
+    /**
+     * BNPL webhook handler for Tabby
+     * POST /api/payments/webhook/tabby
+     */
+    @Post('webhook/tabby')
+    async handleTabbyWebhook(@Body() payload: any) {
+        return this.bnplService.confirmPayment(BNPLProvider.TABBY, payload.id);
+    }
+
+    /**
+     * BNPL webhook handler for Tamara
+     * POST /api/payments/webhook/tamara
+     */
+    @Post('webhook/tamara')
+    async handleTamaraWebhook(@Body() payload: any) {
+        return this.bnplService.confirmPayment(BNPLProvider.TAMARA, payload.order_id);
+    }
+
+    /**
+     * Get installment plan details
+     * GET /api/payments/bnpl/installment-plan
+     */
+    @Get('bnpl/installment-plan')
+    async getInstallmentPlan(
+        @Query('amount') amount: string,
+        @Query('provider') provider: BNPLProvider,
+    ) {
+        return this.bnplService.getInstallmentPlan(parseFloat(amount), provider);
     }
 }
