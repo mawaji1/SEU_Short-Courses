@@ -28,7 +28,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
  * - Waitlist operations
  * - Cohort management
  */
-@Controller('api')
+@Controller()
 export class RegistrationController {
     constructor(
         private readonly registrationService: RegistrationService,
