@@ -19,7 +19,7 @@ import { UserRole } from '@prisma/client';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 
-@Controller('api/certificates')
+@Controller('certificates')
 export class CertificateController {
   constructor(private readonly certificateService: CertificateService) {}
 

@@ -17,7 +17,7 @@ import { BNPLService } from './bnpl.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { BNPLProvider } from './interfaces/bnpl.interface';
 
-@Controller('api/payments')
+@Controller('payments')
 export class PaymentController {
     constructor(private readonly paymentService: PaymentService, private readonly bnplService: BNPLService) {}
 

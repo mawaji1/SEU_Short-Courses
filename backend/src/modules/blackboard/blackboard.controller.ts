@@ -9,7 +9,7 @@ import { UserRole } from '@prisma/client';
 import { PrismaService } from '../../common/prisma.service';
 import { MapCourseDto } from './dto/map-course.dto';
 
-@Controller('api/blackboard')
+@Controller('blackboard')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class BlackboardController {
   constructor(

@@ -18,7 +18,7 @@ import { UserRole } from '@prisma/client';
  * User Management Controller
  * Admin-only endpoints for managing users
  */
-@Controller('api/users')
+@Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class UserController {

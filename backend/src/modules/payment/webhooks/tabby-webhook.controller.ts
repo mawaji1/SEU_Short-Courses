@@ -11,7 +11,7 @@ import { TabbyWebhookService } from './tabby-webhook.service';
  * - Handles idempotency
  * - Comprehensive logging
  */
-@Controller('api/payments/webhooks/tabby')
+@Controller('payments/webhooks/tabby')
 export class TabbyWebhookController {
     private readonly logger = new Logger(TabbyWebhookController.name);
 

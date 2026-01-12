@@ -24,7 +24,7 @@ import { CurrentUser } from './decorators';
  * - POST /api/auth/forgot-password - Request password reset
  * - POST /api/auth/reset-password - Reset password with token
  */
-@Controller('api/auth')
+@Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 

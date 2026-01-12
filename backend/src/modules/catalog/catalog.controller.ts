@@ -34,7 +34,7 @@ import {
  * 
  * Similar patterns for categories and instructors.
  */
-@Controller('api/catalog')
+@Controller('catalog')
 export class CatalogController {
     constructor(private readonly catalogService: CatalogService) { }
 

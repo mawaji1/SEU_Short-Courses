@@ -11,7 +11,7 @@ import { TamaraWebhookService } from './tamara-webhook.service';
  * - Verifies JWT token
  * - Comprehensive logging
  */
-@Controller('api/payments/webhooks/tamara')
+@Controller('payments/webhooks/tamara')
 export class TamaraWebhookController {
     private readonly logger = new Logger(TamaraWebhookController.name);
 

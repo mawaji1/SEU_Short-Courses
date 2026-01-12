@@ -10,7 +10,7 @@ import { UserRole } from '@prisma/client';
  * 
  * Admin-only endpoints for viewing audit logs
  */
-@Controller('api/audit')
+@Controller('audit')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class AuditController {
