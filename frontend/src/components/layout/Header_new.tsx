@@ -22,8 +22,6 @@ export function Header() {
                             height={50}
                             className="h-12 w-auto"
                         />
-                        <div className="hidden sm:block h-8 w-px bg-gray-200" />
-                        <span className="hidden sm:block text-lg font-bold text-primary">التعليم التنفيذي</span>
                     </Link>
 
                     {/* Desktop Navigation */}

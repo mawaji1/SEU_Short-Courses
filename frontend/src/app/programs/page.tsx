@@ -111,7 +111,7 @@ export default function ProgramsPage() {
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
                         <h1 className="text-4xl font-bold mb-4">تصفح البرامج</h1>
                         <p className="text-xl text-gray-200">
-                            اكتشف {programs.length} برنامج تدريبي معتمد من الجامعة السعودية الإلكترونية
+                            اكتشف البرامج التدريبية المعتمدة من الجامعة السعودية الإلكترونية
                         </p>
                     </div>
                 </div>
@@ -146,8 +146,8 @@ export default function ProgramsPage() {
                                                     )
                                                 }
                                                 className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.id
-                                                        ? "bg-accent text-white"
-                                                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                                                     }`}
                                             >
                                                 <div className="flex items-center justify-between">
@@ -275,8 +275,8 @@ export default function ProgramsPage() {
                                                     setShowFilters(false);
                                                 }}
                                                 className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.id
-                                                        ? "bg-accent text-white"
-                                                        : "bg-gray-50 text-gray-700"
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700"
                                                     }`}
                                             >
                                                 {category.nameAr}

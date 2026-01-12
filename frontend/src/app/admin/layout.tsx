@@ -173,7 +173,7 @@ function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
                 >
                     <Menu className="w-6 h-6" />
                 </button>
-                <h1 className="text-lg font-bold text-gray-900">التعليم التنفيذي - لوحة الإدارة</h1>
+                <h1 className="text-lg font-bold text-gray-900">لوحة الإدارة</h1>
             </div>
 
             <div className="flex items-center gap-4">
