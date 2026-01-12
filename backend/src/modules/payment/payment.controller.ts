@@ -60,19 +60,22 @@ export class PaymentController {
     }
 
     /**
-     * Initiate refund
+     * Initiate refund (full or partial)
      * PUT /api/payments/:paymentId/refund
+     * Body: { amount?: number, reason?: string }
+     * If amount is not provided, full refund is processed
      */
     @Put(':paymentId/refund')
     @UseGuards(JwtAuthGuard)
     async refundPayment(
         @Request() req: any,
         @Param('paymentId') paymentId: string,
-        @Body() body: { reason?: string },
+        @Body() body: { amount?: number; reason?: string },
     ) {
         return this.paymentService.refundPayment(
             req.user.id,
             paymentId,
+            body.amount,
             body.reason,
         );
     }

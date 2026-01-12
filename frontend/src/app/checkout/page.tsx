@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -24,8 +24,7 @@ import {
     RegistrationResponse,
 } from '@/services/registration';
 import { createPayment } from '@/services/payment';
-import { MoyasarPaymentForm } from '@/components/payment';
-import BNPLOptions from '@/components/payment/BNPLOptions';
+import { RadioPaymentSelector, TabbyCheckoutWidget, TamaraWidget } from '@/components/payment';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -38,7 +37,7 @@ interface Program {
     durationHours: number;
 }
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const searchParams = useSearchParams();
     const programSlug = searchParams.get('program');
 
@@ -483,81 +482,20 @@ export default function CheckoutPage() {
                                 </div>
                             )}
 
-                            {!paymentId ? (
-                                <div className="flex justify-center gap-4">
-                                    <Button 
-                                        size="lg"
-                                        onClick={async () => {
-                                            if (!registration) return;
-                                            
-                                            setIsCreatingPayment(true);
-                                            setError(null);
-                                            
-                                            try {
-                                                const authData = localStorage.getItem('seu_auth');
-                                                if (!authData) return;
-                                                
-                                                const auth = JSON.parse(authData);
-                                                const token = auth.accessToken;
-                                                
-                                                // Create payment
-                                                const paymentData = await createPayment(
-                                                    {
-                                                        registrationId: registration.id,
-                                                        amount: finalPrice,
-                                                        currency: 'SAR',
-                                                    },
-                                                    token,
-                                                );
-                                                
-                                                setPaymentId(paymentData.paymentId);
-                                                setPublishableKey(paymentData.publishableKey);
-                                            } catch (err: any) {
-                                                console.error('Payment creation error:', err);
-                                                setError(err.message || 'فشل إنشاء عملية الدفع');
-                                            } finally {
-                                                setIsCreatingPayment(false);
-                                            }
-                                        }}
-                                        disabled={isCreatingPayment}
-                                    >
-                                        {isCreatingPayment ? (
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                        ) : (
-                                            <>
-                                                الدفع الآن
-                                                <ArrowRight className="w-5 h-5 mr-2" />
-                                            </>
-                                        )}
-                                    </Button>
-                                    <Button 
-                                        variant="outline" 
-                                        size="lg"
-                                        onClick={() => {
-                                            window.location.href = '/dashboard';
-                                        }}
-                                    >
-                                        الدفع لاحقاً
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="max-w-2xl mx-auto">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                                        إكمال الدفع
-                                    </h2>
-                                    <MoyasarPaymentForm
-                                        amount={finalPrice}
-                                        currency="SAR"
-                                        publishableKey={publishableKey}
-                                        onSuccess={(moyasarPaymentId) => {
-                                            window.location.href = `/payment/success?id=${paymentId}`;
-                                        }}
-                                        onError={(error) => {
-                                            setError(error);
-                                            setPaymentId(null);
-                                        }}
-                                    />
-                                </div>
+                            {/* Radio Button Payment Selector */}
+                            {registration && (
+                                <RadioPaymentSelector
+                                    registrationId={registration.id}
+                                    amount={finalPrice}
+                                    currency="SAR"
+                                    language="ar"
+                                    onSuccess={(paymentId) => {
+                                        window.location.href = `/payment/success?id=${paymentId}`;
+                                    }}
+                                    onError={(error) => {
+                                        setError(error);
+                                    }}
+                                />
                             )}
 
                             <p className="text-sm text-gray-500 mt-6 text-center">
@@ -570,5 +508,20 @@ export default function CheckoutPage() {
 
             <Footer />
         </div>
+    );
+}
+
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                    <p className="text-gray-600">جاري التحميل...</p>
+                </div>
+            </div>
+        }>
+            <CheckoutContent />
+        </Suspense>
     );
 }

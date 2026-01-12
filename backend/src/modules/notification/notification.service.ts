@@ -198,6 +198,63 @@ export class NotificationService {
   }
 
   /**
+   * Send admin alert for system issues
+   */
+  async sendAdminAlert(data: {
+    subject: string;
+    message: string;
+    priority?: 'URGENT' | 'HIGH' | 'NORMAL' | 'LOW';
+    metadata?: any;
+  }): Promise<NotificationResult> {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@seu.edu.sa';
+    
+    return this.sendNotification({
+      userId: 'system', // System-generated notification
+      type: NotificationType.SYSTEM_ALERT,
+      channel: NotificationChannel.EMAIL,
+      recipient: adminEmail,
+      subject: `[ADMIN ALERT] ${data.subject}`,
+      templateId: 'admin-alert',
+      templateData: {
+        subject: data.subject,
+        message: data.message,
+        timestamp: new Date().toISOString(),
+        ...data.metadata,
+      },
+      locale: 'en',
+      priority: data.priority ? NotificationPriority[data.priority] : NotificationPriority.HIGH,
+      metadata: data.metadata,
+    });
+  }
+
+  /**
+   * Send course completion notification
+   */
+  async sendCourseCompletion(
+    userId: string,
+    email: string,
+    data: {
+      userName: string;
+      programName: string;
+      cohortName: string;
+      completedAt: string;
+    },
+    locale: string = 'ar',
+  ): Promise<NotificationResult> {
+    return this.sendNotification({
+      userId,
+      type: NotificationType.COURSE_REMINDER, // Will use COMPLETION type when added
+      channel: NotificationChannel.EMAIL,
+      recipient: email,
+      subject: locale === 'ar' ? 'تهانينا! لقد أكملت الدورة بنجاح' : 'Congratulations! Course Completed',
+      templateId: 'course-completion',
+      templateData: data,
+      locale,
+      priority: NotificationPriority.HIGH,
+    });
+  }
+
+  /**
    * Get notification status
    */
   async getNotificationStatus(notificationId: string) {

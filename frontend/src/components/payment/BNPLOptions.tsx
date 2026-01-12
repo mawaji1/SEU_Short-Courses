@@ -95,110 +95,57 @@ export default function BNPLOptions({ registrationId, amount, onCheckoutStart }:
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="border-t border-gray-200 pt-4">
-        <h3 className="text-lg font-semibold mb-4">💳 قسّط مشترياتك بدون فوائد</h3>
+        <h3 className="text-base font-semibold mb-3 text-gray-700">أو قسّط الدفع بدون فوائد</h3>
         
         {/* Tabby Option */}
         {tabbyPlan && (
-          <div className="mb-4 p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 transition-colors">
-            <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => handleBNPLCheckout(BNPLProvider.TABBY)}
+            disabled={processingProvider !== null}
+            className="w-full mb-3 p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-right"
+          >
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-purple-100 p-2 rounded">
-                  <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                    <text x="50%" y="50%" textAnchor="middle" dy=".3em" fontSize="12" fontWeight="bold">Tabby</text>
-                  </svg>
+                <div className="bg-purple-100 px-3 py-1 rounded text-purple-700 font-bold text-sm">
+                  tabby
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Tabby - قسّمها على 4 دفعات</p>
-                  <p className="text-sm text-gray-600">{tabbyPlan.description}</p>
+                  <p className="font-semibold text-gray-900">قسّمها على 4 دفعات</p>
+                  <p className="text-sm text-gray-600">{tabbyPlan.installmentAmount.toFixed(2)} ريال كل أسبوعين</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="bg-purple-50 p-3 rounded mb-3">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-700">كل دفعة:</span>
-                <span className="text-2xl font-bold text-purple-600">
-                  {tabbyPlan.installmentAmount.toFixed(2)} ريال
-                </span>
-              </div>
-              <p className="text-xs text-gray-600">
-                {tabbyPlan.installments} دفعات × {tabbyPlan.installmentAmount.toFixed(2)} ريال {tabbyPlan.frequency}
-              </p>
-              <p className="text-xs text-green-600 font-semibold mt-1">بدون فوائد أو رسوم إضافية</p>
-            </div>
-
-            <button
-              onClick={() => handleBNPLCheckout(BNPLProvider.TABBY)}
-              disabled={processingProvider !== null}
-              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {processingProvider === BNPLProvider.TABBY ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  جاري التحويل...
-                </span>
-              ) : (
-                'ادفع مع Tabby'
+              {processingProvider === BNPLProvider.TABBY && (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
               )}
-            </button>
-          </div>
+            </div>
+          </button>
         )}
 
         {/* Tamara Option */}
         {tamaraPlan && (
-          <div className="p-4 border-2 border-green-200 rounded-lg hover:border-green-400 transition-colors">
-            <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => handleBNPLCheckout(BNPLProvider.TAMARA)}
+            disabled={processingProvider !== null}
+            className="w-full p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-right"
+          >
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-green-100 p-2 rounded">
-                  <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                    <text x="50%" y="50%" textAnchor="middle" dy=".3em" fontSize="10" fontWeight="bold">Tamara</text>
-                  </svg>
+                <div className="bg-green-100 px-3 py-1 rounded text-green-700 font-bold text-sm">
+                  tamara
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Tamara - قسّمها على {tamaraPlan.installments} دفعات</p>
-                  <p className="text-sm text-gray-600">{tamaraPlan.description}</p>
+                  <p className="font-semibold text-gray-900">قسّمها على {tamaraPlan.installments} دفعات</p>
+                  <p className="text-sm text-gray-600">{tamaraPlan.installmentAmount.toFixed(2)} ريال شهرياً</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="bg-green-50 p-3 rounded mb-3">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-700">كل دفعة:</span>
-                <span className="text-2xl font-bold text-green-600">
-                  {tamaraPlan.installmentAmount.toFixed(2)} ريال
-                </span>
-              </div>
-              <p className="text-xs text-gray-600">
-                {tamaraPlan.installments} دفعات × {tamaraPlan.installmentAmount.toFixed(2)} ريال {tamaraPlan.frequency}
-              </p>
-              <p className="text-xs text-green-600 font-semibold mt-1">بدون فوائد أو رسوم إضافية</p>
-            </div>
-
-            <button
-              onClick={() => handleBNPLCheckout(BNPLProvider.TAMARA)}
-              disabled={processingProvider !== null}
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {processingProvider === BNPLProvider.TAMARA ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  جاري التحويل...
-                </span>
-              ) : (
-                'ادفع مع Tamara'
+              {processingProvider === BNPLProvider.TAMARA && (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
               )}
-            </button>
-          </div>
+            </div>
+          </button>
         )}
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <p className="text-sm text-blue-800">
-          <strong>ملاحظة:</strong> سيتم تحويلك إلى صفحة الدفع الآمنة لإكمال عملية التقسيط. 
-          لا توجد فوائد أو رسوم إضافية.
-        </p>
       </div>
     </div>
   );

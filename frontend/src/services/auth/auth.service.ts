@@ -65,11 +65,16 @@ export const authService = {
     },
 
     /**
-     * Save auth data to localStorage
+     * Save auth data to both localStorage and cookies
+     * Cookies are needed for server-side middleware
      */
     saveAuth(auth: AuthResponse): void {
         if (typeof window !== 'undefined') {
-            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+            const authData = JSON.stringify(auth);
+            // Save to localStorage for client-side access
+            localStorage.setItem(AUTH_STORAGE_KEY, authData);
+            // Save to cookie for server-side middleware
+            document.cookie = `seu_auth=${encodeURIComponent(authData)}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         }
     },
 
@@ -83,11 +88,13 @@ export const authService = {
     },
 
     /**
-     * Clear auth data
+     * Clear auth data from localStorage and cookies
      */
     clearAuth(): void {
         if (typeof window !== 'undefined') {
             localStorage.removeItem(AUTH_STORAGE_KEY);
+            // Clear cookie
+            document.cookie = 'seu_auth=; path=/; max-age=0';
         }
     },
 

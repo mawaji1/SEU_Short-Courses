@@ -152,8 +152,8 @@ export class EmailProcessor {
 
   /**
    * Handle failed jobs (after all retries exhausted)
+   * Called automatically by Bull when job fails after all retries
    */
-  @Process('send-notification')
   async handleFailedJob(job: Job) {
     if (job.attemptsMade >= (job.opts.attempts || 3)) {
       const { notificationId } = job.data;

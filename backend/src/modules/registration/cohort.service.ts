@@ -40,11 +40,17 @@ export interface CohortResponseDto {
     availableSeats: number;
     status: CohortStatus;
     blackboardCourseId: string | null;
+    instructorId: string | null;
     program?: {
         id: string;
         titleAr: string;
         titleEn: string;
         slug: string;
+    };
+    instructor?: {
+        id: string;
+        nameAr: string;
+        nameEn: string;
     };
 }
 
@@ -106,6 +112,7 @@ export class CohortService {
             where,
             include: {
                 program: true,
+                instructor: true,
             },
             orderBy: { startDate: 'asc' },
         });
@@ -141,11 +148,12 @@ export class CohortService {
             where: { id },
             include: {
                 program: true,
+                instructor: true,
             },
         });
 
         if (!cohort) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         return this.formatCohortResponse(cohort);
@@ -157,7 +165,7 @@ export class CohortService {
     async updateCohort(id: string, dto: UpdateCohortDto): Promise<CohortResponseDto> {
         const existing = await this.prisma.cohort.findUnique({ where: { id } });
         if (!existing) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         const cohort = await this.prisma.cohort.update({
@@ -193,11 +201,11 @@ export class CohortService {
         });
 
         if (!cohort) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         if (cohort.registrations.length > 0) {
-            throw new NotFoundException('لا يمكن حذف فوج به تسجيلات');
+            throw new NotFoundException('لا يمكن حذف موعد به تسجيلات');
         }
 
         await this.prisma.cohort.delete({ where: { id } });
@@ -216,7 +224,7 @@ export class CohortService {
     async closeRegistration(id: string): Promise<CohortResponseDto> {
         const cohort = await this.prisma.cohort.findUnique({ where: { id } });
         if (!cohort) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         const newStatus = cohort.enrolledCount >= cohort.capacity
@@ -227,12 +235,52 @@ export class CohortService {
     }
 
     /**
+     * Assign instructor to cohort
+     */
+    async assignInstructor(cohortId: string, instructorId: string): Promise<CohortResponseDto> {
+        const instructor = await this.prisma.instructor.findUnique({
+            where: { id: instructorId },
+        });
+
+        if (!instructor) {
+            throw new NotFoundException('المدرب غير موجود');
+        }
+
+        const cohort = await this.prisma.cohort.update({
+            where: { id: cohortId },
+            data: { instructorId },
+            include: {
+                program: true,
+                instructor: true,
+            },
+        });
+
+        return this.formatCohortResponse(cohort);
+    }
+
+    /**
+     * Remove instructor from cohort
+     */
+    async removeInstructor(cohortId: string): Promise<CohortResponseDto> {
+        const cohort = await this.prisma.cohort.update({
+            where: { id: cohortId },
+            data: { instructorId: null },
+            include: {
+                program: true,
+            },
+        });
+
+        return this.formatCohortResponse(cohort);
+    }
+
+    /**
      * Format cohort response
      */
     private formatCohortResponse(cohort: any): CohortResponseDto {
         return {
             id: cohort.id,
             programId: cohort.programId,
+            instructorId: cohort.instructorId,
             nameAr: cohort.nameAr,
             nameEn: cohort.nameEn,
             startDate: cohort.startDate,
@@ -249,6 +297,11 @@ export class CohortService {
                 titleAr: cohort.program.titleAr,
                 titleEn: cohort.program.titleEn,
                 slug: cohort.program.slug,
+            } : undefined,
+            instructor: cohort.instructor ? {
+                id: cohort.instructor.id,
+                nameAr: cohort.instructor.nameAr,
+                nameEn: cohort.instructor.nameEn,
             } : undefined,
         };
     }

@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from 'react';
+
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,7 +11,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function LoginPage() {
+function LoginPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get("redirect") || "/dashboard";
@@ -26,8 +28,17 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            await login(email, password);
-            router.push(redirect);
+            const result = await login(email, password);
+            
+            // Role-based redirect
+            const userRole = result.user?.role;
+            const adminRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'COORDINATOR'];
+            
+            if (adminRoles.includes(userRole)) {
+                router.push('/admin');
+            } else {
+                router.push(redirect);
+            }
         } catch (err: any) {
             setError(err.message || "فشل تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مرة أخرى.");
         } finally {
@@ -171,5 +182,17 @@ export default function LoginPage() {
                 </motion.div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        }>
+            <LoginPageContent />
+        </Suspense>
     );
 }

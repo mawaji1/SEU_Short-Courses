@@ -377,8 +377,10 @@ async function main() {
     const passwordHash = await bcrypt.hash('Test@123', 10);
 
     const users = await Promise.all([
-        prisma.user.create({
-            data: {
+        prisma.user.upsert({
+            where: { email: 'admin@seu.edu.sa' },
+            update: {},
+            create: {
                 email: 'admin@seu.edu.sa',
                 passwordHash,
                 firstName: 'مدير',
@@ -387,8 +389,10 @@ async function main() {
                 emailVerified: true,
             },
         }),
-        prisma.user.create({
-            data: {
+        prisma.user.upsert({
+            where: { email: 'learner@seu.edu.sa' },
+            update: {},
+            create: {
                 email: 'learner@seu.edu.sa',
                 passwordHash,
                 firstName: 'محمد',
@@ -397,8 +401,10 @@ async function main() {
                 emailVerified: true,
             },
         }),
-        prisma.user.create({
-            data: {
+        prisma.user.upsert({
+            where: { email: 'coordinator@seu.edu.sa' },
+            update: {},
+            create: {
                 email: 'coordinator@seu.edu.sa',
                 passwordHash,
                 firstName: 'أحمد',

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header, Footer } from '@/components/layout';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function PaymentFailurePage() {
+function PaymentFailureContent() {
     const searchParams = useSearchParams();
     const error = searchParams.get('error') || 'حدث خطأ أثناء معالجة الدفع';
 
@@ -86,5 +87,17 @@ export default function PaymentFailurePage() {
             </main>
             <Footer />
         </>
+    );
+}
+
+export default function PaymentFailurePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        }>
+            <PaymentFailureContent />
+        </Suspense>
     );
 }

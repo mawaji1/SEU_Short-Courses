@@ -37,6 +37,7 @@ export interface BNPLCheckoutResponse {
   success: boolean;
   checkoutUrl?: string;
   sessionId?: string;
+  paymentId?: string; // Tabby payment ID for verification
   error?: string;
 }
 
@@ -70,6 +71,7 @@ export interface TabbyCheckoutSession {
     currency: string;
     description: string;
   };
+  lang?: string; // Language: 'ar' or 'en'
   buyer: {
     email: string;
     phone: string;

@@ -10,6 +10,9 @@ import { AuthModule } from './modules/auth';
 import { RegistrationModule } from './modules/registration';
 import { PaymentModule } from './modules/payment';
 import { NotificationModule } from './modules/notification';
+import { BlackboardModule } from './modules/blackboard';
+import { CertificateModule } from './modules/certificate';
+import { AuditModule } from './modules/audit';
 
 /**
  * SEU Short Courses Platform — App Module
@@ -37,6 +40,9 @@ import { NotificationModule } from './modules/notification';
     RegistrationModule,
     PaymentModule,
     NotificationModule,
+    BlackboardModule,
+    CertificateModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [AppService],

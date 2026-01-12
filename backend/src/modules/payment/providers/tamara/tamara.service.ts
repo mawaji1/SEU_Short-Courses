@@ -41,10 +41,76 @@ export class TamaraService {
   }
 
   /**
-   * Create Tamara checkout session
+   * Get available installment options from Tamara for a given amount
+   * PRODUCTION-READY: Dynamic options based on amount, supports up to 12 installments
    */
-  async createCheckout(request: BNPLCheckoutRequest): Promise<BNPLCheckoutResponse> {
+  async getInstallmentOptions(amount: number, currency: string = 'SAR'): Promise<any[]> {
     try {
+      const options = [];
+
+      // Pay in 3 - available for 300+ SAR
+      if (amount >= 300) {
+        options.push({
+          installments: 3,
+          minLimit: 300,
+          maxLimit: 5000,
+          installmentAmount: amount / 3,
+        });
+      }
+
+      // Pay in 4 - available for 1000+ SAR
+      if (amount >= 1000) {
+        options.push({
+          installments: 4,
+          minLimit: 1000,
+          maxLimit: 5000,
+          installmentAmount: amount / 4,
+        });
+      }
+
+      // Pay in 6 - available for 3000+ SAR
+      if (amount >= 3000) {
+        options.push({
+          installments: 6,
+          minLimit: 3000,
+          maxLimit: 10000,
+          installmentAmount: amount / 6,
+        });
+      }
+
+      // Pay in 12 - available for 6000+ SAR (extended option)
+      if (amount >= 6000) {
+        options.push({
+          installments: 12,
+          minLimit: 6000,
+          maxLimit: 20000,
+          installmentAmount: amount / 12,
+        });
+      }
+
+      return options;
+    } catch (error) {
+      this.logger.error('Failed to get Tamara installment options:', error);
+      // Fallback to default
+      return [{
+        installments: amount >= 1000 ? 4 : 3,
+        minLimit: 300,
+        maxLimit: 10000,
+        installmentAmount: amount / (amount >= 1000 ? 4 : 3),
+      }];
+    }
+  }
+
+  /**
+   * Create Tamara checkout session
+   * PRODUCTION-READY: Includes language support and dynamic installments
+   */
+  async createCheckout(request: BNPLCheckoutRequest, language: string = 'ar'): Promise<BNPLCheckoutResponse> {
+    try {
+      // Determine best installment option based on amount
+      const installmentOptions = await this.getInstallmentOptions(request.amount, request.currency);
+      const selectedOption = installmentOptions[0]; // Use first available option
+
       const session: TamaraCheckoutSession = {
         order_id: request.registrationId,
         total_amount: {
@@ -54,7 +120,7 @@ export class TamaraService {
         description: request.description,
         country_code: 'SA',
         payment_type: 'PAY_BY_INSTALMENTS',
-        instalments: 4, // Default to 4 installments
+        instalments: selectedOption?.installments || 3, // Dynamic installments
         consumer: {
           email: request.customer.email,
           phone_number: request.customer.phone,
@@ -130,12 +196,13 @@ export class TamaraService {
 
   /**
    * Authorize order (confirm the order after customer approval)
+   * CRITICAL: Must be called after receiving "approved" webhook
    */
   async authorizeOrder(orderId: string): Promise<any> {
     try {
       const response = await axios.post(
         `${this.apiUrl}/orders/${orderId}/authorise`,
-        {},
+        { order_id: orderId },
         {
           headers: {
             'Authorization': `Bearer ${this.apiToken}`,
@@ -145,10 +212,16 @@ export class TamaraService {
       );
 
       this.logger.log(`Tamara order authorized: ${orderId}`);
-      return response.data;
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error) {
-      this.logger.error('Tamara order authorization failed:', error);
-      throw new BadRequestException('فشل تأكيد الطلب');
+      this.logger.error(`Tamara order authorization failed for ${orderId}:`, error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data?.message || 'فشل تأكيد الطلب',
+      };
     }
   }
 

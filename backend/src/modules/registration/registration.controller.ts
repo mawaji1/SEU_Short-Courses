@@ -158,6 +158,21 @@ export class RegistrationController {
         await this.cohortService.deleteCohort(id);
     }
 
+    @Put('cohorts/:id/instructor')
+    @UseGuards(JwtAuthGuard)
+    async assignInstructor(
+        @Param('id') id: string,
+        @Body() body: { instructorId: string },
+    ) {
+        return this.cohortService.assignInstructor(id, body.instructorId);
+    }
+
+    @Delete('cohorts/:id/instructor')
+    @UseGuards(JwtAuthGuard)
+    async removeInstructor(@Param('id') id: string) {
+        return this.cohortService.removeInstructor(id);
+    }
+
     // =========================================================================
     // PROMO CODES
     // =========================================================================

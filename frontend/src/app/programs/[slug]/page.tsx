@@ -13,6 +13,7 @@ import { getProgramCohorts, CohortResponse } from "@/services/registration/regis
 import { checkExistingProgramRegistration, ExistingRegistrationCheck } from "@/services/registration/check-existing.service";
 import { Program } from "@/services/catalog/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { TabbyPromoWidget, TamaraWidget } from "@/components/payment";
 
 export default function ProgramDetailPage() {
     const params = useParams();
@@ -286,6 +287,23 @@ export default function ProgramDetailPage() {
                                         {formatPrice(program.price)}
                                     </div>
                                     <p className="text-gray-500">شامل ضريبة القيمة المضافة</p>
+                                </div>
+
+                                {/* BNPL Widgets */}
+                                <div className="space-y-3 mb-6">
+                                    <TabbyPromoWidget 
+                                        price={parseFloat(program.price.toString())} 
+                                        currency="SAR" 
+                                        language="ar" 
+                                        source="product" 
+                                    />
+                                    
+                                    <TamaraWidget 
+                                        price={parseFloat(program.price.toString())} 
+                                        currency="SAR" 
+                                        language="ar" 
+                                        widgetType="product-widget" 
+                                    />
                                 </div>
 
                                 <div className="space-y-3 mb-6">

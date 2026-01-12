@@ -61,41 +61,47 @@ export class RegistrationService {
         });
 
         if (!cohort) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         // Check if cohort is open for registration
         if (cohort.status !== CohortStatus.OPEN && cohort.status !== CohortStatus.UPCOMING) {
-            throw new BadRequestException('التسجيل في هذا الفوج غير متاح حالياً');
+            throw new BadRequestException('التسجيل في هذا الموعد غير متاح حالياً');
         }
 
         // Check registration dates
         const now = new Date();
         if (now < cohort.registrationStartDate) {
-            throw new BadRequestException('لم يبدأ التسجيل في هذا الفوج بعد');
+            throw new BadRequestException('لم يبدأ التسجيل في هذا الموعد بعد');
         }
         if (now > cohort.registrationEndDate) {
-            throw new BadRequestException('انتهت فترة التسجيل في هذا الفوج');
+            throw new BadRequestException('انتهت فترة التسجيل في هذا الموعد');
         }
 
-        // Check if user already has a registration for this cohort
-        const existingRegistration = await this.prisma.registration.findUnique({
+        // Check if user already has an ACTIVE registration for this cohort (exclude CANCELLED)
+        const existingRegistration = await this.prisma.registration.findFirst({
             where: {
-                userId_cohortId: {
-                    userId,
-                    cohortId: dto.cohortId,
+                userId,
+                cohortId: dto.cohortId,
+                status: {
+                    in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED],
+                },
+            },
+            include: {
+                cohort: {
+                    include: {
+                        program: true,
+                    },
                 },
             },
         });
 
         if (existingRegistration) {
             if (existingRegistration.status === RegistrationStatus.CONFIRMED) {
-                throw new ConflictException('أنت مسجل بالفعل في هذا الفوج');
+                throw new ConflictException('أنت مسجل بالفعل في هذا الموعد');
             }
-            if (existingRegistration.status === RegistrationStatus.PENDING_PAYMENT) {
-                // Return existing pending registration
-                return this.formatRegistrationResponse(existingRegistration, cohort);
-            }
+            // If pending, return existing registration to continue payment (prevents duplicates)
+            return this.formatRegistrationResponse(existingRegistration, existingRegistration.cohort);
         }
 
         // Check if user already has a registration for this PROGRAM (any cohort)
@@ -121,7 +127,9 @@ export class RegistrationService {
         }
 
         // Use transaction to prevent race conditions
-        const registration = await this.prisma.$transaction(async (tx) => {
+        let registration;
+        try {
+            registration = await this.prisma.$transaction(async (tx) => {
             // Count active registrations (confirmed + pending)
             const confirmedCount = await tx.registration.count({
                 where: {
@@ -144,7 +152,7 @@ export class RegistrationService {
 
             // Check capacity
             if (totalReserved >= cohort.capacity) {
-                throw new ConflictException('الفوج ممتلئ - يمكنك الانضمام لقائمة الانتظار');
+                throw new ConflictException('الموعد ممتلئ - يمكنك الانضمام لقائمة الانتظار');
             }
 
             // Calculate expiration time for seat hold
@@ -169,8 +177,13 @@ export class RegistrationService {
                 },
             });
         });
+        } catch (error: any) {
+            if (error.code === 'P2002') {
+                throw new ConflictException('أنت مسجل بالفعل في هذا الموعد');
+            }
+            throw error;
+        }
 
-        // Send registration confirmation email
         try {
             await this.notificationService.sendRegistrationConfirmation(
                 userId,
@@ -470,7 +483,7 @@ export class RegistrationService {
         });
 
         if (!cohort) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         const available = Math.max(0, cohort.capacity - cohort.enrolledCount);

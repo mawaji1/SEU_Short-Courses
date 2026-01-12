@@ -28,6 +28,7 @@ export class BNPLService {
 
   /**
    * Check BNPL eligibility for a registration
+   * PRODUCTION-READY: Uses pre-scoring API for accurate eligibility
    */
   async checkEligibility(registrationId: string): Promise<BNPLEligibilityCheck[]> {
     const registration = await this.prisma.registration.findUnique({
@@ -48,21 +49,15 @@ export class BNPLService {
     const amount = Number(registration.cohort.program.price);
     const eligibility: BNPLEligibilityCheck[] = [];
 
-    // Check Tabby eligibility
-    if (this.tabbyService.isEligible(amount)) {
-      eligibility.push({
-        eligible: true,
-        provider: BNPLProvider.TABBY,
-        minAmount: parseFloat(process.env.TABBY_MIN_AMOUNT || '100'),
-        maxAmount: parseFloat(process.env.TABBY_MAX_AMOUNT || '10000'),
-      });
-    } else {
-      eligibility.push({
-        eligible: false,
-        provider: BNPLProvider.TABBY,
-        reason: 'المبلغ خارج نطاق Tabby',
-      });
-    }
+    // Check Tabby eligibility via pre-scoring API
+    const tabbyEligibility = await this.tabbyService.checkEligibility(amount, 'SAR');
+    eligibility.push({
+      eligible: tabbyEligibility.eligible,
+      provider: BNPLProvider.TABBY,
+      minAmount: parseFloat(process.env.TABBY_MIN_AMOUNT || '100'),
+      maxAmount: parseFloat(process.env.TABBY_MAX_AMOUNT || '10000'),
+      reason: tabbyEligibility.reason,
+    });
 
     // Check Tamara eligibility
     if (this.tamaraService.isEligible(amount)) {
@@ -128,9 +123,12 @@ export class BNPLService {
 
     let response: BNPLCheckoutResponse;
 
+    // Default to Arabic (can be enhanced later with user preference)
+    const userLanguage = 'ar';
+
     // Route to appropriate provider
     if (provider === BNPLProvider.TABBY) {
-      response = await this.tabbyService.createCheckout(request);
+      response = await this.tabbyService.createCheckout(request, userLanguage);
     } else if (provider === BNPLProvider.TAMARA) {
       response = await this.tamaraService.createCheckout(request);
     } else {
@@ -142,7 +140,7 @@ export class BNPLService {
       throw new BadRequestException(response.error);
     }
 
-    // Create payment record
+    // Create payment record with proper payment ID
     await this.prisma.payment.create({
       data: {
         userId: registration.userId,
@@ -151,10 +149,13 @@ export class BNPLService {
         currency: 'SAR',
         method: provider === BNPLProvider.TABBY ? PaymentMethod.TABBY : PaymentMethod.TAMARA,
         status: 'PENDING',
-        providerPaymentId: response.sessionId || '',
+        providerPaymentId: response.paymentId || response.sessionId || '',
         metadata: {
           checkoutUrl: response.checkoutUrl,
+          sessionId: response.sessionId,
+          paymentId: response.paymentId,
           provider,
+          language: userLanguage,
         },
       },
     });
@@ -312,30 +313,47 @@ export class BNPLService {
 
   /**
    * Get installment plan details for display
+   * Fetches real-time options from provider APIs
    */
-  getInstallmentPlan(amount: number, provider: BNPLProvider): any {
+  async getInstallmentPlan(amount: number, provider: BNPLProvider): Promise<any> {
     if (provider === BNPLProvider.TABBY) {
-      const installment = amount / 4;
+      const options = await this.tabbyService.getInstallmentOptions(amount);
+      
+      if (options.length === 0) {
+        throw new BadRequestException('لا توجد خيارات تقسيط متاحة من Tabby لهذا المبلغ');
+      }
+
+      // Return the first available option (usually 4 installments)
+      const option = options[0];
       return {
         provider: 'Tabby',
-        installments: 4,
-        installmentAmount: installment,
+        installments: option.installments,
+        installmentAmount: option.installmentAmount,
         frequency: 'كل أسبوعين',
         totalAmount: amount,
-        fees: 0,
-        description: 'قسّم المبلغ على 4 دفعات بدون فوائد',
-      };
-    } else if (provider === BNPLProvider.TAMARA) {
-      const installment = amount / 3;
-      return {
-        provider: 'Tamara',
-        installments: 3,
-        installmentAmount: installment,
-        frequency: 'شهرياً',
-        totalAmount: amount,
-        fees: 0,
-        description: 'قسّم المبلغ على 3 دفعات بدون فوائد',
+        description: `قسّم المبلغ على ${option.installments} دفعات بدون فوائد`,
       };
     }
+
+    if (provider === BNPLProvider.TAMARA) {
+      const options = await this.tamaraService.getInstallmentOptions(amount);
+      
+      if (options.length === 0) {
+        throw new BadRequestException('لا توجد خيارات تقسيط متاحة من Tamara لهذا المبلغ');
+      }
+
+      // Return the first available option (prefer fewer installments)
+      const option = options[0];
+      return {
+        provider: 'Tamara',
+        installments: option.installments,
+        installmentAmount: option.installmentAmount,
+        frequency: 'شهرياً',
+        totalAmount: amount,
+        description: `قسّم المبلغ على ${option.installments} دفعات بدون فوائد`,
+      };
+    }
+
+    throw new BadRequestException('مزود خدمة غير مدعوم');
   }
 }

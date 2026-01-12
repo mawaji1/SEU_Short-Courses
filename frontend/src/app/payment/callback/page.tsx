@@ -1,11 +1,13 @@
 "use client";
 
+import { Suspense } from 'react';
+
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Header, Footer } from '@/components/layout';
 import { Loader2 } from 'lucide-react';
 
-export default function PaymentCallbackPage() {
+function PaymentCallbackPageContent() {
     const searchParams = useSearchParams();
     const paymentId = searchParams.get('id');
     const status = searchParams.get('status');
@@ -31,5 +33,17 @@ export default function PaymentCallbackPage() {
             </main>
             <Footer />
         </>
+    );
+}
+
+export default function PaymentCallbackPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        }>
+            <PaymentCallbackPageContent />
+        </Suspense>
     );
 }

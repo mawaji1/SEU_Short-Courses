@@ -44,11 +44,11 @@ export class WaitlistService {
         });
 
         if (!cohort) {
-            throw new NotFoundException('الفوج غير موجود');
+            throw new NotFoundException('الموعد غير موجود');
         }
 
         if (cohort.status !== CohortStatus.FULL) {
-            throw new BadRequestException('الفوج غير ممتلئ - يمكنك التسجيل مباشرة');
+            throw new BadRequestException('الموعد غير ممتلئ - يمكنك التسجيل مباشرة');
         }
 
         // Check if already on waitlist
@@ -63,14 +63,15 @@ export class WaitlistService {
         }
 
         // Check if already registered
-        const existingRegistration = await this.prisma.registration.findUnique({
+        const existingRegistration = await this.prisma.registration.findFirst({
             where: {
-                userId_cohortId: { userId, cohortId },
+                userId,
+                cohortId,
             },
         });
 
         if (existingRegistration) {
-            throw new ConflictException('أنت مسجل بالفعل في هذا الفوج');
+            throw new ConflictException('أنت مسجل بالفعل في هذا الموعد');
         }
 
         // Get next position
@@ -190,7 +191,7 @@ export class WaitlistService {
         });
 
         if (!entry) {
-            throw new NotFoundException('لست في قائمة الانتظار لهذا الفوج');
+            throw new NotFoundException('لست في قائمة الانتظار لهذا الموعد');
         }
 
         await this.prisma.$transaction(async (tx) => {

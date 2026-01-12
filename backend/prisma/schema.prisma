@@ -22,6 +22,13 @@ enum UserRole {
   ADMIN
 }
 
+enum BlackboardProvisionStatus {
+  NOT_PROVISIONED
+  PENDING
+  PROVISIONED
+  FAILED
+}
+
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
@@ -29,12 +36,19 @@ model User {
   firstName      String
   lastName       String
   phone          String?
+  nationalId     String?  @unique
   role           UserRole @default(LEARNER)
   organizationId String?
   isActive       Boolean  @default(true)
   emailVerified  Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  // Blackboard Integration
+  blackboardUserId           String?                    @unique
+  blackboardProvisionStatus  BlackboardProvisionStatus  @default(NOT_PROVISIONED)
+  blackboardProvisionedAt    DateTime?
+  blackboardProvisionError   String?
 
   // Relations
   organization   Organization?        @relation(fields: [organizationId], references: [id])
@@ -44,6 +58,7 @@ model User {
   certificates   Certificate[]
   passwordResets PasswordResetToken[]
   notifications  Notification[]
+  auditLogs      AuditLog[]
 
   @@map("users")
 }
@@ -63,6 +78,28 @@ model PasswordResetToken {
   @@index([token])
   @@index([userId])
   @@map("password_reset_tokens")
+}
+
+// Audit Logs - Track admin actions for security and compliance
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  resource   String
+  resourceId String?
+  details    String?  @db.Text
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
 // =============================================================================
@@ -98,8 +135,8 @@ model Instructor {
   nameEn    String
   titleAr   String
   titleEn   String
-  bioAr     String?
-  bioEn     String?
+  bioAr     String?  @db.Text
+  bioEn     String?  @db.Text
   imageUrl  String?
   email     String?
   isActive  Boolean  @default(true)
@@ -108,6 +145,7 @@ model Instructor {
 
   // Relations
   programs Program[]
+  cohorts  Cohort[]
 
   @@map("instructors")
 }
@@ -191,6 +229,7 @@ enum CohortStatus {
 model Cohort {
   id                    String       @id @default(cuid())
   programId             String
+  instructorId          String?
   nameAr                String
   nameEn                String
   startDate             DateTime
@@ -200,12 +239,13 @@ model Cohort {
   capacity              Int
   enrolledCount         Int          @default(0)
   status                CohortStatus @default(UPCOMING)
-  blackboardCourseId    String?
+  blackboardCourseId    String?      @unique
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 
   // Relations
   program       Program        @relation(fields: [programId], references: [id])
+  instructor    Instructor?    @relation(fields: [instructorId], references: [id])
   registrations Registration[]
   enrollments   Enrollment[]
   certificates  Certificate[]
@@ -244,7 +284,7 @@ model Registration {
   payment    Payment?
   enrollment Enrollment?
 
-  @@unique([userId, cohortId])
+  @@index([userId, cohortId, status])
   @@index([status])
   @@index([expiresAt])
   @@map("registrations")
@@ -269,9 +309,18 @@ model Enrollment {
   userId                 String
   cohortId               String
   status                 EnrollmentStatus @default(PENDING)
-  blackboardEnrollmentId String?
-  progress               Int              @default(0)
+  blackboardEnrollmentId String?          @unique
+  blackboardCourseId     String?
+  blackboardRole         String?          // Student, Instructor, TeachingAssistant
+  blackboardSyncStatus   String?          // PENDING, SYNCED, FAILED
+  blackboardSyncError    String?
+  blackboardSyncedAt     DateTime?
+  progress               Int              @default(0) // 0-100 percentage
+  completionStatus       String?          // NOT_STARTED, IN_PROGRESS, COMPLETED, FAILED
+  completionPercentage   Int?             // From Blackboard
+  lastActivityAt         DateTime?        // Last activity in Blackboard
   completedAt            DateTime?
+  certificateEligible    Boolean          @default(false)
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
@@ -359,24 +408,27 @@ enum CertificateStatus {
 }
 
 model Certificate {
-  id               String            @id @default(cuid())
-  enrollmentId     String            @unique
-  userId           String
-  cohortId         String
-  number           String            @unique
-  issueDate        DateTime          @default(now())
-  expiryDate       DateTime?
-  status           CertificateStatus @default(PENDING)
-  verificationCode String            @unique @default(cuid())
-  pdfUrl           String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                String            @id @default(cuid())
+  enrollmentId      String            @unique
+  userId            String
+  cohortId          String
+  number            String            @unique
+  issuedAt          DateTime          @default(now())
+  expiryDate        DateTime?
+  status            CertificateStatus @default(PENDING)
+  verificationCode  String            @unique @default(cuid())
+  pdfUrl            String?
+  revokedAt         DateTime?
+  revocationReason  String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   // Relations
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
   user       User       @relation(fields: [userId], references: [id])
   cohort     Cohort     @relation(fields: [cohortId], references: [id])
 
+  @@index([verificationCode])
   @@map("certificates")
 }
 
@@ -443,6 +495,7 @@ enum NotificationType {
   PAYMENT_RECEIPT
   PAYMENT_FAILED
   BLACKBOARD_ACCESS
+  SYSTEM_ALERT
   COURSE_REMINDER
   CERTIFICATE_READY
   ENROLLMENT_CONFIRMED

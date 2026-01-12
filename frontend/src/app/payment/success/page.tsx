@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from 'react';
+
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -10,7 +12,7 @@ import { motion } from 'framer-motion';
 import { getPayment, PaymentResponse } from '@/services/payment';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessPageContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { user } = useAuth();
@@ -191,5 +193,17 @@ export default function PaymentSuccessPage() {
             </main>
             <Footer />
         </>
+    );
+}
+
+export default function PaymentSuccessPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        }>
+            <PaymentSuccessPageContent />
+        </Suspense>
     );
 }

@@ -146,6 +146,7 @@ export class PaymentService {
 
     /**
      * Confirm payment after successful Moyasar transaction
+     * PRODUCTION-READY: Verifies amount, currency, and status
      */
     async confirmPayment(moyasarPaymentId: string) {
         // Fetch payment from Moyasar
@@ -156,7 +157,9 @@ export class PaymentService {
                 { headers: this.getMoyasarHeaders() },
             );
             moyasarPayment = response.data;
+            this.logger.log(`Fetched Moyasar payment: ${moyasarPaymentId}, status: ${moyasarPayment.status}`);
         } catch (error) {
+            this.logger.error(`Failed to fetch Moyasar payment ${moyasarPaymentId}:`, error);
             throw new NotFoundException('عملية الدفع غير موجودة');
         }
 
@@ -178,7 +181,20 @@ export class PaymentService {
         });
 
         if (!payment) {
+            this.logger.error(`Payment record not found for Moyasar payment: ${moyasarPaymentId}`);
             throw new NotFoundException('سجل الدفع غير موجود');
+        }
+
+        // CRITICAL: Verify amount and currency match
+        const expectedAmountInHalalas = Math.round(Number(payment.amount) * 100);
+        if (moyasarPayment.amount !== expectedAmountInHalalas) {
+            this.logger.error(`Amount mismatch: expected ${expectedAmountInHalalas}, got ${moyasarPayment.amount}`);
+            throw new BadRequestException('مبلغ الدفع غير صحيح');
+        }
+
+        if (moyasarPayment.currency !== payment.currency) {
+            this.logger.error(`Currency mismatch: expected ${payment.currency}, got ${moyasarPayment.currency}`);
+            throw new BadRequestException('عملة الدفع غير صحيحة');
         }
 
         // Check Moyasar payment status
@@ -263,32 +279,94 @@ export class PaymentService {
 
     /**
      * Handle Moyasar webhook
+     * PRODUCTION-READY: Async processing, idempotency, error handling
      */
     async handleWebhook(payload: any) {
         const { type, data } = payload;
+        const webhookId = `${type}_${data.id}_${Date.now()}`;
 
-        if (type === 'payment_paid') {
-            await this.confirmPayment(data.id);
-        } else if (type === 'payment_failed') {
-            const payment = await this.prisma.payment.findFirst({
+        this.logger.log(`Received webhook: ${type} for payment ${data.id}`);
+
+        try {
+            // Check idempotency - prevent duplicate processing
+            const existingPayment = await this.prisma.payment.findFirst({
                 where: { providerPaymentId: data.id },
             });
 
-            if (payment) {
-                await this.prisma.payment.update({
-                    where: { id: payment.id },
-                    data: {
-                        status: PaymentStatus.FAILED,
-                        metadata: {
-                            ...(payment.metadata as any || {}),
-                            moyasarResponse: data,
-                        },
-                    },
+            if (!existingPayment) {
+                this.logger.warn(`Webhook received for unknown payment: ${data.id}`);
+                return { received: true, processed: false, reason: 'payment_not_found' };
+            }
+
+            // Idempotency check: if already processed, return success
+            if (type === 'payment_paid' && existingPayment.status === PaymentStatus.COMPLETED) {
+                this.logger.log(`Payment ${data.id} already processed, skipping`);
+                return { received: true, processed: false, reason: 'already_processed' };
+            }
+
+            if (type === 'payment_failed' && existingPayment.status === PaymentStatus.FAILED) {
+                this.logger.log(`Payment ${data.id} already marked as failed, skipping`);
+                return { received: true, processed: false, reason: 'already_processed' };
+            }
+
+            // Process webhook asynchronously
+            if (type === 'payment_paid') {
+                // Process in background to return 200 quickly
+                setImmediate(async () => {
+                    try {
+                        await this.confirmPayment(data.id);
+                        this.logger.log(`Successfully processed payment_paid webhook for ${data.id}`);
+                    } catch (error) {
+                        this.logger.error(`Failed to process payment_paid webhook for ${data.id}:`, error);
+                    }
+                });
+            } else if (type === 'payment_failed') {
+                setImmediate(async () => {
+                    try {
+                        await this.prisma.payment.update({
+                            where: { id: existingPayment.id },
+                            data: {
+                                status: PaymentStatus.FAILED,
+                                metadata: {
+                                    ...(existingPayment.metadata as any || {}),
+                                    moyasarResponse: data,
+                                    webhookProcessedAt: new Date().toISOString(),
+                                },
+                            },
+                        });
+                        this.logger.log(`Successfully processed payment_failed webhook for ${data.id}`);
+                    } catch (error) {
+                        this.logger.error(`Failed to process payment_failed webhook for ${data.id}:`, error);
+                    }
+                });
+            } else if (type === 'payment_refunded') {
+                setImmediate(async () => {
+                    try {
+                        await this.prisma.payment.update({
+                            where: { id: existingPayment.id },
+                            data: {
+                                status: PaymentStatus.REFUNDED,
+                                refundedAt: new Date(),
+                                metadata: {
+                                    ...(existingPayment.metadata as any || {}),
+                                    moyasarResponse: data,
+                                    webhookProcessedAt: new Date().toISOString(),
+                                },
+                            },
+                        });
+                        this.logger.log(`Successfully processed payment_refunded webhook for ${data.id}`);
+                    } catch (error) {
+                        this.logger.error(`Failed to process payment_refunded webhook for ${data.id}:`, error);
+                    }
                 });
             }
-        }
 
-        return { received: true };
+            return { received: true, processed: true };
+        } catch (error) {
+            this.logger.error(`Webhook processing error for ${type}:`, error);
+            // Still return 200 to prevent retries for unrecoverable errors
+            return { received: true, processed: false, error: 'processing_error' };
+        }
     }
 
     /**
@@ -322,9 +400,10 @@ export class PaymentService {
     }
 
     /**
-     * Initiate refund
+     * Initiate refund (full or partial)
+     * PRODUCTION-READY: Supports partial refunds, validation, and proper error handling
      */
-    async refundPayment(userId: string, paymentId: string, reason?: string) {
+    async refundPayment(userId: string, paymentId: string, amount?: number, reason?: string) {
         const payment = await this.prisma.payment.findUnique({
             where: { id: paymentId },
             include: {
@@ -344,39 +423,79 @@ export class PaymentService {
             throw new BadRequestException('لا يمكن استرداد هذه العملية');
         }
 
+        // Determine refund amount (full or partial)
+        const refundAmount = amount || Number(payment.amount);
+        const currentRefunded = Number(payment.refundAmount || 0);
+        const totalPaid = Number(payment.amount);
+
+        // Validate refund amount
+        if (refundAmount <= 0) {
+            throw new BadRequestException('مبلغ الاسترداد يجب أن يكون أكبر من صفر');
+        }
+
+        if (currentRefunded + refundAmount > totalPaid) {
+            throw new BadRequestException('مبلغ الاسترداد يتجاوز المبلغ المدفوع');
+        }
+
         try {
-            // Create refund via Moyasar
+            // Create refund via Moyasar - CORRECT ENDPOINT
+            const refundAmountInHalalas = Math.round(refundAmount * 100);
             const response = await axios.post(
-                `${this.moyasarApiUrl}/refunds`,
+                `${this.moyasarApiUrl}/payments/${payment.providerPaymentId}/refund`,
                 {
-                    payment_id: payment.providerPaymentId,
-                    amount: Math.round(Number(payment.amount) * 100),
+                    amount: refundAmountInHalalas,
                 },
                 { headers: this.getMoyasarHeaders() },
             );
             const refund = response.data;
+            this.logger.log(`Refund created for payment ${paymentId}: ${refund.id}, amount: ${refundAmount} SAR`);
 
             // Update payment status
+            const newRefundedAmount = currentRefunded + refundAmount;
+            const isFullyRefunded = newRefundedAmount >= totalPaid;
+
             await this.prisma.payment.update({
                 where: { id: paymentId },
                 data: {
-                    status: PaymentStatus.REFUNDED,
-                    refundedAt: new Date(),
-                    refundAmount: payment.amount,
+                    status: isFullyRefunded ? PaymentStatus.REFUNDED : PaymentStatus.COMPLETED,
+                    refundedAt: isFullyRefunded ? new Date() : payment.refundedAt,
+                    refundAmount: newRefundedAmount,
                     metadata: {
                         ...(payment.metadata as any || {}),
-                        refund,
+                        refunds: [
+                            ...((payment.metadata as any)?.refunds || []),
+                            {
+                                id: refund.id,
+                                amount: refundAmount,
+                                reason,
+                                createdAt: new Date().toISOString(),
+                            },
+                        ],
                     },
                 },
             });
 
             return {
                 success: true,
-                message: 'تم بدء عملية الاسترداد',
-                refund,
+                message: isFullyRefunded ? 'تم استرداد المبلغ بالكامل' : 'تم استرداد جزء من المبلغ',
+                refund: {
+                    id: refund.id,
+                    amount: refundAmount,
+                    totalRefunded: newRefundedAmount,
+                    remainingAmount: totalPaid - newRefundedAmount,
+                    isFullyRefunded,
+                },
             };
         } catch (error) {
-            console.error('Refund failed:', error);
+            this.logger.error(`Refund failed for payment ${paymentId}:`, error.response?.data || error.message);
+            
+            // Provide specific error messages
+            if (error.response?.status === 404) {
+                throw new NotFoundException('عملية الدفع غير موجودة في Moyasar');
+            } else if (error.response?.status === 400) {
+                throw new BadRequestException(error.response.data?.message || 'لا يمكن استرداد هذه العملية');
+            }
+            
             throw new BadRequestException('فشلت عملية الاسترداد');
         }
     }
