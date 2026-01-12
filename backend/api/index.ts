@@ -6,25 +6,30 @@
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from '../src/app.module';
+import express from 'express';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+const server = express();
 let app: any;
 
 async function bootstrap() {
   if (!app) {
-    app = await NestFactory.create(AppModule, {
-      logger: ['error', 'warn', 'log'],
-    });
+    app = await NestFactory.create(
+      AppModule,
+      new ExpressAdapter(server),
+      {
+        logger: ['error', 'warn', 'log'],
+      }
+    );
 
     // Enable CORS
     app.enableCors({
-      origin: [
-        'http://localhost:3000',
-        'https://seu-courses.vercel.app',
-        'https://*.vercel.app',
-      ],
+      origin: true,
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
     // Global validation pipe
@@ -36,16 +41,12 @@ async function bootstrap() {
       }),
     );
 
-    // Set global prefix
-    app.setGlobalPrefix('api');
-
     await app.init();
   }
-  return app;
+  return server;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const app = await bootstrap();
-  const expressApp = app.getHttpAdapter().getInstance();
-  return expressApp(req, res);
+  await bootstrap();
+  server(req, res);
 }
