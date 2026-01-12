@@ -17,9 +17,6 @@ async function bootstrap() {
     }),
   );
 
-  // Set global prefix for all routes
-  app.setGlobalPrefix('api');
-
   // Enable CORS for frontend
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
