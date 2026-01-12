@@ -32,13 +32,13 @@ function VerifyEmailPageContent() {
         try {
             // TODO: Call API to verify email
             // await authService.verifyEmail(token!);
-            
+
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             setIsSuccess(true);
             setIsVerifying(false);
-            
+
             // Redirect to login after 3 seconds
             setTimeout(() => {
                 router.push("/login");
@@ -65,7 +65,7 @@ function VerifyEmailPageContent() {
                         height={40}
                         className="h-10 w-auto"
                     />
-                    <span className="text-lg font-bold text-primary">التدريب الاحترافي</span>
+                    <span className="text-lg font-bold text-primary">التعليم التنفيذي</span>
                 </Link>
 
                 <div className="bg-white rounded-2xl p-8 shadow-lg text-center">

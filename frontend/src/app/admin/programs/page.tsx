@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  Plus, Search, Pencil, Trash2, Eye, Calendar, Users, 
-  ChevronDown, ChevronUp, X, Loader2, UserPlus 
+import {
+  Plus, Search, Pencil, Trash2, Eye, Calendar, Users,
+  ChevronDown, ChevronUp, X, Loader2, UserPlus
 } from 'lucide-react';
 
 interface Program {
@@ -14,6 +14,7 @@ interface Program {
   slug: string;
   price: number;
   status: string;
+  isFeatured?: boolean;
   category: {
     nameAr: string;
   };
@@ -78,6 +79,7 @@ export default function AdminProgramsPage() {
     durationHours: '',
     type: 'COURSE',
     deliveryMode: 'ONLINE',
+    isFeatured: false,
   });
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [cohortForm, setCohortForm] = useState({
@@ -295,6 +297,7 @@ export default function AdminProgramsPage() {
             durationHours: parseInt(programForm.durationHours),
             type: programForm.type,
             deliveryMode: programForm.deliveryMode,
+            isFeatured: programForm.isFeatured,
             status: 'DRAFT',
           }),
         },
@@ -319,6 +322,7 @@ export default function AdminProgramsPage() {
         durationHours: '',
         type: 'COURSE',
         deliveryMode: 'ONLINE',
+        isFeatured: false,
       });
       fetchPrograms();
     } catch (err: any) {
@@ -432,31 +436,28 @@ export default function AdminProgramsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setFilterStatus(null)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                !filterStatus
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${!filterStatus
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               الكل ({statusCounts.all})
             </button>
             <button
               onClick={() => setFilterStatus('PUBLISHED')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filterStatus === 'PUBLISHED'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-green-100 text-green-700 hover:bg-green-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filterStatus === 'PUBLISHED'
+                ? 'bg-green-600 text-white'
+                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
             >
               منشور ({statusCounts.PUBLISHED})
             </button>
             <button
               onClick={() => setFilterStatus('DRAFT')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filterStatus === 'DRAFT'
-                  ? 'bg-gray-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filterStatus === 'DRAFT'
+                ? 'bg-gray-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
             >
               مسودة ({statusCounts.DRAFT})
             </button>
@@ -510,19 +511,18 @@ export default function AdminProgramsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                          program.status === 'PUBLISHED'
-                            ? 'bg-green-100 text-green-700'
-                            : program.status === 'DRAFT'
+                        className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${program.status === 'PUBLISHED'
+                          ? 'bg-green-100 text-green-700'
+                          : program.status === 'DRAFT'
                             ? 'bg-gray-100 text-gray-600'
                             : 'bg-yellow-100 text-yellow-700'
-                        }`}
+                          }`}
                       >
                         {program.status === 'PUBLISHED'
                           ? 'منشور'
                           : program.status === 'DRAFT'
-                          ? 'مسودة'
-                          : 'مؤرشف'}
+                            ? 'مسودة'
+                            : 'مؤرشف'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -577,13 +577,12 @@ export default function AdminProgramsPage() {
                                       </p>
                                     </div>
                                     <span
-                                      className={`text-xs px-2 py-1 rounded-full ${
-                                        cohort.status === 'OPEN'
-                                          ? 'bg-green-100 text-green-700'
-                                          : cohort.status === 'FULL'
+                                      className={`text-xs px-2 py-1 rounded-full ${cohort.status === 'OPEN'
+                                        ? 'bg-green-100 text-green-700'
+                                        : cohort.status === 'FULL'
                                           ? 'bg-red-100 text-red-700'
                                           : 'bg-gray-100 text-gray-600'
-                                      }`}
+                                        }`}
                                     >
                                       {cohort.status}
                                     </span>
@@ -869,6 +868,28 @@ export default function AdminProgramsPage() {
                     <option value="ONSITE">حضوري</option>
                     <option value="HYBRID">مدمج</option>
                   </select>
+                </div>
+
+                {/* Featured Toggle */}
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={programForm.isFeatured}
+                        onChange={(e) =>
+                          setProgramForm({ ...programForm, isFeatured: e.target.checked })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-accent transition-colors"></div>
+                      <div className="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-5"></div>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-900">برنامج مميز</span>
+                      <p className="text-sm text-gray-500">عرض البرنامج في الصفحة الرئيسية</p>
+                    </div>
+                  </label>
                 </div>
               </div>
 

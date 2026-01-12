@@ -2,10 +2,65 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowLeft, GraduationCap, Users, CreditCard, Shield, TrendingUp, Clock } from "lucide-react";
+import { Search, ArrowLeft, GraduationCap, Users, CreditCard, Shield, TrendingUp, Clock, CheckCircle, Loader2, Briefcase, Rocket, BarChart3, Code, Lightbulb, Target, Building2, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { useState, useEffect } from "react";
+import { catalogService } from "@/services/catalog";
+import { Program } from "@/services/catalog/types";
+import { ProgramCard } from "@/components/catalog";
+
+// Helper function to get category-based styling using SEU brand colors
+const SEU_COLORS = {
+  cyan: '#32B7A8',
+  blue: '#0083BE',
+  purple: '#593888',
+  navy: '#111E4D',
+  orange: '#FFA300',
+  lime: '#C4D600',
+};
+
+function getCategoryStyle(categorySlug: string | undefined): {
+  gradientStyle: React.CSSProperties;
+  icon: LucideIcon;
+} {
+  const styleMap: Record<string, { gradientStyle: React.CSSProperties; icon: LucideIcon }> = {
+    'technology': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.cyan}, ${SEU_COLORS.blue}, ${SEU_COLORS.purple})` },
+      icon: Code,
+    },
+    'تقنية': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.cyan}, ${SEU_COLORS.blue}, ${SEU_COLORS.purple})` },
+      icon: Code,
+    },
+    'business': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.orange}, ${SEU_COLORS.lime})` },
+      icon: Building2,
+    },
+    'إدارة': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.orange}, ${SEU_COLORS.lime})` },
+      icon: Building2,
+    },
+    'management': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.purple}, ${SEU_COLORS.blue}, ${SEU_COLORS.navy})` },
+      icon: Target,
+    },
+    'development': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.lime}, ${SEU_COLORS.cyan}, ${SEU_COLORS.blue})` },
+      icon: Lightbulb,
+    },
+    'تطوير': {
+      gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.lime}, ${SEU_COLORS.cyan}, ${SEU_COLORS.blue})` },
+      icon: Lightbulb,
+    },
+  };
+
+  return styleMap[categorySlug || ''] || {
+    gradientStyle: { background: `linear-gradient(135deg, ${SEU_COLORS.cyan}, ${SEU_COLORS.blue}, ${SEU_COLORS.purple})` },
+    icon: GraduationCap,
+  };
+}
 
 // Hero Section
 function Hero() {
@@ -25,37 +80,38 @@ function Hero() {
           >
             <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-2 rounded-full mb-6">
               <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-              <span className="text-sm font-medium">التدريب الاحترافي بالجامعة السعودية الإلكترونية</span>
+              <span className="text-sm font-medium">التعليم التنفيذي - الجامعة السعودية الإلكترونية</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              طوّر مهاراتك المهنية
-              <span className="text-accent block mt-2">مع خبراء معتمدين</span>
+              التعليم التنفيذي
+              <span className="text-accent block mt-2">والتطوير المهني</span>
             </h1>
 
             <p className="text-xl text-gray-200 mb-6 leading-relaxed">
-              برامج تدريبية احترافية معتمدة من الجامعة السعودية الإلكترونية. تعلم عن بُعد واحصل على شهادة موثقة تعزز مسيرتك المهنية.
+              برامج تعليمية وتدريبية متخصصة معتمدة من الجامعة السعودية الإلكترونية.
+              طوّر مهاراتك القيادية والمهنية مع نخبة من الخبراء المتخصصين.
             </p>
 
-            {/* Trust Indicators */}
+            {/* Platform Capabilities */}
             <div className="flex flex-wrap items-center gap-6 mb-8 text-white/90">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                  <span className="text-accent font-bold">✓</span>
+                  <CheckCircle className="w-4 h-4 text-accent" />
                 </div>
                 <span className="text-sm">شهادات معتمدة</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                  <span className="text-accent font-bold">✓</span>
+                  <CheckCircle className="w-4 h-4 text-accent" />
                 </div>
-                <span className="text-sm">مدربون خبراء</span>
+                <span className="text-sm">تعلم مرن عن بُعد</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                  <span className="text-accent font-bold">✓</span>
+                  <CheckCircle className="w-4 h-4 text-accent" />
                 </div>
-                <span className="text-sm">دفع آمن عبر سداد</span>
+                <span className="text-sm">دفع آمن ومرن</span>
               </div>
             </div>
 
@@ -95,7 +151,7 @@ function Hero() {
             </div>
           </motion.div>
 
-          {/* Stats Grid */}
+          {/* Platform Features Grid - Replaces fake stats */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -107,15 +163,17 @@ function Hero() {
               <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { icon: "📚", title: "برنامج تدريبي", value: "50+" },
-                    { icon: "🎓", title: "مدرب خبير", value: "30+" },
-                    { icon: "👥", title: "متدرب مسجل", value: "5,000+" },
-                    { icon: "⭐", title: "تقييم المتدربين", value: "4.9" },
-                  ].map((stat, i) => (
+                    { icon: GraduationCap, title: "شهادات معتمدة", desc: "من الجامعة السعودية الإلكترونية" },
+                    { icon: CreditCard, title: "دفع مرن", desc: "سداد، تابي، تمارا" },
+                    { icon: TrendingUp, title: "تعلم من أي مكان", desc: "منصة تعليمية متطورة" },
+                    { icon: Users, title: "خبراء متخصصون", desc: "مدربون ذوو خبرة عملية" },
+                  ].map((feature, i) => (
                     <div key={i} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-                      <div className="text-3xl mb-2">{stat.icon}</div>
-                      <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                      <div className="text-sm text-gray-300">{stat.title}</div>
+                      <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-3">
+                        <feature.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-lg font-bold text-white mb-1">{feature.title}</div>
+                      <div className="text-sm text-gray-300">{feature.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -134,7 +192,7 @@ function WhySEU() {
     {
       icon: Search,
       title: "اكتشف جميع البرامج في مكان واحد",
-      description: "جميع البرامج التدريبية المعتمدة من الجامعة السعودية الإلكترونية في منصة واحدة سهلة الاستخدام.",
+      description: "جميع برامج التعليم التنفيذي المعتمدة من الجامعة السعودية الإلكترونية في منصة واحدة سهلة الاستخدام.",
       color: "text-accent"
     },
     {
@@ -180,10 +238,10 @@ function WhySEU() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-              لماذا التدريب مع SEU؟
+              لماذا التعليم التنفيذي؟
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              نقدم تجربة تدريبية متكاملة تجمع بين الجودة الأكاديمية والمرونة الرقمية
+              نقدم تجربة تعليمية متكاملة تجمع بين الجودة الأكاديمية والمرونة الرقمية
             </p>
           </motion.div>
         </div>
@@ -223,7 +281,7 @@ function HowItWorks() {
     {
       number: "١",
       title: "اختر برنامجك",
-      description: "تصفح البرامج التدريبية واختر ما يناسب أهدافك المهنية"
+      description: "تصفح البرامج التعليمية واختر ما يناسب أهدافك المهنية"
     },
     {
       number: "٢",
@@ -233,7 +291,7 @@ function HowItWorks() {
     {
       number: "٣",
       title: "ابدأ التعلم",
-      description: "ادخل إلى منصة التعلم وابدأ رحلتك التدريبية"
+      description: "ادخل إلى منصة التعلم وابدأ رحلتك التعليمية"
     },
     {
       number: "٤",
@@ -255,7 +313,7 @@ function HowItWorks() {
               كيف تعمل المنصة؟
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              أربع خطوات بسيطة لبدء رحلتك التدريبية
+              أربع خطوات بسيطة لبدء رحلتك التعليمية
             </p>
           </motion.div>
         </div>
@@ -283,28 +341,30 @@ function HowItWorks() {
   );
 }
 
-// Featured Programs Section
+// Featured Programs Section - Now fetches from API
 function FeaturedPrograms() {
-  const programs = [
-    {
-      title: "إدارة المشاريع الاحترافية PMP",
-      category: "الإدارة",
-      duration: "8 أسابيع",
-      price: "2,500 ر.س"
-    },
-    {
-      title: "تحليل البيانات باستخدام Python",
-      category: "التقنية",
-      duration: "6 أسابيع",
-      price: "1,800 ر.س"
-    },
-    {
-      title: "القيادة والذكاء العاطفي",
-      category: "التطوير الذاتي",
-      duration: "4 أسابيع",
-      price: "1,200 ر.س"
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPrograms() {
+      try {
+        // Use proper featured programs endpoint
+        const featuredPrograms = await catalogService.getFeaturedPrograms(6);
+        setPrograms(featuredPrograms);
+      } catch (error) {
+        console.error('Error fetching featured programs:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  ];
+    fetchPrograms();
+  }, []);
+
+  // Don't show section if no programs
+  if (!isLoading && programs.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-24 bg-white">
@@ -326,7 +386,7 @@ function FeaturedPrograms() {
               transition={{ delay: 0.1 }}
               className="text-lg text-gray-600"
             >
-              اكتشف أكثر البرامج التدريبية طلباً
+              اكتشف برامج التعليم التنفيذي المعتمدة
             </motion.p>
           </div>
           <Link href="/programs" className="hidden md:block">
@@ -337,33 +397,17 @@ function FeaturedPrograms() {
           </Link>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {programs.map((program, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <div className="h-48 bg-gradient-to-br from-primary/10 to-accent/10" />
-                <div className="p-6">
-                  <span className="text-sm font-medium text-accent">{program.category}</span>
-                  <h3 className="text-xl font-bold text-gray-900 mt-2 mb-4">{program.title}</h3>
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      {program.duration}
-                    </div>
-                    <span className="font-bold text-primary">{program.price}</span>
-                  </div>
-                  <Button className="w-full">سجل الآن</Button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {programs.map((program, index) => (
+              <ProgramCard key={program.id} program={program} index={index} />
+            ))}
+          </div>
+        )}
 
         <div className="mt-8 text-center md:hidden">
           <Link href="/programs">
@@ -389,10 +433,10 @@ function CTASection() {
           viewport={{ once: true }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            ابدأ رحلتك التدريبية اليوم
+            ابدأ رحلتك في التطوير المهني
           </h2>
           <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-            انضم إلى آلاف المتدربين الذين طوروا مهاراتهم مع الجامعة السعودية الإلكترونية
+            استثمر في مستقبلك المهني مع برامج التعليم التنفيذي المعتمدة من الجامعة السعودية الإلكترونية
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/programs">
@@ -412,6 +456,70 @@ function CTASection() {
   );
 }
 
+// Target Audience Section
+function TargetAudience() {
+  const audiences = [
+    {
+      icon: Briefcase,
+      title: "المدراء التنفيذيون",
+      description: "قادة يسعون لتطوير مهاراتهم القيادية والإستراتيجية",
+      color: "text-primary"
+    },
+    {
+      icon: Rocket,
+      title: "رواد الأعمال",
+      description: "مؤسسون ومديرو مشاريع يريدون النمو والتوسع",
+      color: "text-accent"
+    },
+    {
+      icon: BarChart3,
+      title: "الباحثون عن التطوير",
+      description: "موظفون يتطلعون للارتقاء في مسيرتهم المهنية",
+      color: "text-primary"
+    }
+  ];
+
+  return (
+    <section className="py-24 bg-gray-50">
+      <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
+        <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
+              لمن هذه البرامج؟
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              برامج مصممة خصيصاً لتلبية احتياجات التطوير المهني
+            </p>
+          </motion.div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {audiences.map((audience, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.15 }}
+              className="text-center"
+            >
+              <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-6">
+                <audience.icon className={`w-10 h-10 ${audience.color}`} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{audience.title}</h3>
+              <p className="text-gray-600">{audience.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // Main Homepage
 export default function Home() {
   return (
@@ -422,6 +530,7 @@ export default function Home() {
         <WhySEU />
         <HowItWorks />
         <FeaturedPrograms />
+        <TargetAudience />
         <CTASection />
       </main>
       <Footer />

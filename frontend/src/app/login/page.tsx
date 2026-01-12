@@ -29,11 +29,11 @@ function LoginPageContent() {
 
         try {
             const result = await login(email, password);
-            
+
             // Role-based redirect
             const userRole = result.user?.role;
             const adminRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'COORDINATOR'];
-            
+
             if (adminRoles.includes(userRole)) {
                 router.push('/admin');
             } else {
@@ -64,7 +64,7 @@ function LoginPageContent() {
                             height={40}
                             className="h-10 w-auto"
                         />
-                        <span className="text-lg font-bold text-primary">التدريب الاحترافي</span>
+                        <span className="text-lg font-bold text-primary">التعليم التنفيذي</span>
                     </Link>
 
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">مرحباً بعودتك</h1>
@@ -136,14 +136,14 @@ function LoginPageContent() {
                         </Button>
                     </form>
 
-                    {/* Divider */}
+                    {/* Google login - temporarily hidden */}
+                    {/* 
                     <div className="flex items-center gap-4 my-8">
                         <div className="flex-1 h-px bg-gray-200" />
                         <span className="text-sm text-gray-500">أو</span>
                         <div className="flex-1 h-px bg-gray-200" />
                     </div>
 
-                    {/* Social Login */}
                     <div className="space-y-3">
                         <button className="w-full h-12 flex items-center justify-center gap-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -155,6 +155,7 @@ function LoginPageContent() {
                             <span className="text-gray-700 font-medium">الدخول بحساب Google</span>
                         </button>
                     </div>
+                    */}
 
                     {/* Register Link */}
                     <p className="text-center text-gray-600 mt-8">

@@ -26,23 +26,23 @@ import {
 const sidebarLinks = [
     // Dashboard
     { href: "/admin", label: "لوحة التحكم", icon: LayoutDashboard },
-    
+
     // Content Management
     { href: "/admin/programs", label: "البرامج", icon: BookOpen },
     { href: "/admin/categories", label: "التصنيفات", icon: FolderOpen },
     { href: "/admin/instructors", label: "المدربون", icon: Users },
-    
+
     // User Management
     { href: "/admin/users", label: "المستخدمون", icon: Users },
-    
+
     // Operations & Monitoring
     { href: "/admin/course-mapping", label: "ربط المقررات", icon: GitBranch },
     { href: "/admin/completion-monitoring", label: "متابعة الإكمال", icon: Activity },
     { href: "/admin/certificates", label: "الشهادات", icon: Award },
-    
+
     // Marketing & Finance
     { href: "/admin/promo-codes", label: "أكواد الخصم", icon: Tag },
-    
+
     // System & Security
     { href: "/admin/audit-logs", label: "سجل التدقيق", icon: Shield },
 ];
@@ -173,7 +173,7 @@ function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
                 >
                     <Menu className="w-6 h-6" />
                 </button>
-                <h1 className="text-lg font-bold text-gray-900">التدريب الاحترافي - لوحة الإدارة</h1>
+                <h1 className="text-lg font-bold text-gray-900">التعليم التنفيذي - لوحة الإدارة</h1>
             </div>
 
             <div className="flex items-center gap-4">

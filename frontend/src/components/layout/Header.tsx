@@ -26,7 +26,7 @@ export function Header() {
                             className="h-12 w-auto"
                         />
                         <div className="hidden sm:block h-8 w-px bg-gray-200" />
-                        <span className="hidden sm:block text-lg font-bold text-primary">التدريب الاحترافي</span>
+                        <span className="hidden sm:block text-lg font-bold text-primary">التعليم التنفيذي</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -62,7 +62,7 @@ export function Header() {
                         <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
                             <Search className="w-5 h-5 text-gray-700" />
                         </button>
-                        
+
                         {isAuthenticated && user ? (
                             /* User Menu - Desktop */
                             <div className="hidden md:block relative">
@@ -81,8 +81,8 @@ export function Header() {
 
                                 {userMenuOpen && (
                                     <>
-                                        <div 
-                                            className="fixed inset-0 z-10" 
+                                        <div
+                                            className="fixed inset-0 z-10"
                                             onClick={() => setUserMenuOpen(false)}
                                         />
                                         <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-20">
@@ -173,7 +173,7 @@ export function Header() {
                             >
                                 الدعم
                             </Link>
-                            
+
                             {isAuthenticated && user ? (
                                 /* User Menu - Mobile */
                                 <div className="flex flex-col gap-2 pt-4 border-t">
@@ -198,8 +198,8 @@ export function Header() {
                                             الملف الشخصي
                                         </Button>
                                     </Link>
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                                         onClick={logout}
                                     >

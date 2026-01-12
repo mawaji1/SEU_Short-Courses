@@ -55,7 +55,7 @@ export function PublicFooter({ locale = 'ar' }: PublicFooterProps) {
 
             <p className="text-slate-600 font-bold leading-relaxed max-w-sm text-lg italic border-s-4 border-primary/20 ps-6">
               {locale === 'ar'
-                ? 'مركز التدريب الاحترافي بالجامعة السعودية الإلكترونية - شريكك الإستراتيجي في رحلة التطور المهني المستدام.'
+                ? 'التعليم التنفيذي والتطوير المهني - الجامعة السعودية الإلكترونية.'
                 : 'SEU Professional Training Center - Your strategic partner in the journey of sustainable professional growth.'
               }
             </p>

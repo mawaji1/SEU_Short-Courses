@@ -88,7 +88,7 @@ function ResetPasswordPageContent() {
                             height={40}
                             className="h-10 w-auto"
                         />
-                        <span className="text-lg font-bold text-primary">التدريب الاحترافي</span>
+                        <span className="text-lg font-bold text-primary">التعليم التنفيذي</span>
                     </Link>
 
                     {!isSuccess ? (

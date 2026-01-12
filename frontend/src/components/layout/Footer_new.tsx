@@ -17,7 +17,7 @@ export function Footer() {
                             className="h-12 w-auto brightness-0 invert mb-4"
                         />
                         <p className="text-gray-300 text-sm leading-relaxed">
-                            التدريب الاحترافي بالجامعة السعودية الإلكترونية - شريكك في التطوير المهني المستدام
+                            التعليم التنفيذي والتطوير المهني - الجامعة السعودية الإلكترونية
                         </p>
                     </div>
 

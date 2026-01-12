@@ -34,7 +34,7 @@ export function PublicHeader({ locale = 'ar' }: PublicHeaderProps) {
           <div className="h-10 w-px bg-slate-200 hidden md:block" />
           <div className="hidden md:block">
             <span className="text-lg font-bold text-slate-900 block leading-tight">
-              {locale === 'ar' ? 'التدريب الاحترافي' : 'Professional Training'}
+              {locale === 'ar' ? 'التعليم التنفيذي' : 'Executive Education'}
             </span>
             <span className="text-xs font-bold text-primary uppercase tracking-[0.1em]">
               Executive Education Center

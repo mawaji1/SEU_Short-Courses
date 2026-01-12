@@ -112,7 +112,7 @@ function RegisterPageContent() {
                             height={40}
                             className="h-10 w-auto"
                         />
-                        <span className="text-lg font-bold text-primary">التدريب الاحترافي</span>
+                        <span className="text-lg font-bold text-primary">التعليم التنفيذي</span>
                     </Link>
 
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">إنشاء حساب جديد</h1>

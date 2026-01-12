@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة التحكم</h1>
-          <p className="text-gray-600">مرحباً بك في لوحة إدارة التدريب الاحترافي</p>
+          <p className="text-gray-600">مرحباً بك في لوحة إدارة التعليم التنفيذي</p>
         </div>
         <Link href="/admin/programs">
           <Button className="gap-2">
@@ -211,19 +211,18 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                        program.status === 'PUBLISHED'
+                      className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${program.status === 'PUBLISHED'
                           ? 'bg-green-100 text-green-700'
                           : program.status === 'DRAFT'
-                          ? 'bg-gray-100 text-gray-600'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}
+                            ? 'bg-gray-100 text-gray-600'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}
                     >
                       {program.status === 'PUBLISHED'
                         ? 'منشور'
                         : program.status === 'DRAFT'
-                        ? 'مسودة'
-                        : 'مؤرشف'}
+                          ? 'مسودة'
+                          : 'مؤرشف'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
