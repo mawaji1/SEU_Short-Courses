@@ -45,7 +45,7 @@ export default function DashboardPage() {
                 const auth = JSON.parse(authData);
                 const token = auth.accessToken;
 
-                const response = await fetch('http://localhost:3001/api/registrations', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/registrations`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
