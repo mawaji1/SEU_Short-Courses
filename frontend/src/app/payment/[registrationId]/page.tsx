@@ -41,7 +41,7 @@ export default function PaymentPage() {
                 const auth = JSON.parse(authData);
                 const token = auth.accessToken;
 
-                const response = await fetch(`http://localhost:3001/api/registrations/${registrationId}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/registrations/${registrationId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
