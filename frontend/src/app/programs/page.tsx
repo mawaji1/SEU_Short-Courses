@@ -19,6 +19,7 @@ export default function ProgramsPage() {
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [deliveryMode, setDeliveryMode] = useState<string | null>(null);
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -53,20 +54,25 @@ export default function ProgramsPage() {
         const matchesCategory =
             !selectedCategory || program.categoryId === selectedCategory;
 
+        const matchesDeliveryMode =
+            !deliveryMode || program.deliveryMode === deliveryMode;
+
         const price = typeof program.price === 'string' ? parseFloat(program.price) : program.price;
         const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
-        return matchesSearch && matchesCategory && matchesPrice;
+        return matchesSearch && matchesCategory && matchesDeliveryMode && matchesPrice;
     });
 
     const clearFilters = () => {
         setSelectedCategory(null);
+        setDeliveryMode(null);
         setPriceRange([0, 10000]);
         setSearchQuery("");
     };
 
     const activeFiltersCount =
         (selectedCategory ? 1 : 0) +
+        (deliveryMode ? 1 : 0) +
         (priceRange[0] !== 0 || priceRange[1] !== 10000 ? 1 : 0);
 
     if (isLoading) {
@@ -160,6 +166,53 @@ export default function ProgramsPage() {
                                                 </div>
                                             </button>
                                         ))}
+                                    </div>
+                                </div>
+
+                                {/* Delivery Mode Filter */}
+                                <div className="mb-6">
+                                    <h3 className="text-sm font-bold text-gray-900 mb-3">نمط التقديم</h3>
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={() => setDeliveryMode(null)}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                !deliveryMode
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">الكل</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setDeliveryMode('ONLINE')}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                deliveryMode === 'ONLINE'
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">عن بُعد</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setDeliveryMode('IN_PERSON')}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                deliveryMode === 'IN_PERSON'
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">حضوري</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setDeliveryMode('HYBRID')}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                deliveryMode === 'HYBRID'
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">مدمج</span>
+                                        </button>
                                     </div>
                                 </div>
 

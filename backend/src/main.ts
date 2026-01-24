@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Enable cookie parsing for HttpOnly cookie-based auth
+  app.use(cookieParser());
 
   // Enable validation globally
   app.useGlobalPipes(
@@ -20,7 +24,7 @@ async function bootstrap() {
   // Set global prefix for all routes
   app.setGlobalPrefix('api');
 
-  // Enable CORS for frontend
+  // Enable CORS for frontend (credentials: true is required for cookies)
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
@@ -32,3 +36,4 @@ async function bootstrap() {
   console.log(`🚀 SEU Short Courses API running on http://localhost:${port}`);
 }
 bootstrap();
+

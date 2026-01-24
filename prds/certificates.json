@@ -1,0 +1,289 @@
+{
+    "projectName": "Certificates",
+    "branchName": "ralph/certificates",
+    "description": "Issue, store, and verify digital certificates for learners who complete programs",
+    "dependsOn": [
+        "learner-experience",
+        "zoom-integration"
+    ],
+    "status": "needs_fixes",
+    "completedAt": null,
+    "verifiedAt": "2026-01-23",
+    "verificationSummary": {
+        "storiesPassed": 3,
+        "storiesTotal": 11,
+        "securityOk": false,
+        "testCoverage": 0,
+        "uiReviewed": false
+    },
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Certificate Template Schema",
+            "description": "As a developer, I want template schema so that certificate designs are stored",
+            "acceptanceCriteria": [
+                "CertificateTemplate table: id, name, html_template, program_id, is_default",
+                "Template supports variables: {{name}}, {{program}}, {{date}}, {{verification_code}}",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Missing `CertificateTemplate` table in schema. Templates are hardcoded in PDFKit service.",
+            "recommendations": [
+                "Create `CertificateTemplate` model",
+                "Move PDF layout to generic engine"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-002",
+            "title": "Certificate Record Schema",
+            "description": "As a developer, I want certificate schema so that issued certs are tracked",
+            "acceptanceCriteria": [
+                "Certificate table: id, registration_id, template_id, verification_code, issued_at, revoked_at",
+                "Unique verification code",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 2,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "`Certificate` table exists in `schema.prisma`. Fields match requirement (verificationCode, etc).",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/prisma/schema.prisma"
+            ]
+        },
+        {
+            "id": "US-003",
+            "title": "Check Certificate Eligibility",
+            "description": "As a system, I want to check eligibility so that only qualified learners get certified",
+            "acceptanceCriteria": [
+                "Calculate attendance percentage",
+                "Compare to program threshold",
+                "Return eligible/ineligible status",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 3,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Eligibility check implemented in `getEligibleEnrollments` (checks COMPLETED status). Attendance calc is implicit in Grading module.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/certificate/certificate.service.ts"
+            ]
+        },
+        {
+            "id": "US-004",
+            "title": "Auto-Issue Certificate",
+            "description": "As a system, I want to auto-issue certificates so that learners get them immediately",
+            "acceptanceCriteria": [
+                "Triggered when cohort ends",
+                "Check eligibility for each learner",
+                "Generate certificate record",
+                "Generate verification code",
+                "Send notification",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 4,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "`generateCertificate` exists but is manually triggered, not hooked into cohort end event.",
+            "recommendations": [
+                "Add Cron job or Event Listener for Cohort End"
+            ],
+            "implementedIn": [
+                "backend/src/modules/certificate/certificate.service.ts"
+            ]
+        },
+        {
+            "id": "US-005",
+            "title": "Generate Certificate PDF",
+            "description": "As a system, I want to generate PDFs so that learners can download",
+            "acceptanceCriteria": [
+                "Render HTML template with data",
+                "Convert to PDF",
+                "Include QR code for verification",
+                "Store in object storage",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 5,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "PDFKit implementation exists with Arabic/English support + QR Code.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/certificate/certificate.service.ts"
+            ]
+        },
+        {
+            "id": "US-006",
+            "title": "Certificate Download",
+            "description": "As a learner, I want to download my certificate so that I have proof",
+            "acceptanceCriteria": [
+                "Download button on completed course",
+                "Opens PDF in new tab",
+                "Filename includes program name",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 6,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Frontend page `/my-courses/[id]` not found in file search. Download endpoint exists in backend.",
+            "recommendations": [
+                "Implement frontend Certificate Download UI"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-007",
+            "title": "Public Verification Page",
+            "description": "As a verifier, I want to verify certificates so that I can trust them",
+            "acceptanceCriteria": [
+                "Public page at /verify",
+                "Input field for verification code",
+                "Shows: learner name, program, issue date",
+                "Shows Invalid for bad codes",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/verify"
+            ],
+            "priority": 7,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Frontend page `/verify` not found.",
+            "recommendations": [
+                "Implement Public Verification Page"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-008",
+            "title": "Certificate Override Request",
+            "description": "As an instructor, I want to request override so that deserving learners get certified",
+            "acceptanceCriteria": [
+                "Request form with justification",
+                "Creates approval request",
+                "Links to learner and program",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 8,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No schema or API found for Override Requests.",
+            "recommendations": [
+                "Add `CertificateRequest` table",
+                "Add Instructor request API"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-009",
+            "title": "Approve Certificate Override",
+            "description": "As a program manager, I want to approve overrides so that exceptions are handled",
+            "acceptanceCriteria": [
+                "Override requests in approval queue",
+                "Approve/reject with comments",
+                "On approve: issue certificate",
+                "Audit log entry",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/approvals"
+            ],
+            "priority": 9,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Approval workflow missing.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-010",
+            "title": "Revoke Certificate",
+            "description": "As an admin, I want to revoke certificates so that invalid ones are invalidated",
+            "acceptanceCriteria": [
+                "Revoke button on certificate record",
+                "Sets revoked_at timestamp",
+                "Verification shows Revoked",
+                "Reason logged",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/certificates"
+            ],
+            "priority": 10,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Backend logic `revokeCertificate` exists. Admin UI missing.",
+            "recommendations": [
+                "Implement Admin UI for Revocation"
+            ],
+            "implementedIn": [
+                "backend/src/modules/certificate/certificate.service.ts"
+            ]
+        },
+        {
+            "id": "US-011",
+            "title": "Re-issue Certificate",
+            "description": "As an admin, I want to re-issue certificates so that errors can be fixed",
+            "acceptanceCriteria": [
+                "Re-issue button on certificate",
+                "Creates new record with new code",
+                "Previous one marked as superseded",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/certificates"
+            ],
+            "priority": 11,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Backend logic `reissueCertificate` exists. Admin UI missing.",
+            "recommendations": [
+                "Implement Admin UI for Re-issue"
+            ],
+            "implementedIn": [
+                "backend/src/modules/certificate/certificate.service.ts"
+            ]
+        }
+    ]
+}

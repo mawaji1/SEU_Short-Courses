@@ -11,10 +11,10 @@ export function middleware(request: NextRequest) {
 
   // Admin routes protection
   if (pathname.startsWith('/admin')) {
-    const authData = request.cookies.get('seu_auth')?.value;
+    const accessToken = request.cookies.get('access_token')?.value;
 
     // Not logged in - redirect to login
-    if (!authData) {
+    if (!accessToken) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
@@ -22,12 +22,11 @@ export function middleware(request: NextRequest) {
 
     try {
       // Decode JWT to check role
-      const auth = JSON.parse(authData);
-      const user = parseJwt(auth.accessToken);
+      const user = parseJwt(accessToken);
 
       // Check if user has admin/operations/finance role
-      const allowedRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'COORDINATOR'];
-      
+      const allowedRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'PROGRAM_MANAGER'];
+
       if (!allowedRoles.includes(user.role)) {
         // Unauthorized - redirect to home
         return NextResponse.redirect(new URL('/', request.url));

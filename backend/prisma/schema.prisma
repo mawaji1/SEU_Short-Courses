@@ -16,10 +16,12 @@ datasource db {
 
 enum UserRole {
   LEARNER
-  COORDINATOR
-  OPERATIONS
-  FINANCE
-  ADMIN
+  CORPORATE_COORDINATOR  // B2B corporate clients
+  OPERATIONS             // Internal operations staff
+  FINANCE                // Internal finance staff
+  ADMIN                  // Platform administrators
+  INSTRUCTOR             // Course instructors
+  PROGRAM_MANAGER        // Program managers
 }
 
 enum BlackboardProvisionStatus {
@@ -50,15 +52,15 @@ model User {
   blackboardProvisionedAt    DateTime?
   blackboardProvisionError   String?
 
-  // Relations
-  organization   Organization?        @relation(fields: [organizationId], references: [id])
-  registrations  Registration[]
-  enrollments    Enrollment[]
-  payments       Payment[]
-  certificates   Certificate[]
-  passwordResets PasswordResetToken[]
-  notifications  Notification[]
-  auditLogs      AuditLog[]
+  organization           Organization?              @relation(fields: [organizationId], references: [id])
+  registrations          Registration[]
+  enrollments            Enrollment[]
+  payments               Payment[]
+  certificates           Certificate[]
+  passwordResets         PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  notifications          Notification[]
+  auditLogs              AuditLog[]
 
   @@map("users")
 }
@@ -79,6 +81,24 @@ model PasswordResetToken {
   @@index([userId])
   @@map("password_reset_tokens")
 }
+
+// Email Verification Tokens - For verifying user email addresses
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("email_verification_tokens")
+}
+
 
 // Audit Logs - Track admin actions for security and compliance
 model AuditLog {
@@ -144,7 +164,6 @@ model Instructor {
   updatedAt DateTime @updatedAt
 
   // Relations
-  programs Program[]
   cohorts  Cohort[]
 
   @@map("instructors")
@@ -186,10 +205,11 @@ model Program {
   deliveryMode       DeliveryMode  @default(ONLINE)
   durationHours      Int
   price              Decimal       @db.Decimal(10, 2)
+  earlyBirdPrice     Decimal?      @db.Decimal(10, 2)
+  corporatePrice     Decimal?      @db.Decimal(10, 2)
   currency           String        @default("SAR")
   status             ProgramStatus @default(DRAFT)
   categoryId         String
-  instructorId       String?
   imageUrl           String?
   prerequisitesAr    String?
   prerequisitesEn    String?
@@ -200,17 +220,67 @@ model Program {
   blackboardCourseId String?
   isFeatured         Boolean       @default(false)
   sortOrder          Int           @default(0)
+  
+  // Certificate settings
+  certificateEnabled          Boolean @default(true)
+  certificateAttendanceThreshold Int  @default(80)
+  
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
   // Relations
-  category   Category    @relation(fields: [categoryId], references: [id])
-  instructor Instructor? @relation(fields: [instructorId], references: [id])
-  cohorts    Cohort[]
+  category    Category          @relation(fields: [categoryId], references: [id])
+  cohorts     Cohort[]
+  modules     ProgramModule[]
 
   @@index([status])
   @@index([categoryId])
   @@map("programs")
+}
+
+// =============================================================================
+// CURRICULUM — MODULES & SESSIONS
+// =============================================================================
+
+model ProgramModule {
+  id          String   @id @default(cuid())
+  programId   String
+  titleAr     String
+  titleEn     String
+  descriptionAr String? @db.Text
+  descriptionEn String? @db.Text
+  durationHours Int
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  program  Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@index([programId])
+  @@index([sortOrder])
+  @@map("program_modules")
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  moduleId    String
+  titleAr     String
+  titleEn     String
+  descriptionAr String? @db.Text
+  descriptionEn String? @db.Text
+  durationMinutes Int
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  module ProgramModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+  @@index([sortOrder])
+  @@map("sessions")
 }
 
 // =============================================================================

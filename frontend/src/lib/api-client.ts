@@ -45,6 +45,8 @@ class ApiClient {
 
         const config: RequestInit = {
             ...options,
+            // Include credentials for HttpOnly cookie-based authentication
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 ...options.headers,

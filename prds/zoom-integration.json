@@ -1,0 +1,286 @@
+{
+    "projectName": "Zoom Integration",
+    "branchName": "ralph/zoom-integration",
+    "description": "Enable live virtual training sessions by integrating Zoom Meeting SDK and API",
+    "dependsOn": [],
+    "status": "pending",
+    "completedAt": null,
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Zoom Configuration Schema",
+            "description": "As a developer, I want to store Zoom config so that integration settings are persistent",
+            "acceptanceCriteria": [
+                "Environment variables for ZOOM_ACCOUNT_ID, CLIENT_ID, CLIENT_SECRET",
+                "Environment variables for ZOOM_SDK_KEY, ZOOM_SDK_SECRET",
+                "Validation on startup",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-002",
+            "title": "Server-to-Server OAuth Token",
+            "description": "As a developer, I want to obtain Zoom API tokens so that backend can call Zoom APIs",
+            "acceptanceCriteria": [
+                "Token fetch service with auto-refresh",
+                "Token cached until near expiry",
+                "Error handling for auth failures",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 2,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-003",
+            "title": "Session Database Schema",
+            "description": "As a developer, I want session schema so that Zoom meeting data is stored",
+            "acceptanceCriteria": [
+                "Session table: id, cohort_id, instructor_id, zoom_meeting_id, zoom_join_url, zoom_start_url, start_time, duration, status",
+                "SessionAttendance table: session_id, user_id, join_time, leave_time, duration",
+                "SessionStatus enum: SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 3,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-004",
+            "title": "Create Zoom User for Instructor",
+            "description": "As a system, I want to provision Zoom users so that instructors can host meetings",
+            "acceptanceCriteria": [
+                "Create Zoom user via API when instructor assigned",
+                "Store zoom_user_id on User record",
+                "Handle existing user case",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 4,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-005",
+            "title": "Assign Zoom License",
+            "description": "As a system, I want to assign Pro licenses so that instructors can host long meetings",
+            "acceptanceCriteria": [
+                "Assign license via API",
+                "Track license assignment date",
+                "Handle license limit errors",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 5,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-006",
+            "title": "Create Zoom Meeting for Session",
+            "description": "As a system, I want to create Zoom meetings so that sessions have join links",
+            "acceptanceCriteria": [
+                "Create meeting under instructor's Zoom user ID",
+                "Set topic, start time, duration",
+                "Store meeting ID, join URL, start URL",
+                "Enable waiting room",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 6,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-007",
+            "title": "Session Scheduling API",
+            "description": "As an Operations Coordinator, I want an API to schedule sessions so that Zoom meetings are created",
+            "acceptanceCriteria": [
+                "POST /api/sessions endpoint",
+                "Input: cohort_id, instructor_id, start_time, duration",
+                "Creates session record and Zoom meeting",
+                "Returns session with join URLs",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 7,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-008",
+            "title": "Generate Meeting SDK Signature",
+            "description": "As a developer, I want to generate SDK signatures so that frontend can join meetings",
+            "acceptanceCriteria": [
+                "Signature generation endpoint",
+                "Input: meeting number, role (0=participant, 1=host)",
+                "Returns signature with expiry",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 8,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-009",
+            "title": "Instructor Start Session Button",
+            "description": "As an instructor, I want a Start Session button so that I can begin teaching",
+            "acceptanceCriteria": [
+                "Button visible on instructor dashboard for scheduled sessions",
+                "Only enabled within 15 minutes of start time",
+                "Clicking opens embedded Zoom",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/sessions"
+            ],
+            "priority": 9,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-010",
+            "title": "Embedded Zoom Meeting Component",
+            "description": "As a developer, I want an embedded Zoom component so that users don't leave the platform",
+            "acceptanceCriteria": [
+                "ZoomMeetingEmbed React component",
+                "Uses Zoom Meeting SDK (embedded)",
+                "Supports Arabic language",
+                "Full-screen toggle",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/session/[id]/join"
+            ],
+            "priority": 10,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-011",
+            "title": "Learner Join Session Button",
+            "description": "As a learner, I want a Join Session button so that I can attend class",
+            "acceptanceCriteria": [
+                "Button visible in My Courses for upcoming sessions",
+                "Only enabled when session is IN_PROGRESS",
+                "Clicking opens embedded Zoom",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses"
+            ],
+            "priority": 11,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-012",
+            "title": "Webhook Endpoint Setup",
+            "description": "As a developer, I want a webhook endpoint so that Zoom events are received",
+            "acceptanceCriteria": [
+                "POST /api/webhooks/zoom endpoint",
+                "Webhook verification challenge handled",
+                "Signature validation",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 12,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-013",
+            "title": "Handle Meeting Started Event",
+            "description": "As a system, I want to process meeting.started so that session status updates",
+            "acceptanceCriteria": [
+                "Update session status to IN_PROGRESS",
+                "Log event",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 13,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-014",
+            "title": "Handle Meeting Ended Event",
+            "description": "As a system, I want to process meeting.ended so that session completes",
+            "acceptanceCriteria": [
+                "Update session status to COMPLETED",
+                "Calculate total attendance durations",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 14,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-015",
+            "title": "Handle Participant Joined Event",
+            "description": "As a system, I want to track when participants join so that attendance starts",
+            "acceptanceCriteria": [
+                "Create SessionAttendance record",
+                "Record join_time",
+                "Match participant to user by email",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 15,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-016",
+            "title": "Handle Participant Left Event",
+            "description": "As a system, I want to track when participants leave so that attendance duration is calculated",
+            "acceptanceCriteria": [
+                "Update SessionAttendance with leave_time",
+                "Calculate duration",
+                "Handle multiple join/leave cycles",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 16,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-017",
+            "title": "Session Attendance Report",
+            "description": "As an instructor, I want to view attendance for a session so that I know who attended",
+            "acceptanceCriteria": [
+                "List of attendees with join time and duration",
+                "Total attendance percentage calculated",
+                "Export to CSV option",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/sessions/[id]/attendance"
+            ],
+            "priority": 17,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-018",
+            "title": "Manual Attendance Override",
+            "description": "As an instructor, I want to manually mark attendance so that I can correct errors",
+            "acceptanceCriteria": [
+                "Toggle to mark learner as present/absent",
+                "Override stored with timestamp",
+                "Audit log entry created",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/sessions/[id]/attendance"
+            ],
+            "priority": 18,
+            "passes": false,
+            "notes": ""
+        }
+    ]
+}

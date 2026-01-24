@@ -17,7 +17,8 @@ This document presents technical architecture options for the SEU Short Courses 
 > - SPA-capable frontend
 > - API-driven backend
 > - Stateless services
-> - Blackboard REST API integration
+> - **Zoom integration for live training** (Meeting SDK + API)
+> - **HyperPay for card payments** (replacing Moyasar)
 > - Platform-managed authentication (email/password)
 > - SEU-approved government/hybrid cloud hosting
 
@@ -72,7 +73,7 @@ Derived from Phase 0 decisions and BRD requirements:
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                       INTEGRATION LAYER                                     │
 │   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐        │
-│   │Blackboard│ │ Moyasar  │ │  Tabby   │ │  Tamara  │ │ Email/SMS│        │
+│   │   Zoom   │ │ HyperPay │ │  Tabby   │ │  Tamara  │ │ Email/SMS│        │
 │   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -323,28 +324,29 @@ This ensures:
 │   - Error normalization                                         │
 │   - Logging & metrics                                           │
 ├─────────────────────────────────────────────────────────────────┤
-│   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐          │
-│   │Blackboard│  │ Moyasar │  │  Tabby  │  │  Tamara │          │
-│   │  Adapter │  │ Adapter │  │ Adapter │  │ Adapter │          │
-│   └─────────┘  └─────────┘  └─────────┘  └─────────┘          │
-└─────────────────────────────────────────────────────────────────┘
+│   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  │
+│   │  Zoom   │  │HyperPay │  │  Tabby  │  │  Tamara │  │  Email  │  │
+│   │ Adapter │  │ Adapter │  │ Adapter │  │ Adapter │  │ Adapter │  │
+│   └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 7.2 Blackboard Integration (Per Phase 0)
+### 7.2 Zoom Integration (Live Training)
 
 | Aspect | Design |
 |--------|--------|
-| Protocol | REST API (Phase 0 decision) |
-| Authentication | OAuth 2.0 or API key (per Blackboard docs) |
-| Operations | User provisioning, enrollment, completion sync |
-| Retry | Exponential backoff with jitter |
-| Fallback | Queue for failed operations, manual intervention dashboard |
+| Protocol | Zoom REST API + Meeting SDK |
+| Authentication | Server-to-Server OAuth 2.0 |
+| Operations | Meeting creation, license management, attendance webhooks |
+| SDK | Embedded Meeting SDK for in-platform sessions |
+| Webhooks | meeting.started, meeting.ended, participant_joined, participant_left |
+| Fallback | Queue for failed operations, manual retry dashboard |
 
 ### 7.3 Payment Integration
 
 | Provider | Pattern |
 |----------|---------|
-| Moyasar | Redirect flow or embedded form |
+| **HyperPay** | Embedded form or redirect flow |
 | Tabby | Redirect to Tabby checkout |
 | Tamara | Redirect to Tamara checkout |
 

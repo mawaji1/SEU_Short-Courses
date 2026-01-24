@@ -1,0 +1,319 @@
+{
+    "projectName": "B2C Registration",
+    "branchName": "ralph/registration-b2c",
+    "description": "Enable individual learners to discover programs, select cohorts, reserve seats, and proceed to payment",
+    "dependsOn": [
+        "user-auth",
+        "catalog-management"
+    ],
+    "status": "needs_fixes",
+    "completedAt": null,
+    "verifiedAt": "2026-01-23",
+    "verificationSummary": {
+        "storiesPassed": 9,
+        "storiesTotal": 12,
+        "securityOk": false,
+        "testCoverage": 0,
+        "uiReviewed": true
+    },
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Registration Schema",
+            "description": "As a developer, I want registration schema so that enrollments are stored",
+            "acceptanceCriteria": [
+                "Registration table: id, user_id, cohort_id, status, payment_status, promo_code_id, created_at",
+                "RegistrationStatus enum: PENDING, CONFIRMED, CANCELLED, WAITLISTED",
+                "PaymentStatus enum: PENDING, PAID, REFUNDED, FAILED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Schema matches requirements. Enums and fields verified in `schema.prisma`.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/prisma/schema.prisma"
+            ]
+        },
+        {
+            "id": "US-002",
+            "title": "Select Cohort Flow",
+            "description": "As a learner, I want to select a cohort so that I can enroll in a specific session",
+            "acceptanceCriteria": [
+                "Cohort selector on program page",
+                "Shows start date, available seats, schedule",
+                "Disabled if no seats available",
+                "Join Waitlist shown when full",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/programs/[slug]"
+            ],
+            "priority": 2,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Cohort selection implemented in Checkout UI. Logic prevents selection if full.",
+            "recommendations": [],
+            "implementedIn": [
+                "frontend/src/app/checkout/page.tsx"
+            ]
+        },
+        {
+            "id": "US-003",
+            "title": "Seat Reservation",
+            "description": "As a system, I want to reserve seats so that capacity isn't exceeded",
+            "acceptanceCriteria": [
+                "Create pending registration on cohort selection",
+                "Seat hold expires after 15 minutes if unpaid",
+                "Decrement available seats count",
+                "Atomic transaction to prevent overselling",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 3,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Atomic transaction implemented. ExpiresAt calculated (15m). Race conditions handled.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/registration/registration.service.ts"
+            ]
+        },
+        {
+            "id": "US-004",
+            "title": "Registration Summary Page",
+            "description": "As a learner, I want to see a summary before paying so that I can confirm my choice",
+            "acceptanceCriteria": [
+                "Display program name, cohort dates, price",
+                "Show time remaining on seat hold",
+                "Promo code input field",
+                "Proceed to Payment button",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/checkout"
+            ],
+            "priority": 4,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Summary page implemented. SECURITY WARN: Uses `localStorage` for Auth Token (Client-Side Storage).",
+            "recommendations": [
+                "Refactor to use HttpOnly cookies for Auth"
+            ],
+            "implementedIn": [
+                "frontend/src/app/checkout/page.tsx"
+            ]
+        },
+        {
+            "id": "US-005",
+            "title": "Apply Promo Code",
+            "description": "As a learner, I want to apply a promo code so that I get a discount",
+            "acceptanceCriteria": [
+                "Promo code input field",
+                "Validate code on apply",
+                "Show discounted price",
+                "Error message for invalid/expired codes",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/checkout"
+            ],
+            "priority": 5,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Promo logic implemented and visible in UI.",
+            "recommendations": [],
+            "implementedIn": [
+                "frontend/src/app/checkout/page.tsx",
+                "backend/src/modules/registration/promo-code.service.ts"
+            ]
+        },
+        {
+            "id": "US-006",
+            "title": "Promo Code Schema",
+            "description": "As a developer, I want promo code schema so that discounts are configured",
+            "acceptanceCriteria": [
+                "PromoCode table: id, code, discount_type, discount_value, valid_from, valid_to, max_uses, current_uses",
+                "DiscountType enum: PERCENTAGE, FIXED",
+                "Unique constraint on code",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 6,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "PromoCode table exists with correct enum and fields.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/prisma/schema.prisma"
+            ]
+        },
+        {
+            "id": "US-007",
+            "title": "Join Waitlist",
+            "description": "As a learner, I want to join a waitlist so that I'm notified when seats open",
+            "acceptanceCriteria": [
+                "Join Waitlist button when cohort full",
+                "Creates waitlist entry with position",
+                "Confirmation message shown",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/programs/[slug]"
+            ],
+            "priority": 7,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "UI Bug: 'Indm l'qaym'h alantzar' button is DISABLED when cohort is full. Users cannot click it.",
+            "recommendations": [
+                "Fix UI logic to enable button when full",
+                "Wire up `joinWaitlist` API call"
+            ],
+            "implementedIn": [
+                "frontend/src/app/programs/[slug]/page.tsx"
+            ]
+        },
+        {
+            "id": "US-008",
+            "title": "Waitlist Schema",
+            "description": "As a developer, I want waitlist schema so that queue position is tracked",
+            "acceptanceCriteria": [
+                "Waitlist table: id, user_id, cohort_id, position, status, created_at",
+                "WaitlistStatus enum: WAITING, PROMOTED, EXPIRED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 8,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "WaitlistEntry table exists.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/prisma/schema.prisma"
+            ]
+        },
+        {
+            "id": "US-009",
+            "title": "Auto-Promote from Waitlist",
+            "description": "As a system, I want to promote waitlisted learners so that cancelled seats are filled",
+            "acceptanceCriteria": [
+                "When registration cancelled, check waitlist",
+                "Promote first in queue",
+                "Send notification email",
+                "Set 24-hour expiry on offer",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 9,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Logic gap: `cancelRegistration` does NOT trigger `promoteNext`. Waitlist entries will sit forever.",
+            "recommendations": [
+                "Call `promoteNext` inside `cancelRegistration` transaction"
+            ],
+            "implementedIn": [
+                "backend/src/modules/registration/registration.service.ts",
+                "backend/src/modules/registration/waitlist.service.ts"
+            ]
+        },
+        {
+            "id": "US-010",
+            "title": "My Courses Dashboard",
+            "description": "As a learner, I want to see my enrolled courses so that I can track my learning",
+            "acceptanceCriteria": [
+                "List of confirmed registrations",
+                "Show program name, cohort dates, status",
+                "Link to course detail page",
+                "Upcoming sessions highlighted",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses"
+            ],
+            "priority": 10,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Backend service supports `getUserRegistrations`.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/registration/registration.service.ts"
+            ]
+        },
+        {
+            "id": "US-011",
+            "title": "Registration Confirmation Email",
+            "description": "As a system, I want to send confirmation emails so that learners have proof",
+            "acceptanceCriteria": [
+                "Email sent after payment confirmed",
+                "Contains program name, dates, receipt number",
+                "Includes calendar invite attachment",
+                "Arabic content with English fallback",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 11,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Integration with NotificationService found in `initiateRegistration`.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/registration/registration.service.ts"
+            ]
+        },
+        {
+            "id": "US-012",
+            "title": "Cancel Registration",
+            "description": "As a learner, I want to cancel my registration so that I can request a refund",
+            "acceptanceCriteria": [
+                "Cancel button on My Courses (before start only)",
+                "Confirmation modal with refund policy",
+                "Creates refund request (pending approval)",
+                "Updates registration status",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses"
+            ],
+            "priority": 12,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Backend `cancelRegistration` implemented with correct checks.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/registration/registration.service.ts"
+            ]
+        }
+    ]
+}

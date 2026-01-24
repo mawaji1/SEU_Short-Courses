@@ -107,4 +107,36 @@ export class UserService {
       user,
     };
   }
+
+  /**
+   * Update user profile (for authenticated users to update their own profile)
+   */
+  async updateProfile(
+    userId: string,
+    data: { firstName?: string; lastName?: string; phone?: string }
+  ) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.firstName && { firstName: data.firstName }),
+        ...(data.lastName && { lastName: data.lastName }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        emailVerified: true,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'تم تحديث الملف الشخصي بنجاح',
+      user,
+    };
+  }
 }

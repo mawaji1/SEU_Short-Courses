@@ -156,7 +156,9 @@ function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
         ADMIN: 'مدير النظام',
         OPERATIONS: 'فريق العمليات',
         FINANCE: 'فريق المالية',
-        COORDINATOR: 'منسق',
+        CORPORATE_COORDINATOR: 'منسق الشركة',
+        INSTRUCTOR: 'مدرب',
+        PROGRAM_MANAGER: 'مدير البرنامج',
         LEARNER: 'متدرب',
     };
 

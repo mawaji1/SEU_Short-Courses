@@ -12,6 +12,7 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
+import { CurrentUser } from './decorators';
 import { UserRole } from '@prisma/client';
 
 /**
@@ -23,6 +24,21 @@ import { UserRole } from '@prisma/client';
 @Roles(UserRole.ADMIN)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  /**
+   * Update current user's profile
+   * Available to all authenticated users
+   */
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @Roles() // No role restriction - all authenticated users
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @CurrentUser('id') userId: string,
+    @Body() body: { firstName?: string; lastName?: string; phone?: string }
+  ) {
+    return this.userService.updateProfile(userId, body);
+  }
 
   /**
    * Get all users

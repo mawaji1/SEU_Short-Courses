@@ -150,7 +150,9 @@ export default function UsersManagementPage() {
     ADMIN: 'bg-red-100 text-red-700',
     OPERATIONS: 'bg-blue-100 text-blue-700',
     FINANCE: 'bg-green-100 text-green-700',
-    COORDINATOR: 'bg-purple-100 text-purple-700',
+    CORPORATE_COORDINATOR: 'bg-purple-100 text-purple-700',
+    INSTRUCTOR: 'bg-orange-100 text-orange-700',
+    PROGRAM_MANAGER: 'bg-teal-100 text-teal-700',
     LEARNER: 'bg-gray-100 text-gray-700',
   };
 
@@ -158,7 +160,9 @@ export default function UsersManagementPage() {
     ADMIN: 'مدير',
     OPERATIONS: 'عمليات',
     FINANCE: 'مالية',
-    COORDINATOR: 'منسق',
+    CORPORATE_COORDINATOR: 'منسق الشركة',
+    INSTRUCTOR: 'مدرب',
+    PROGRAM_MANAGER: 'مدير البرنامج',
     LEARNER: 'متدرب',
   };
 
@@ -219,7 +223,9 @@ export default function UsersManagementPage() {
             <option value="ADMIN">مدير</option>
             <option value="OPERATIONS">عمليات</option>
             <option value="FINANCE">مالية</option>
-            <option value="COORDINATOR">منسق</option>
+            <option value="CORPORATE_COORDINATOR">منسق الشركة</option>
+            <option value="INSTRUCTOR">مدرب</option>
+            <option value="PROGRAM_MANAGER">مدير البرنامج</option>
             <option value="LEARNER">متدرب</option>
           </select>
         </div>
@@ -287,20 +293,18 @@ export default function UsersManagementPage() {
                 </td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                      roleColors[user.role] || 'bg-gray-100 text-gray-700'
-                    }`}
+                    className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${roleColors[user.role] || 'bg-gray-100 text-gray-700'
+                      }`}
                   >
                     {roleLabels[user.role] || user.role}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                      user.isActive
+                    className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${user.isActive
                         ? 'bg-green-100 text-green-700'
                         : 'bg-red-100 text-red-700'
-                    }`}
+                      }`}
                   >
                     {user.isActive ? 'نشط' : 'معطل'}
                   </span>
@@ -325,11 +329,10 @@ export default function UsersManagementPage() {
                     </button>
                     <button
                       onClick={() => handleToggleActive(user.id, user.isActive)}
-                      className={`p-2 rounded-lg ${
-                        user.isActive
+                      className={`p-2 rounded-lg ${user.isActive
                           ? 'hover:bg-red-50 text-red-600'
                           : 'hover:bg-green-50 text-green-600'
-                      }`}
+                        }`}
                       title={user.isActive ? 'تعطيل' : 'تفعيل'}
                     >
                       {user.isActive ? (
@@ -380,7 +383,9 @@ export default function UsersManagementPage() {
                 className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
               >
                 <option value="LEARNER">متدرب</option>
-                <option value="COORDINATOR">منسق</option>
+                <option value="CORPORATE_COORDINATOR">منسق الشركة</option>
+                <option value="INSTRUCTOR">مدرب</option>
+                <option value="PROGRAM_MANAGER">مدير البرنامج</option>
                 <option value="OPERATIONS">عمليات</option>
                 <option value="FINANCE">مالية</option>
                 <option value="ADMIN">مدير</option>

@@ -109,14 +109,30 @@ export class CatalogService {
     // ===========================================================================
 
     async createProgram(data: CreateProgramDto) {
+        const createData: any = {
+            ...data,
+            price: new Prisma.Decimal(data.price),
+        };
+
+        if (data.earlyBirdPrice !== undefined) {
+            createData.earlyBirdPrice = new Prisma.Decimal(data.earlyBirdPrice);
+        }
+        if (data.corporatePrice !== undefined) {
+            createData.corporatePrice = new Prisma.Decimal(data.corporatePrice);
+        }
+
         return this.prisma.program.create({
-            data: {
-                ...data,
-                price: new Prisma.Decimal(data.price),
-            },
+            data: createData,
             include: {
                 category: true,
-                instructor: true,
+                modules: {
+                    include: {
+                        sessions: {
+                            orderBy: { sortOrder: 'asc' },
+                        },
+                    },
+                    orderBy: { sortOrder: 'asc' },
+                },
             },
         });
     }
@@ -128,6 +144,7 @@ export class CatalogService {
             categoryId,
             status,
             type,
+            deliveryMode,
             search,
             isFeatured,
             sortBy = 'createdAt',
@@ -142,6 +159,7 @@ export class CatalogService {
         if (categoryId) where.categoryId = categoryId;
         if (status) where.status = status;
         if (type) where.type = type;
+        if (deliveryMode) where.deliveryMode = deliveryMode;
         if (isFeatured !== undefined) where.isFeatured = isFeatured;
 
         if (search) {
@@ -159,7 +177,14 @@ export class CatalogService {
                 where,
                 include: {
                     category: true,
-                    instructor: true,
+                    modules: {
+                        include: {
+                            sessions: {
+                                orderBy: { sortOrder: 'asc' },
+                            },
+                        },
+                        orderBy: { sortOrder: 'asc' },
+                    },
                     _count: {
                         select: { cohorts: true },
                     },
@@ -201,7 +226,6 @@ export class CatalogService {
             },
             include: {
                 category: true,
-                instructor: true,
             },
             take: limit,
             orderBy: { sortOrder: 'asc' },
@@ -213,10 +237,20 @@ export class CatalogService {
             where: { id },
             include: {
                 category: true,
-                instructor: true,
+                modules: {
+                    include: {
+                        sessions: {
+                            orderBy: { sortOrder: 'asc' },
+                        },
+                    },
+                    orderBy: { sortOrder: 'asc' },
+                },
                 cohorts: {
                     where: {
                         status: { in: ['UPCOMING', 'OPEN'] },
+                    },
+                    include: {
+                        instructor: true,
                     },
                     orderBy: { startDate: 'asc' },
                 },
@@ -235,10 +269,20 @@ export class CatalogService {
             where: { slug },
             include: {
                 category: true,
-                instructor: true,
+                modules: {
+                    include: {
+                        sessions: {
+                            orderBy: { sortOrder: 'asc' },
+                        },
+                    },
+                    orderBy: { sortOrder: 'asc' },
+                },
                 cohorts: {
                     where: {
                         status: { in: ['UPCOMING', 'OPEN'] },
+                    },
+                    include: {
+                        instructor: true,
                     },
                     orderBy: { startDate: 'asc' },
                 },
@@ -259,13 +303,26 @@ export class CatalogService {
         if (data.price !== undefined) {
             updateData.price = new Prisma.Decimal(data.price);
         }
+        if (data.earlyBirdPrice !== undefined) {
+            updateData.earlyBirdPrice = new Prisma.Decimal(data.earlyBirdPrice);
+        }
+        if (data.corporatePrice !== undefined) {
+            updateData.corporatePrice = new Prisma.Decimal(data.corporatePrice);
+        }
 
         return this.prisma.program.update({
             where: { id },
             data: updateData,
             include: {
                 category: true,
-                instructor: true,
+                modules: {
+                    include: {
+                        sessions: {
+                            orderBy: { sortOrder: 'asc' },
+                        },
+                    },
+                    orderBy: { sortOrder: 'asc' },
+                },
             },
         });
     }
@@ -280,6 +337,90 @@ export class CatalogService {
 
     async archiveProgram(id: string) {
         return this.updateProgram(id, { status: 'ARCHIVED' as any });
+    }
+
+    async cloneProgram(id: string) {
+        const original = await this.prisma.program.findUnique({
+            where: { id },
+            include: {
+                modules: {
+                    include: {
+                        sessions: true,
+                    },
+                },
+            },
+        });
+
+        if (!original) {
+            throw new NotFoundException(`Program with ID ${id} not found`);
+        }
+
+        // Create cloned program
+        const cloned = await this.prisma.program.create({
+            data: {
+                titleAr: `${original.titleAr} (نسخة)`,
+                titleEn: `${original.titleEn} (Copy)`,
+                descriptionAr: original.descriptionAr,
+                descriptionEn: original.descriptionEn,
+                shortDescriptionAr: original.shortDescriptionAr,
+                shortDescriptionEn: original.shortDescriptionEn,
+                slug: `${original.slug}-copy-${Date.now()}`,
+                type: original.type,
+                deliveryMode: original.deliveryMode,
+                durationHours: original.durationHours,
+                price: original.price,
+                earlyBirdPrice: original.earlyBirdPrice,
+                corporatePrice: original.corporatePrice,
+                currency: original.currency,
+                status: 'DRAFT',
+                categoryId: original.categoryId,
+                imageUrl: original.imageUrl,
+                prerequisitesAr: original.prerequisitesAr,
+                prerequisitesEn: original.prerequisitesEn,
+                learningOutcomesAr: original.learningOutcomesAr,
+                learningOutcomesEn: original.learningOutcomesEn,
+                targetAudienceAr: original.targetAudienceAr,
+                targetAudienceEn: original.targetAudienceEn,
+                certificateEnabled: original.certificateEnabled,
+                certificateAttendanceThreshold: original.certificateAttendanceThreshold,
+                isFeatured: false,
+            },
+            include: {
+                category: true,
+            },
+        });
+
+        // Clone modules and sessions
+        for (const module of original.modules) {
+            const clonedModule = await this.prisma.programModule.create({
+                data: {
+                    programId: cloned.id,
+                    titleAr: module.titleAr,
+                    titleEn: module.titleEn,
+                    descriptionAr: module.descriptionAr,
+                    descriptionEn: module.descriptionEn,
+                    durationHours: module.durationHours,
+                    sortOrder: module.sortOrder,
+                },
+            });
+
+            // Clone sessions for this module
+            for (const session of module.sessions) {
+                await this.prisma.session.create({
+                    data: {
+                        moduleId: clonedModule.id,
+                        titleAr: session.titleAr,
+                        titleEn: session.titleEn,
+                        descriptionAr: session.descriptionAr,
+                        descriptionEn: session.descriptionEn,
+                        durationMinutes: session.durationMinutes,
+                        sortOrder: session.sortOrder,
+                    },
+                });
+            }
+        }
+
+        return this.findProgramById(cloned.id);
     }
 
     async deleteProgram(id: string) {
@@ -300,7 +441,7 @@ export class CatalogService {
             where: includeInactive ? {} : { isActive: true },
             include: {
                 _count: {
-                    select: { programs: true },
+                    select: { cohorts: true },
                 },
             },
             orderBy: { nameEn: 'asc' },
@@ -311,8 +452,18 @@ export class CatalogService {
         const instructor = await this.prisma.instructor.findUnique({
             where: { id },
             include: {
-                programs: {
-                    where: { status: 'PUBLISHED' },
+                cohorts: {
+                    where: { status: { in: ['UPCOMING', 'OPEN', 'IN_PROGRESS'] } },
+                    include: {
+                        program: {
+                            select: {
+                                id: true,
+                                titleAr: true,
+                                titleEn: true,
+                                slug: true,
+                            },
+                        },
+                    },
                 },
             },
         });

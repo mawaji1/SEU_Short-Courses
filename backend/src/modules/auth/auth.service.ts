@@ -54,6 +54,11 @@ export class AuthService {
             },
         });
 
+        // Send verification email (don't await - fire and forget)
+        this.sendVerificationEmail(user.id).catch(err => {
+            console.error('Failed to send verification email:', err);
+        });
+
         // Generate tokens
         return this.generateAuthResponse(user);
     }
@@ -231,6 +236,120 @@ export class AuthService {
         ]);
 
         return { message: 'تم إعادة تعيين كلمة المرور بنجاح' };
+    }
+
+    /**
+     * Token expiry time for email verification in hours
+     */
+    private readonly EMAIL_VERIFICATION_EXPIRY_HOURS = 24;
+
+    /**
+     * Send email verification token
+     */
+    async sendVerificationEmail(userId: string): Promise<{ message: string }> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new BadRequestException('المستخدم غير موجود');
+        }
+
+        if (user.emailVerified) {
+            return { message: 'البريد الإلكتروني مُفعّل بالفعل' };
+        }
+
+        // Invalidate any existing tokens for this user
+        await this.prisma.emailVerificationToken.updateMany({
+            where: { userId: user.id, usedAt: null },
+            data: { usedAt: new Date() },
+        });
+
+        // Generate secure random token
+        const token = this.generateSecureToken();
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + this.EMAIL_VERIFICATION_EXPIRY_HOURS);
+
+        // Store token in database
+        await this.prisma.emailVerificationToken.create({
+            data: {
+                token,
+                userId: user.id,
+                expiresAt,
+            },
+        });
+
+        // Log token to console (replace with email in production)
+        console.log('\n========================================');
+        console.log('📧 EMAIL VERIFICATION TOKEN');
+        console.log('========================================');
+        console.log(`Email: ${user.email}`);
+        console.log(`Token: ${token}`);
+        console.log(`Verification URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`);
+        console.log(`Expires: ${expiresAt.toISOString()}`);
+        console.log('========================================\n');
+
+        return { message: 'تم إرسال رابط التفعيل إلى بريدك الإلكتروني' };
+    }
+
+    /**
+     * Verify email using token
+     */
+    async verifyEmail(token: string): Promise<{ message: string }> {
+        const verificationToken = await this.prisma.emailVerificationToken.findUnique({
+            where: { token },
+            include: { user: true },
+        });
+
+        if (!verificationToken) {
+            throw new BadRequestException('رمز التفعيل غير صالح');
+        }
+
+        if (verificationToken.usedAt) {
+            throw new BadRequestException('تم استخدام رمز التفعيل مسبقاً');
+        }
+
+        if (new Date() > verificationToken.expiresAt) {
+            await this.prisma.emailVerificationToken.update({
+                where: { id: verificationToken.id },
+                data: { usedAt: new Date() },
+            });
+            throw new BadRequestException('رمز التفعيل منتهي الصلاحية');
+        }
+
+        // Update user and mark token as used in a transaction
+        await this.prisma.$transaction([
+            this.prisma.user.update({
+                where: { id: verificationToken.userId },
+                data: { emailVerified: true },
+            }),
+            this.prisma.emailVerificationToken.update({
+                where: { id: verificationToken.id },
+                data: { usedAt: new Date() },
+            }),
+        ]);
+
+        return { message: 'تم تفعيل البريد الإلكتروني بنجاح' };
+    }
+
+    /**
+     * Resend verification email
+     */
+    async resendVerificationEmail(email: string): Promise<{ message: string }> {
+        const user = await this.prisma.user.findUnique({
+            where: { email: email.toLowerCase() },
+        });
+
+        if (!user) {
+            // Don't reveal if email exists for security
+            return { message: 'إذا كان البريد الإلكتروني مسجلاً، ستصلك رسالة التفعيل' };
+        }
+
+        if (user.emailVerified) {
+            return { message: 'البريد الإلكتروني مُفعّل بالفعل' };
+        }
+
+        return this.sendVerificationEmail(user.id);
     }
 
     /**

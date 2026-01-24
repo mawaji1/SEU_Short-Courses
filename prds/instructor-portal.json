@@ -1,0 +1,205 @@
+{
+    "projectName": "Instructor Portal",
+    "branchName": "ralph/instructor-portal",
+    "description": "Enable instructors to manage their courses, deliver sessions, upload materials, and communicate with learners",
+    "dependsOn": [
+        "user-auth",
+        "zoom-integration",
+        "catalog-management"
+    ],
+    "status": "pending",
+    "completedAt": null,
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Instructor Dashboard",
+            "description": "As an instructor, I want a dashboard so that I see my teaching overview",
+            "acceptanceCriteria": [
+                "List of assigned courses",
+                "Upcoming sessions with dates",
+                "Quick stats: total learners, sessions this week",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor"
+            ],
+            "priority": 1,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-002",
+            "title": "View Assigned Courses",
+            "description": "As an instructor, I want to see my courses so that I know what I'm teaching",
+            "acceptanceCriteria": [
+                "List of programs assigned to instructor",
+                "Shows cohort dates, learner count",
+                "Link to course detail",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/courses"
+            ],
+            "priority": 2,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-003",
+            "title": "View Upcoming Sessions",
+            "description": "As an instructor, I want to see upcoming sessions so that I can prepare",
+            "acceptanceCriteria": [
+                "Calendar or list view of sessions",
+                "Shows date, time, cohort name",
+                "Start Session button when available",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/sessions"
+            ],
+            "priority": 3,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-004",
+            "title": "View Enrolled Learners",
+            "description": "As an instructor, I want to see enrolled learners so that I know my audience",
+            "acceptanceCriteria": [
+                "List of learners in cohort",
+                "Shows name, email, enrollment date",
+                "Attendance status indicator",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/courses/[id]/learners"
+            ],
+            "priority": 4,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-005",
+            "title": "Upload Course Materials",
+            "description": "As an instructor, I want to upload materials so that learners can access them",
+            "acceptanceCriteria": [
+                "Upload button for files (PDF, PPTX, DOC)",
+                "Add external links",
+                "Title and description for each",
+                "Max file size: 50MB",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/courses/[id]/materials"
+            ],
+            "priority": 5,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-006",
+            "title": "Materials Schema",
+            "description": "As a developer, I want materials schema for file storage",
+            "acceptanceCriteria": [
+                "CourseMaterial table: id, cohort_id, title, type, file_url, external_url, created_at",
+                "MaterialType enum: FILE, LINK",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 6,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-007",
+            "title": "Delete/Update Materials",
+            "description": "As an instructor, I want to manage materials so that content is current",
+            "acceptanceCriteria": [
+                "Edit title/description",
+                "Delete with confirmation",
+                "Reorder materials",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/courses/[id]/materials"
+            ],
+            "priority": 7,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-008",
+            "title": "View Session Attendance",
+            "description": "As an instructor, I want to see attendance so that I know who attended",
+            "acceptanceCriteria": [
+                "List of learners with attendance status",
+                "Shows join time, duration",
+                "Overall attendance percentage",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/sessions/[id]/attendance"
+            ],
+            "priority": 8,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-009",
+            "title": "Manual Attendance Override",
+            "description": "As an instructor, I want to mark attendance manually so that I can correct errors",
+            "acceptanceCriteria": [
+                "Toggle present/absent per learner",
+                "Reason field for override",
+                "Saves with audit trail",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/sessions/[id]/attendance"
+            ],
+            "priority": 9,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-010",
+            "title": "Send Message to Learners",
+            "description": "As an instructor, I want to message learners so that I can communicate",
+            "acceptanceCriteria": [
+                "Message composer",
+                "Send to all or selected learners",
+                "Visible in learner's course page",
+                "Email notification option",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/courses/[id]/messages"
+            ],
+            "priority": 10,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-011",
+            "title": "Message Schema",
+            "description": "As a developer, I want message schema for communication",
+            "acceptanceCriteria": [
+                "CourseMessage table: id, cohort_id, sender_id, subject, body, created_at",
+                "MessageRecipient junction table",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 11,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-012",
+            "title": "Request Certificate Override",
+            "description": "As an instructor, I want to request certificate override so that deserving learners get certified",
+            "acceptanceCriteria": [
+                "Override request button on learner",
+                "Reason/justification field",
+                "Creates approval request",
+                "Shows pending status",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/instructor/courses/[id]/learners"
+            ],
+            "priority": 12,
+            "passes": false,
+            "notes": ""
+        }
+    ]
+}

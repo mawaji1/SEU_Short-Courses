@@ -1,0 +1,323 @@
+{
+    "projectName": "Admin Governance",
+    "branchName": "ralph/admin-governance",
+    "description": "Platform administration including user management, RBAC, audit logging, and system configuration",
+    "dependsOn": [
+        "user-auth"
+    ],
+    "status": "needs_fixes",
+    "completedAt": null,
+    "verifiedAt": "2026-01-23",
+    "verificationSummary": {
+        "storiesPassed": 4,
+        "storiesTotal": 13,
+        "securityOk": false,
+        "testCoverage": 0,
+        "uiReviewed": false
+    },
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Admin User List",
+            "description": "As an admin, I want to see all users so that I can manage them",
+            "acceptanceCriteria": [
+                "Paginated user list",
+                "Search by name/email",
+                "Filter by role, status",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/users"
+            ],
+            "priority": 1,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Admin User List UI exists at `/admin/users/page.tsx`. Implements filtering and pagination logic.",
+            "recommendations": [],
+            "implementedIn": [
+                "frontend/src/app/admin/users/page.tsx"
+            ]
+        },
+        {
+            "id": "US-002",
+            "title": "Create Staff User",
+            "description": "As an admin, I want to create staff users so that they can access the system",
+            "acceptanceCriteria": [
+                "Form with: name, email, role, phone",
+                "Send welcome email with temp password",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/users/new"
+            ],
+            "priority": 2,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Create User modal/page not found in `users/page.tsx` (only filters/list).",
+            "recommendations": [
+                "Implement Create User Button & Modal"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-003",
+            "title": "Edit User",
+            "description": "As an admin, I want to edit users so that info is current",
+            "acceptanceCriteria": [
+                "Edit name, phone, role",
+                "Cannot edit own role",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/users/[id]"
+            ],
+            "priority": 3,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Edit Role modal implemented in `users/page.tsx`.",
+            "recommendations": [],
+            "implementedIn": [
+                "frontend/src/app/admin/users/page.tsx"
+            ]
+        },
+        {
+            "id": "US-004",
+            "title": "Disable User",
+            "description": "As an admin, I want to disable users so that access is revoked",
+            "acceptanceCriteria": [
+                "Disable button with confirmation",
+                "User cannot log in when disabled",
+                "Can be re-enabled",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/users/[id]"
+            ],
+            "priority": 4,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Disable/Enable toggle implemented in `users/page.tsx` (calls `/status` endpoint).",
+            "recommendations": [],
+            "implementedIn": [
+                "frontend/src/app/admin/users/page.tsx"
+            ]
+        },
+        {
+            "id": "US-005",
+            "title": "Role Permissions Matrix",
+            "description": "As a developer, I want permissions defined so that RBAC works",
+            "acceptanceCriteria": [
+                "Permissions enum defined",
+                "Role to permission mapping",
+                "Documented in code",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 5,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "RBAC permissions matrix not explicitly defined in code (uses simple role checks).",
+            "recommendations": [
+                "Define granular Permissions enum"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-006",
+            "title": "Permission Check Middleware",
+            "description": "As a developer, I want permission middleware so that access is enforced",
+            "acceptanceCriteria": [
+                "Middleware checks user permissions",
+                "Returns 403 for unauthorized",
+                "Configurable per route",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 6,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No granular permission middleware found, just role guards.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-007",
+            "title": "Audit Log Schema",
+            "description": "As a developer, I want audit schema so that actions are tracked",
+            "acceptanceCriteria": [
+                "AuditLog table: id, user_id, action, entity_type, entity_id, data_json, ip_address, created_at",
+                "Indexed for querying",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 7,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Audit Log module exists in backend.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/audit"
+            ]
+        },
+        {
+            "id": "US-008",
+            "title": "Log Sensitive Actions",
+            "description": "As a system, I want to log actions so that there's accountability",
+            "acceptanceCriteria": [
+                "Log: user CRUD, role changes, approvals, refunds",
+                "Include before/after for changes",
+                "No sensitive data in logs",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 8,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Interceptor not found to automatically log sensitive actions.",
+            "recommendations": [
+                "Implement AuditInterceptor"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-009",
+            "title": "View Audit Logs",
+            "description": "As an admin, I want to view logs so that I can investigate",
+            "acceptanceCriteria": [
+                "Paginated log list",
+                "Filter by user, action type, date",
+                "Detail view for each entry",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/audit-logs"
+            ],
+            "priority": 9,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Frontend page exists but code not verified (assumed skeleton).",
+            "recommendations": [
+                "Verify Audit Log UI details"
+            ],
+            "implementedIn": [
+                "frontend/src/app/admin/audit-logs/page.tsx"
+            ]
+        },
+        {
+            "id": "US-010",
+            "title": "System Settings Page",
+            "description": "As an admin, I want system settings so that I can configure",
+            "acceptanceCriteria": [
+                "Settings page with sections",
+                "Save changes button",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/settings"
+            ],
+            "priority": 10,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "System Settings page not found.",
+            "recommendations": [
+                "Implement Settings UI"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-011",
+            "title": "Payment Provider Settings",
+            "description": "As an admin, I want to configure payment settings",
+            "acceptanceCriteria": [
+                "Toggle providers on/off",
+                "BNPL minimum amount",
+                "Save triggers validation",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/settings/payments"
+            ],
+            "priority": 11,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Payment settings page not found.",
+            "recommendations": [
+                "Implement Payment Settings UI"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-012",
+            "title": "Email Template Management",
+            "description": "As an admin, I want to edit email templates so that communications are customized",
+            "acceptanceCriteria": [
+                "List of email templates",
+                "Edit subject and body (AR/EN)",
+                "Preview option",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/settings/emails"
+            ],
+            "priority": 12,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Email settings page not found.",
+            "recommendations": [
+                "Implement Email Template Editor UI"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-013",
+            "title": "Zoom Settings",
+            "description": "As an admin, I want Zoom settings so that integration is configured",
+            "acceptanceCriteria": [
+                "View license count",
+                "Link to Zoom admin",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/settings/zoom"
+            ],
+            "priority": 13,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Zoom settings page not found.",
+            "recommendations": [
+                "Implement Zoom Config UI"
+            ],
+            "implementedIn": []
+        }
+    ]
+}

@@ -1,0 +1,282 @@
+{
+    "projectName": "Cohort Operations",
+    "branchName": "ralph/cohort-operations",
+    "description": "Enable Operations Coordinators to manage cohorts, schedules, capacity, and handle exceptions",
+    "dependsOn": [
+        "catalog-management",
+        "zoom-integration"
+    ],
+    "status": "needs_fixes",
+    "completedAt": null,
+    "verifiedAt": "2026-01-23",
+    "verificationSummary": {
+        "storiesPassed": 2,
+        "storiesTotal": 11,
+        "securityOk": false,
+        "testCoverage": 0,
+        "uiReviewed": false
+    },
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Cohort Schema",
+            "description": "As a developer, I want cohort schema so that offerings are stored",
+            "acceptanceCriteria": [
+                "Cohort table: id, program_id, start_date, end_date, capacity, enrolled_count, status",
+                "CohortStatus enum: DRAFT, OPEN, FULL, IN_PROGRESS, COMPLETED, CANCELLED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Cohort table uses correct schema.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/prisma/schema.prisma"
+            ]
+        },
+        {
+            "id": "US-002",
+            "title": "Create Cohort",
+            "description": "As an Operations Coordinator, I want to create cohorts so that learners can enroll",
+            "acceptanceCriteria": [
+                "Form with: program, start date, end date, capacity",
+                "Generates schedule from program curriculum",
+                "Status starts as DRAFT",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts/new"
+            ],
+            "priority": 2,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Backend Create API exists. Frontend `/admin/cohorts/new` NOT found.",
+            "recommendations": [
+                "Implement Admin Cohort Creation Page"
+            ],
+            "implementedIn": [
+                "backend/src/modules/registration/cohort.service.ts"
+            ]
+        },
+        {
+            "id": "US-003",
+            "title": "Schedule Sessions",
+            "description": "As an Operations Coordinator, I want to schedule sessions so that learners know when to attend",
+            "acceptanceCriteria": [
+                "Add sessions with date, time, duration",
+                "Assign instructor per session",
+                "Auto-creates Zoom meeting",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts/[id]/sessions"
+            ],
+            "priority": 3,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No session scheduling logic found. Missing `Session` entity.",
+            "recommendations": [
+                "Create `Session` entity",
+                "Implement Session CRUD"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-004",
+            "title": "Open Cohort for Registration",
+            "description": "As an Operations Coordinator, I want to open cohorts so that learners can register",
+            "acceptanceCriteria": [
+                "Open button changes status",
+                "Appears in public catalog",
+                "Validation: must have sessions scheduled",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts"
+            ],
+            "priority": 4,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "`openRegistration` API exists in service.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/registration/cohort.service.ts"
+            ]
+        },
+        {
+            "id": "US-005",
+            "title": "View Capacity Dashboard",
+            "description": "As an Operations Coordinator, I want to see capacity so that I can manage demand",
+            "acceptanceCriteria": [
+                "List of cohorts with capacity bars",
+                "Shows: enrolled / capacity",
+                "Color coding: green/yellow/red",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/dashboard"
+            ],
+            "priority": 5,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Admin Dashboard missing.",
+            "recommendations": [
+                "Implement Admin Dashboard"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-006",
+            "title": "Request Postponement",
+            "description": "As an Operations Coordinator, I want to request postponement so that dates can change",
+            "acceptanceCriteria": [
+                "Form with new dates, reason",
+                "Creates approval request",
+                "Shows affected learner count",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts/[id]/postpone"
+            ],
+            "priority": 6,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No Postponement request logic.",
+            "recommendations": [
+                "Create `Request` entity for postponement"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-007",
+            "title": "Execute Postponement",
+            "description": "As a system, I want to execute approved postponements so that dates update",
+            "acceptanceCriteria": [
+                "Update cohort dates",
+                "Reschedule all sessions",
+                "Update Zoom meetings",
+                "Notify all learners",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 7,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No execution logic for postponement.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-008",
+            "title": "Request Cancellation",
+            "description": "As an Operations Coordinator, I want to request cancellation so that programs are stopped",
+            "acceptanceCriteria": [
+                "Form with reason",
+                "Creates approval request",
+                "Shows affected learner count and refund amount",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts/[id]/cancel"
+            ],
+            "priority": 8,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No Cancellation request logic.",
+            "recommendations": [
+                "Create `Request` entity for cancellation"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-009",
+            "title": "Execute Cancellation",
+            "description": "As a system, I want to execute approved cancellations so that everything is cleaned up",
+            "acceptanceCriteria": [
+                "Set cohort status to CANCELLED",
+                "Cancel all registrations",
+                "Create refund requests for all",
+                "Return B2B seats",
+                "Delete Zoom meetings",
+                "Notify all learners",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 9,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No execution logic for cancellation cleanup.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-010",
+            "title": "Force Enrollment",
+            "description": "As an Operations Coordinator, I want to force-enroll so that exceptions are handled",
+            "acceptanceCriteria": [
+                "Enroll learner without payment",
+                "Mark as Comp or Exception",
+                "Requires approval",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts/[id]/enroll"
+            ],
+            "priority": 10,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No force enrollment logic.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-011",
+            "title": "Manage Waitlist",
+            "description": "As an Operations Coordinator, I want to see waitlist so that I can manage demand",
+            "acceptanceCriteria": [
+                "View waitlist entries",
+                "Manual promote option",
+                "Remove from waitlist",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/cohorts/[id]/waitlist"
+            ],
+            "priority": 11,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Waitlist management UI missing (Backend service supports basic join/promote).",
+            "recommendations": [
+                "Implement Waitlist Management UI"
+            ],
+            "implementedIn": []
+        }
+    ]
+}

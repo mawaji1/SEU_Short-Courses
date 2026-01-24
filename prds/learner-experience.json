@@ -1,0 +1,252 @@
+{
+    "projectName": "Learner Experience",
+    "branchName": "ralph/learner-experience",
+    "description": "Enable learners to access enrolled courses, join sessions, download materials, and receive certificates",
+    "dependsOn": [
+        "user-auth",
+        "registration-b2c",
+        "zoom-integration",
+        "instructor-portal"
+    ],
+    "status": "needs_fixes",
+    "completedAt": null,
+    "verifiedAt": "2026-01-23",
+    "verificationSummary": {
+        "storiesPassed": 0,
+        "storiesTotal": 10,
+        "securityOk": false,
+        "testCoverage": 0,
+        "uiReviewed": false
+    },
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "My Courses Page",
+            "description": "As a learner, I want to see my enrolled courses so that I can access learning",
+            "acceptanceCriteria": [
+                "List of confirmed enrollments",
+                "Shows program name, dates, progress",
+                "Active courses highlighted",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses"
+            ],
+            "priority": 1,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Frontend page `/my-courses` does not exist.",
+            "recommendations": [
+                "Implement My Courses Dashboard UI"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-002",
+            "title": "Course Detail Page",
+            "description": "As a learner, I want to see course details so that I know what to expect",
+            "acceptanceCriteria": [
+                "Program description and outcomes",
+                "Curriculum/modules list",
+                "Instructor profile",
+                "Session schedule",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 2,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Frontend page `/my-courses/[id]` does not exist.",
+            "recommendations": [
+                "Implement Course Detail Page UI"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-003",
+            "title": "Upcoming Sessions List",
+            "description": "As a learner, I want to see upcoming sessions so that I can plan",
+            "acceptanceCriteria": [
+                "List of upcoming sessions with dates/times",
+                "Countdown to next session",
+                "Join button when session live",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 3,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No session listing UI or backend `Session` entity found.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-004",
+            "title": "Join Session Button",
+            "description": "As a learner, I want to join a session so that I can attend class",
+            "acceptanceCriteria": [
+                "Join Session button visible",
+                "Only enabled when session IN_PROGRESS",
+                "Opens embedded Zoom",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 4,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No join button UI or Zoom integration logic found in this context.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-005",
+            "title": "Download Materials",
+            "description": "As a learner, I want to download materials so that I can study",
+            "acceptanceCriteria": [
+                "List of available materials",
+                "Download button for files",
+                "Open in new tab for links",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]/materials"
+            ],
+            "priority": 5,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No materials download UI or backend storage logic found.",
+            "recommendations": [
+                "Implement Materials UI component"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-006",
+            "title": "View Progress",
+            "description": "As a learner, I want to see my progress so that I know my standing",
+            "acceptanceCriteria": [
+                "Attendance percentage displayed",
+                "Sessions attended vs total",
+                "Certificate eligibility indicator",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 6,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No progress tracking implementation found.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-007",
+            "title": "View Attendance History",
+            "description": "As a learner, I want to see my attendance so that I can verify records",
+            "acceptanceCriteria": [
+                "List of sessions with attendance status",
+                "Duration attended per session",
+                "Overall percentage",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]/attendance"
+            ],
+            "priority": 7,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No attendance history UI found.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-008",
+            "title": "View Messages from Instructor",
+            "description": "As a learner, I want to see instructor messages so that I stay informed",
+            "acceptanceCriteria": [
+                "Messages section on course page",
+                "Chronological order",
+                "Mark as read functionality",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]/messages"
+            ],
+            "priority": 8,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No messaging system found.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-009",
+            "title": "Completion Status",
+            "description": "As a learner, I want to see completion status so that I know when I'm done",
+            "acceptanceCriteria": [
+                "Status: In Progress, Completed, Incomplete",
+                "Completed shows certificate link",
+                "Incomplete shows reason (attendance)",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 9,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No completion status logic found.",
+            "recommendations": [],
+            "implementedIn": []
+        },
+        {
+            "id": "US-010",
+            "title": "Download Certificate",
+            "description": "As a learner, I want to download my certificate so that I have proof",
+            "acceptanceCriteria": [
+                "Download button when eligible",
+                "Opens PDF certificate",
+                "Shows verification code",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/my-courses/[id]"
+            ],
+            "priority": 10,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No certificate download button in frontend (Logic exists in backend).",
+            "recommendations": [
+                "Link Frontend UI to Backend Certificate service"
+            ],
+            "implementedIn": []
+        }
+    ]
+}

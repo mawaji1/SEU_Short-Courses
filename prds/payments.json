@@ -1,0 +1,286 @@
+{
+    "projectName": "Payments",
+    "branchName": "ralph/payments",
+    "description": "Process payments securely using HyperPay for cards and Tabby/Tamara for BNPL",
+    "dependsOn": [
+        "registration-b2c",
+        "registration-b2b"
+    ],
+    "status": "pending",
+    "completedAt": null,
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Payment Schema",
+            "description": "As a developer, I want payment schema so that transactions are tracked",
+            "acceptanceCriteria": [
+                "Payment table: id, registration_id, amount, currency, method, provider, provider_ref, status, created_at",
+                "PaymentMethod enum: CARD, TABBY, TAMARA, INVOICE",
+                "PaymentStatus enum: PENDING, SUCCESS, FAILED, REFUNDED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-002",
+            "title": "HyperPay Configuration",
+            "description": "As a developer, I want HyperPay config so that card payments work",
+            "acceptanceCriteria": [
+                "Environment variables for HYPERPAY_ENTITY_ID, ACCESS_TOKEN",
+                "Sandbox/production mode toggle",
+                "Validation on startup",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 2,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-003",
+            "title": "Create Checkout Session (HyperPay)",
+            "description": "As a system, I want to create checkout sessions so that learners can pay",
+            "acceptanceCriteria": [
+                "API call to HyperPay to create checkout",
+                "Returns checkout ID",
+                "Stores pending payment record",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 3,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-004",
+            "title": "Payment Page (HyperPay)",
+            "description": "As a learner, I want a payment page so that I can enter card details",
+            "acceptanceCriteria": [
+                "Embedded HyperPay form",
+                "Amount displayed clearly",
+                "Loading state during processing",
+                "Error handling for failures",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/payment/[id]"
+            ],
+            "priority": 4,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-005",
+            "title": "Payment Callback Handler",
+            "description": "As a system, I want to handle callbacks so that payment status updates",
+            "acceptanceCriteria": [
+                "Webhook endpoint for HyperPay",
+                "Verify signature",
+                "Update payment status",
+                "Update registration status on success",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 5,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-006",
+            "title": "Tabby Configuration",
+            "description": "As a developer, I want Tabby config so that BNPL works",
+            "acceptanceCriteria": [
+                "Environment variables for TABBY_PUBLIC_KEY, SECRET_KEY",
+                "Sandbox/production mode",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 6,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-007",
+            "title": "Create Tabby Session",
+            "description": "As a system, I want to create Tabby sessions so that learners can use BNPL",
+            "acceptanceCriteria": [
+                "API call to create Tabby checkout",
+                "Include buyer info, amount, items",
+                "Returns redirect URL",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 7,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-008",
+            "title": "Tabby Payment Option",
+            "description": "As a learner, I want to see Tabby option so that I can pay later",
+            "acceptanceCriteria": [
+                "Tabby logo and Pay in 4 messaging",
+                "Eligibility check (minimum amount)",
+                "Redirect to Tabby on selection",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/checkout"
+            ],
+            "priority": 8,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-009",
+            "title": "Tabby Webhook Handler",
+            "description": "As a system, I want to handle Tabby webhooks so that status updates",
+            "acceptanceCriteria": [
+                "Webhook endpoint",
+                "Verify authenticity",
+                "Update payment and registration status",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 9,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-010",
+            "title": "Tamara Configuration",
+            "description": "As a developer, I want Tamara config so that second BNPL works",
+            "acceptanceCriteria": [
+                "Environment variables for TAMARA_API_URL, TOKEN",
+                "Sandbox/production mode",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 10,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-011",
+            "title": "Create Tamara Session",
+            "description": "As a system, I want to create Tamara sessions for BNPL",
+            "acceptanceCriteria": [
+                "API call to create Tamara order",
+                "Include buyer info, amount",
+                "Returns redirect URL",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 11,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-012",
+            "title": "Tamara Payment Option",
+            "description": "As a learner, I want to see Tamara option for BNPL",
+            "acceptanceCriteria": [
+                "Tamara logo and installment messaging",
+                "Eligibility check",
+                "Redirect to Tamara on selection",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/checkout"
+            ],
+            "priority": 12,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-013",
+            "title": "Payment Receipt Generation",
+            "description": "As a system, I want to generate receipts so that learners have proof",
+            "acceptanceCriteria": [
+                "PDF receipt with: receipt #, date, payer, amount, program",
+                "SEU branding",
+                "Downloadable from dashboard",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 13,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-014",
+            "title": "Invoice Schema",
+            "description": "As a developer, I want invoice schema for B2B billing",
+            "acceptanceCriteria": [
+                "Invoice table: id, organization_id, seat_purchase_id, amount, due_date, status, paid_at",
+                "InvoiceStatus enum: DRAFT, SENT, PAID, OVERDUE",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 14,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-015",
+            "title": "Generate B2B Invoice",
+            "description": "As a system, I want to generate invoices for corporate purchases",
+            "acceptanceCriteria": [
+                "PDF invoice with: invoice #, org details, line items, total",
+                "SEU branding and VAT info",
+                "Bank transfer details",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 15,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-016",
+            "title": "Mark Invoice Paid",
+            "description": "As a finance user, I want to mark invoices paid so that seats activate",
+            "acceptanceCriteria": [
+                "Mark Paid button on invoice",
+                "Records paid_at timestamp",
+                "Activates seat purchase",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/invoices"
+            ],
+            "priority": 16,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-017",
+            "title": "Refund Request",
+            "description": "As a learner, I want to request a refund so that I get my money back",
+            "acceptanceCriteria": [
+                "Creates refund request record",
+                "Captures reason",
+                "Triggers approval workflow",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 17,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-018",
+            "title": "Process Refund",
+            "description": "As a finance user, I want to process approved refunds so that money is returned",
+            "acceptanceCriteria": [
+                "Call provider refund API",
+                "Update payment status to REFUNDED",
+                "Update registration status",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 18,
+            "passes": false,
+            "notes": ""
+        }
+    ]
+}

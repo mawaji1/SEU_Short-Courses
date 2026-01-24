@@ -15,9 +15,11 @@ export interface User {
 
 export interface AuthResponse {
     user: User;
-    accessToken: string;
-    refreshToken: string;
     expiresIn: number;
+    // Tokens are now in HttpOnly cookies, not in response body
+    // These are kept for backwards compatibility but should not be used
+    accessToken?: string;
+    refreshToken?: string;
 }
 
 export interface RegisterData {
@@ -31,4 +33,6 @@ export interface RegisterData {
 export interface LoginData {
     email: string;
     password: string;
+    rememberMe?: boolean;
 }
+

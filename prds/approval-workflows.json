@@ -1,0 +1,203 @@
+{
+    "projectName": "Approval Workflows",
+    "branchName": "ralph/approval-workflows",
+    "description": "Implement multi-level approval workflows for risky operations to ensure governance and accountability",
+    "dependsOn": [
+        "user-auth",
+        "payments",
+        "cohort-operations",
+        "certificates"
+    ],
+    "status": "pending",
+    "completedAt": null,
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Approval Request Schema",
+            "description": "As a developer, I want approval schema so that requests are tracked",
+            "acceptanceCriteria": [
+                "ApprovalRequest table: id, type, requester_id, data_json, status, created_at",
+                "ApprovalType enum: REFUND, BULK_ENROLLMENT, CANCELLATION, POSTPONEMENT, CERTIFICATE_OVERRIDE, FORCE_ENROLL",
+                "ApprovalStatus enum: PENDING, APPROVED, REJECTED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-002",
+            "title": "Approval Decision Schema",
+            "description": "As a developer, I want decision schema for audit trail",
+            "acceptanceCriteria": [
+                "ApprovalDecision table: id, request_id, approver_id, decision, comments, decided_at",
+                "DecisionType enum: APPROVED, REJECTED",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 2,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-003",
+            "title": "Approver Mapping",
+            "description": "As a developer, I want approver config so that right people are notified",
+            "acceptanceCriteria": [
+                "ApprovalType to Role mapping",
+                "Multiple approvers per type (any can approve)",
+                "Configurable in system settings",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 3,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-004",
+            "title": "Create Approval Request",
+            "description": "As a system, I want to create requests so that actions are queued",
+            "acceptanceCriteria": [
+                "Service to create request",
+                "Stores relevant data in JSON",
+                "Determines approvers",
+                "Sends notification",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 4,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-005",
+            "title": "Pending Approvals Dashboard",
+            "description": "As an approver, I want to see pending items so that I can act",
+            "acceptanceCriteria": [
+                "List of pending requests for my role",
+                "Shows: type, requester, date, summary",
+                "Sorted by oldest first",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/approvals"
+            ],
+            "priority": 5,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-006",
+            "title": "Approval Detail View",
+            "description": "As an approver, I want to see details so that I can decide",
+            "acceptanceCriteria": [
+                "Full request details",
+                "Related data (learner, amount, reason)",
+                "Approve/Reject buttons",
+                "Comments field",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/approvals/[id]"
+            ],
+            "priority": 6,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-007",
+            "title": "Approve Request",
+            "description": "As an approver, I want to approve so that action executes",
+            "acceptanceCriteria": [
+                "Click approve button",
+                "Optional comment",
+                "Status updated to APPROVED",
+                "Triggers execution",
+                "Notifies requester",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/approvals/[id]"
+            ],
+            "priority": 7,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-008",
+            "title": "Reject Request",
+            "description": "As an approver, I want to reject so that action is stopped",
+            "acceptanceCriteria": [
+                "Click reject button",
+                "Required comment for rejection",
+                "Status updated to REJECTED",
+                "Notifies requester with reason",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/approvals/[id]"
+            ],
+            "priority": 8,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-009",
+            "title": "Approval Email Notification",
+            "description": "As an approver, I want email notification so that I act quickly",
+            "acceptanceCriteria": [
+                "Email sent when assigned request",
+                "Contains: type, requester, summary, link",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 9,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-010",
+            "title": "Requester Notification",
+            "description": "As a requester, I want notification so that I know the outcome",
+            "acceptanceCriteria": [
+                "Email on approval/rejection",
+                "In-app notification",
+                "Includes decision and comments",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 10,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-011",
+            "title": "My Requests View",
+            "description": "As a requester, I want to see my requests so that I track status",
+            "acceptanceCriteria": [
+                "List of my submitted requests",
+                "Status indicator",
+                "Decision details when complete",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/my-requests"
+            ],
+            "priority": 11,
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "US-012",
+            "title": "Escalation Rule",
+            "description": "As a system, I want to escalate so that stale requests get attention",
+            "acceptanceCriteria": [
+                "Configurable escalation time (e.g., 24 hours)",
+                "Escalate to next level or send reminder",
+                "Log escalation event",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 12,
+            "passes": false,
+            "notes": ""
+        }
+    ]
+}

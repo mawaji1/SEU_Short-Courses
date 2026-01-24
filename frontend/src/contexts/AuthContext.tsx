@@ -8,7 +8,7 @@ interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (email: string, password: string) => Promise<{ user: User; accessToken: string; refreshToken: string }>;
+    login: (email: string, password: string, rememberMe?: boolean) => Promise<{ user: User; expiresIn: number }>;
     register: (data: {
         firstName: string;
         lastName: string;
@@ -16,7 +16,7 @@ interface AuthContextType {
         phone?: string;
         password: string;
     }) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
 }
 
@@ -55,8 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const login = async (email: string, password: string) => {
-        const response = await authService.login({ email, password });
+    const login = async (email: string, password: string, rememberMe = false) => {
+        const response = await authService.login({ email, password, rememberMe });
         setUser(response.user);
         return response;
     };
@@ -72,9 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(response.user);
     };
 
-    const logout = () => {
-        authService.logout();
+    const logout = async () => {
         setUser(null);
+        await authService.logout();
     };
 
     const refreshUser = async () => {

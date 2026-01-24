@@ -95,6 +95,12 @@ export class CatalogController {
         return this.catalogService.archiveProgram(id);
     }
 
+    @Post('programs/:id/clone')
+    @HttpCode(HttpStatus.CREATED)
+    async cloneProgram(@Param('id') id: string) {
+        return this.catalogService.cloneProgram(id);
+    }
+
     @Delete('programs/:id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteProgram(@Param('id') id: string) {

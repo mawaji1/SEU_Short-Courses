@@ -24,7 +24,18 @@ import { authService } from "@/services/auth";
 
 export default function ProfilePage() {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
+
+    // Profile edit state
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [profileData, setProfileData] = useState({
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+        phone: user?.phone || "",
+    });
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [profileSuccess, setProfileSuccess] = useState(false);
+    const [profileError, setProfileError] = useState<string | null>(null);
 
     // Password change state
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -36,6 +47,47 @@ export default function ProfilePage() {
     const [passwordLoading, setPasswordLoading] = useState(false);
     const [passwordSuccess, setPasswordSuccess] = useState(false);
     const [passwordError, setPasswordError] = useState<string | null>(null);
+
+    const handleProfileUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setProfileError(null);
+        setProfileLoading(true);
+
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/users/profile`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(profileData),
+                }
+            );
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "فشل تحديث الملف الشخصي");
+            }
+
+            setProfileSuccess(true);
+            setIsEditMode(false);
+            
+            // Refresh user data
+            if (refreshUser) {
+                await refreshUser();
+            }
+
+            setTimeout(() => {
+                setProfileSuccess(false);
+            }, 3000);
+        } catch (err: any) {
+            setProfileError(err.message || "حدث خطأ");
+        } finally {
+            setProfileLoading(false);
+        }
+    };
 
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -140,45 +192,154 @@ export default function ProfilePage() {
                         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-bold text-gray-900">المعلومات الشخصية</h2>
-                                <Button variant="outline" size="sm" className="gap-2" disabled>
-                                    <Edit2 className="w-4 h-4" />
-                                    تعديل
-                                </Button>
+                                {!isEditMode && (
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="gap-2"
+                                        onClick={() => {
+                                            setIsEditMode(true);
+                                            setProfileData({
+                                                firstName: user?.firstName || "",
+                                                lastName: user?.lastName || "",
+                                                phone: user?.phone || "",
+                                            });
+                                        }}
+                                    >
+                                        <Edit2 className="w-4 h-4" />
+                                        تعديل
+                                    </Button>
+                                )}
                             </div>
 
-                            <div className="grid gap-6">
-                                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                        <User className="w-5 h-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">الاسم الكامل</p>
-                                        <p className="font-medium text-gray-900">
-                                            {user?.firstName} {user?.lastName}
-                                        </p>
-                                    </div>
+                            {profileSuccess && (
+                                <div className="mb-4 p-3 rounded-lg bg-green-50 text-green-700 flex items-center gap-2">
+                                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                                    <span className="text-sm">تم تحديث الملف الشخصي بنجاح</span>
                                 </div>
+                            )}
 
-                                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                        <Mail className="w-5 h-5 text-primary" />
+                            {isEditMode ? (
+                                /* Edit Mode */
+                                <form onSubmit={handleProfileUpdate} className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                الاسم الأول
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={profileData.firstName}
+                                                onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                                                className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                اسم العائلة
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={profileData.lastName}
+                                                onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                                                className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
+                                                required
+                                            />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">البريد الإلكتروني</p>
-                                        <p className="font-medium text-gray-900">{user?.email}</p>
-                                    </div>
-                                </div>
 
-                                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                        <Phone className="w-5 h-5 text-primary" />
-                                    </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">رقم الجوال</p>
-                                        <p className="font-medium text-gray-900">{user?.phone || "غير محدد"}</p>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            رقم الجوال
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={profileData.phone}
+                                            onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                                            className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
+                                            placeholder="05xxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-500 mb-2">
+                                            البريد الإلكتروني (غير قابل للتعديل)
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={user?.email}
+                                            disabled
+                                            className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                                        />
+                                    </div>
+
+                                    {profileError && (
+                                        <div className="p-3 rounded-lg bg-red-50 text-red-700 flex items-center gap-2">
+                                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                            <span className="text-sm">{profileError}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-3 pt-2">
+                                        <Button type="submit" disabled={profileLoading}>
+                                            {profileLoading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                                                    جاري الحفظ...
+                                                </>
+                                            ) : (
+                                                "حفظ التغييرات"
+                                            )}
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                                setIsEditMode(false);
+                                                setProfileError(null);
+                                            }}
+                                        >
+                                            إلغاء
+                                        </Button>
+                                    </div>
+                                </form>
+                            ) : (
+                                /* View Mode */
+                                <div className="grid gap-6">
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                            <User className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">الاسم الكامل</p>
+                                            <p className="font-medium text-gray-900">
+                                                {user?.firstName} {user?.lastName}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                            <Mail className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">البريد الإلكتروني</p>
+                                            <p className="font-medium text-gray-900">{user?.email}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                            <Phone className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">رقم الجوال</p>
+                                            <p className="font-medium text-gray-900">{user?.phone || "غير محدد"}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         {/* Security Section */}

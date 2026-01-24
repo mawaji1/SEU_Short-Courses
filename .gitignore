@@ -41,6 +41,9 @@ Thumbs.db
 *.swo
 *~
 .history/
+.agent
+.agents
+.windsurf
 
 # Testing
 coverage/

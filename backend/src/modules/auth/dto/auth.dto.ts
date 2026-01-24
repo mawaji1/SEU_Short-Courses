@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, MaxLength, IsOptional, Matches } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, Matches, IsBoolean } from 'class-validator';
 
 /**
  * Register User DTO
@@ -43,14 +43,19 @@ export class LoginDto {
     @IsString()
     @MinLength(1, { message: 'كلمة المرور مطلوبة' })
     password: string;
+
+    @IsOptional()
+    @IsBoolean()
+    rememberMe?: boolean;
 }
 
 /**
  * Refresh Token DTO
  */
 export class RefreshTokenDto {
+    @IsOptional()
     @IsString()
-    refreshToken: string;
+    refreshToken?: string;
 }
 
 /**

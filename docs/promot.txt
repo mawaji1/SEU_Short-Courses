@@ -1,0 +1,2 @@
+This is WIP project. We've started with some of the requirements listed in the @prds folder. Then, I started some review process and you can find its resuls in the same JSON file. 
+Now, I need you to review this and start enhancing the feature. 

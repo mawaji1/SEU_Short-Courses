@@ -10,6 +10,7 @@ import { Mail, Lock, User, Phone, ArrowLeft, Loader2, AlertCircle } from "lucide
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 
 function RegisterPageContent() {
     const router = useRouter();
@@ -209,6 +210,8 @@ function RegisterPageContent() {
                                     required
                                 />
                             </div>
+                            {/* Password Strength Indicator */}
+                            <PasswordStrengthIndicator password={formData.password} className="mt-3" />
                         </div>
 
                         {/* Confirm Password */}

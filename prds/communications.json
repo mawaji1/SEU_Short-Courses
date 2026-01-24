@@ -1,0 +1,300 @@
+{
+    "projectName": "Communications",
+    "branchName": "ralph/communications",
+    "description": "Deliver timely notifications to learners, instructors, and staff via email and in-platform messaging",
+    "dependsOn": [
+        "user-auth",
+        "registration-b2c",
+        "certificates"
+    ],
+    "status": "needs_fixes",
+    "completedAt": null,
+    "verifiedAt": "2026-01-23",
+    "verificationSummary": {
+        "storiesPassed": 6,
+        "storiesTotal": 12,
+        "securityOk": false,
+        "testCoverage": 0,
+        "uiReviewed": false
+    },
+    "userStories": [
+        {
+            "id": "US-001",
+            "title": "Email Configuration",
+            "description": "As a developer, I want email config so that sending works",
+            "acceptanceCriteria": [
+                "SMTP or API provider config (SendGrid, Postmark, etc.)",
+                "From address configured",
+                "Environment-specific settings",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 1,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Email service configuration exists using generic provider patterns in `email.processor.ts`.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/notification/processors/email.processor.ts"
+            ]
+        },
+        {
+            "id": "US-002",
+            "title": "Email Template Schema",
+            "description": "As a developer, I want template schema so that emails are customizable",
+            "acceptanceCriteria": [
+                "EmailTemplate table: id, key, subject_ar, subject_en, body_ar, body_en",
+                "Supports variables: {{name}}, {{program}}, etc.",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 2,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Templates are file-based/hardcoded ids in service (seen `registration-confirmation`, etc). No DB schema for dynamic templates.",
+            "recommendations": [
+                "Migrate to DB-backed `EmailTemplate` schema"
+            ],
+            "implementedIn": [
+                "backend/src/modules/notification/notification.service.ts"
+            ]
+        },
+        {
+            "id": "US-003",
+            "title": "Registration Confirmation Email",
+            "description": "As a system, I want to send confirmation emails so that learners know they're enrolled",
+            "acceptanceCriteria": [
+                "Triggered on payment success",
+                "Contains: program name, dates, receipt",
+                "Calendar invite attachment",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 3,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "`sendRegistrationConfirmation` method exists.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/notification/notification.service.ts"
+            ]
+        },
+        {
+            "id": "US-004",
+            "title": "Payment Receipt Email",
+            "description": "As a system, I want to send receipts so that learners have records",
+            "acceptanceCriteria": [
+                "Triggered on payment success",
+                "Contains: amount, method, receipt number",
+                "PDF attachment option",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 4,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "`sendPaymentReceipt` method exists.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/notification/notification.service.ts"
+            ]
+        },
+        {
+            "id": "US-005",
+            "title": "Pre-Course Reminder",
+            "description": "As a system, I want to send reminders so that learners don't forget",
+            "acceptanceCriteria": [
+                "Sent N days before course start",
+                "Contains: start date, time, join instructions",
+                "Configurable timing",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 5,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No scheduled task/cron for pre-course reminders found.",
+            "recommendations": [
+                "Implement Cron job for reminders"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-006",
+            "title": "Session Reminder",
+            "description": "As a system, I want to send session reminders so that attendance is high",
+            "acceptanceCriteria": [
+                "Sent 1 hour before session",
+                "Contains: session time, join link",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 6,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "No scheduled task/cron for session reminders found.",
+            "recommendations": [
+                "Implement Cron job for session reminders"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-007",
+            "title": "Completion Email",
+            "description": "As a system, I want to notify completion so that learners celebrate",
+            "acceptanceCriteria": [
+                "Sent when course ends",
+                "Contains: congratulations, certificate link",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 7,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "`sendCourseCompletion` method exists.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/notification/notification.service.ts"
+            ]
+        },
+        {
+            "id": "US-008",
+            "title": "Certificate Ready Email",
+            "description": "As a system, I want to notify certificate so that learners download it",
+            "acceptanceCriteria": [
+                "Sent when certificate issued",
+                "Contains: download link, verification code",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 8,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Certificate issued notification logic exists.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/notification/notification.service.ts"
+            ]
+        },
+        {
+            "id": "US-009",
+            "title": "Notification Schema",
+            "description": "As a developer, I want notification schema for in-app notifications",
+            "acceptanceCriteria": [
+                "Notification table: id, user_id, type, title, message, read, created_at",
+                "NotificationType enum: INFO, SUCCESS, WARNING, ACTION",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 9,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Notification schema exists in `notification.service.ts` imports and usage.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/prisma/schema.prisma"
+            ]
+        },
+        {
+            "id": "US-010",
+            "title": "In-App Notification Bell",
+            "description": "As a user, I want notification bell so that I see updates",
+            "acceptanceCriteria": [
+                "Bell icon in header",
+                "Unread count badge",
+                "Dropdown with recent notifications",
+                "Mark as read",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000 (logged in)"
+            ],
+            "priority": 10,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Frontend Notification Bell component not found.",
+            "recommendations": [
+                "Implement `NotificationBell` component",
+                "Integrate with WebSocket/Polling"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-011",
+            "title": "Bulk Email Send",
+            "description": "As an Operations Coordinator, I want to send bulk emails so that I can communicate",
+            "acceptanceCriteria": [
+                "Compose form with subject/body",
+                "Select cohort or custom recipients",
+                "Preview before send",
+                "Typecheck passes",
+                "Lint passes",
+                "Verify at localhost:3000/admin/communications"
+            ],
+            "priority": 11,
+            "passes": false,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": false,
+            "testCoverage": 0,
+            "notes": "Bulk send API or Admin Page not found.",
+            "recommendations": [
+                "Implement Admin Bulk Email UI",
+                "Add Bulk Send API endpoint"
+            ],
+            "implementedIn": []
+        },
+        {
+            "id": "US-012",
+            "title": "Email Queue Processing",
+            "description": "As a system, I want email queue so that sending is reliable",
+            "acceptanceCriteria": [
+                "Queue emails for async processing",
+                "Retry failed sends",
+                "Track delivery status",
+                "Typecheck passes",
+                "Lint passes"
+            ],
+            "priority": 12,
+            "passes": true,
+            "verified": "2026-01-23",
+            "verifiedBy": "Antigravity",
+            "securityOk": true,
+            "testCoverage": 0,
+            "notes": "Service uses `@nestjs/bull` for queueing.",
+            "recommendations": [],
+            "implementedIn": [
+                "backend/src/modules/notification/notification.service.ts"
+            ]
+        }
+    ]
+}

@@ -18,6 +18,7 @@ function LoginPageContent() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { login } = useAuth();
@@ -28,11 +29,11 @@ function LoginPageContent() {
         setIsLoading(true);
 
         try {
-            const result = await login(email, password);
+            const result = await login(email, password, rememberMe);
 
             // Role-based redirect
             const userRole = result.user?.role;
-            const adminRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'COORDINATOR'];
+            const adminRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'PROGRAM_MANAGER'];
 
             if (adminRoles.includes(userRole)) {
                 router.push('/admin');
@@ -110,6 +111,20 @@ function LoginPageContent() {
                                     required
                                 />
                             </div>
+                        </div>
+
+                        {/* Remember Me */}
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent/20 cursor-pointer"
+                            />
+                            <label htmlFor="rememberMe" className="text-sm text-gray-700 cursor-pointer select-none">
+                                تذكرني (البقاء متصلاً لمدة 30 يوماً)
+                            </label>
                         </div>
 
                         {/* Error Message */}

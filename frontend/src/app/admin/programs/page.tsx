@@ -1,26 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Plus, Search, Pencil, Trash2, Eye, Calendar, Users,
-  ChevronDown, ChevronUp, X, Loader2, UserPlus
+  ChevronDown, ChevronUp, X, Loader2, UserPlus, Copy
 } from 'lucide-react';
+import { CurriculumBuilder } from '@/components/admin';
 
 interface Program {
   id: string;
   titleAr: string;
   titleEn: string;
   slug: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  shortDescriptionAr?: string;
+  shortDescriptionEn?: string;
   price: number;
+  earlyBirdPrice?: number;
+  corporatePrice?: number;
+  durationHours?: number;
+  type?: string;
+  deliveryMode?: string;
   status: string;
   isFeatured?: boolean;
-  category: {
+  certificateEnabled?: boolean;
+  certificateAttendanceThreshold?: number;
+  category?: {
+    id: string;
     nameAr: string;
   };
   instructor?: {
     nameAr: string;
   };
+  modules?: any[];
 }
 
 interface Cohort {
@@ -66,6 +80,7 @@ export default function AdminProgramsPage() {
   const [cohorts, setCohorts] = useState<Record<string, Cohort[]>>({});
   const [showCohortModal, setShowCohortModal] = useState(false);
   const [showProgramModal, setShowProgramModal] = useState(false);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const [programForm, setProgramForm] = useState({
     titleAr: '',
     titleEn: '',
@@ -74,12 +89,15 @@ export default function AdminProgramsPage() {
     shortDescriptionAr: '',
     shortDescriptionEn: '',
     price: '',
+    earlyBirdPrice: '',
+    corporatePrice: '',
     categoryId: '',
-    instructorId: '',
     durationHours: '',
     type: 'COURSE',
     deliveryMode: 'ONLINE',
     isFeatured: false,
+    certificateEnabled: true,
+    certificateAttendanceThreshold: 80,
   });
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [cohortForm, setCohortForm] = useState({
@@ -276,39 +294,46 @@ export default function AdminProgramsPage() {
       if (!authData) return;
 
       const auth = JSON.parse(authData);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          body: JSON.stringify({
-            titleAr: programForm.titleAr,
-            titleEn: programForm.titleEn,
-            descriptionAr: programForm.descriptionAr,
-            descriptionEn: programForm.descriptionEn,
-            shortDescriptionAr: programForm.shortDescriptionAr,
-            shortDescriptionEn: programForm.shortDescriptionEn,
-            price: parseFloat(programForm.price),
-            categoryId: programForm.categoryId,
-            instructorId: programForm.instructorId || null,
-            durationHours: parseInt(programForm.durationHours),
-            type: programForm.type,
-            deliveryMode: programForm.deliveryMode,
-            isFeatured: programForm.isFeatured,
-            status: 'DRAFT',
-          }),
+      const isEditing = !!editingProgramId;
+      const url = isEditing
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs/${editingProgramId}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs`;
+
+      const response = await fetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.accessToken}`,
         },
-      );
+        body: JSON.stringify({
+          titleAr: programForm.titleAr,
+          titleEn: programForm.titleEn,
+          descriptionAr: programForm.descriptionAr,
+          descriptionEn: programForm.descriptionEn,
+          shortDescriptionAr: programForm.shortDescriptionAr,
+          shortDescriptionEn: programForm.shortDescriptionEn,
+          slug: programForm.titleEn.toLowerCase().replace(/\s+/g, '-'),
+          price: parseFloat(programForm.price),
+          earlyBirdPrice: programForm.earlyBirdPrice ? parseFloat(programForm.earlyBirdPrice) : undefined,
+          corporatePrice: programForm.corporatePrice ? parseFloat(programForm.corporatePrice) : undefined,
+          categoryId: programForm.categoryId,
+          durationHours: parseInt(programForm.durationHours),
+          type: programForm.type,
+          deliveryMode: programForm.deliveryMode,
+          isFeatured: programForm.isFeatured,
+          certificateEnabled: programForm.certificateEnabled,
+          certificateAttendanceThreshold: programForm.certificateAttendanceThreshold,
+          ...(isEditing ? {} : { status: 'DRAFT' }),
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error('فشل في إنشاء البرنامج');
+        throw new Error(isEditing ? 'فشل في تحديث البرنامج' : 'فشل في إنشاء البرنامج');
       }
 
-      setSuccess('تم إنشاء البرنامج بنجاح');
+      setSuccess(isEditing ? 'تم تحديث البرنامج بنجاح' : 'تم إنشاء البرنامج بنجاح');
       setShowProgramModal(false);
+      setEditingProgramId(null);
       setProgramForm({
         titleAr: '',
         titleEn: '',
@@ -317,16 +342,75 @@ export default function AdminProgramsPage() {
         shortDescriptionAr: '',
         shortDescriptionEn: '',
         price: '',
+        earlyBirdPrice: '',
+        corporatePrice: '',
         categoryId: '',
-        instructorId: '',
         durationHours: '',
         type: 'COURSE',
         deliveryMode: 'ONLINE',
         isFeatured: false,
+        certificateEnabled: true,
+        certificateAttendanceThreshold: 80,
       });
       fetchPrograms();
     } catch (err: any) {
-      setError(err.message || 'حدث خطأ أثناء إنشاء البرنامج');
+      setError(err.message || 'حدث خطأ أثناء حفظ البرنامج');
+    }
+  };
+
+  const handleStatusChange = async (programId: string, newStatus: string) => {
+    try {
+      const authData = localStorage.getItem('seu_auth');
+      if (!authData) return;
+
+      const auth = JSON.parse(authData);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs/${programId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('فشل في تحديث حالة البرنامج');
+      }
+
+      setSuccess('تم تحديث حالة البرنامج بنجاح');
+      fetchPrograms();
+    } catch (err: any) {
+      setError(err.message || 'حدث خطأ أثناء تحديث حالة البرنامج');
+    }
+  };
+
+  const handleCloneProgram = async (programId: string) => {
+    try {
+      const authData = localStorage.getItem('seu_auth');
+      if (!authData) return;
+
+      const auth = JSON.parse(authData);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs/${programId}/clone`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('فشل في نسخ البرنامج');
+      }
+
+      setSuccess('تم نسخ البرنامج بنجاح');
+      fetchPrograms();
+    } catch (err: any) {
+      setError(err.message || 'حدث خطأ أثناء نسخ البرنامج');
     }
   };
 
@@ -490,11 +574,8 @@ export default function AdminProgramsPage() {
             </thead>
             <tbody>
               {filteredPrograms.map((program) => (
-                <>
-                  <tr
-                    key={program.id}
-                    className="border-b border-gray-100 hover:bg-gray-50"
-                  >
+                <React.Fragment key={program.id}>
+                  <tr className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="font-medium text-gray-900">{program.titleAr}</div>
                       <div className="text-sm text-gray-500">{program.titleEn}</div>
@@ -510,20 +591,21 @@ export default function AdminProgramsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${program.status === 'PUBLISHED'
-                          ? 'bg-green-100 text-green-700'
-                          : program.status === 'DRAFT'
-                            ? 'bg-gray-100 text-gray-600'
-                            : 'bg-yellow-100 text-yellow-700'
-                          }`}
+                      <select
+                        value={program.status}
+                        onChange={(e) => handleStatusChange(program.id, e.target.value)}
+                        className={`text-xs px-3 py-1.5 rounded-lg border font-medium cursor-pointer ${
+                          program.status === 'PUBLISHED'
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : program.status === 'DRAFT'
+                            ? 'bg-gray-50 text-gray-600 border-gray-200'
+                            : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                        }`}
                       >
-                        {program.status === 'PUBLISHED'
-                          ? 'منشور'
-                          : program.status === 'DRAFT'
-                            ? 'مسودة'
-                            : 'مؤرشف'}
-                      </span>
+                        <option value="DRAFT">مسودة</option>
+                        <option value="PUBLISHED">منشور</option>
+                        <option value="ARCHIVED">مؤرشف</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -548,18 +630,64 @@ export default function AdminProgramsPage() {
                         >
                           <Plus className="w-4 h-4" />
                         </button>
+                        <button
+                          onClick={() => {
+                            setEditingProgramId(program.id);
+                            setProgramForm({
+                              titleAr: program.titleAr,
+                              titleEn: program.titleEn,
+                              shortDescriptionAr: program.shortDescriptionAr || '',
+                              shortDescriptionEn: program.shortDescriptionEn || '',
+                              descriptionAr: program.descriptionAr,
+                              descriptionEn: program.descriptionEn,
+                              price: program.price.toString(),
+                              earlyBirdPrice: program.earlyBirdPrice?.toString() || '',
+                              corporatePrice: program.corporatePrice?.toString() || '',
+                              durationHours: program.durationHours?.toString() || '',
+                              categoryId: program.category?.id || '',
+                              type: program.type || 'COURSE',
+                              deliveryMode: program.deliveryMode || 'ONLINE',
+                              isFeatured: program.isFeatured || false,
+                              certificateEnabled: program.certificateEnabled ?? true,
+                              certificateAttendanceThreshold: program.certificateAttendanceThreshold ?? 80,
+                            });
+                            setShowProgramModal(true);
+                          }}
+                          className="p-2 hover:bg-green-50 rounded-lg text-green-600"
+                          title="تعديل البرنامج"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleCloneProgram(program.id)}
+                          className="p-2 hover:bg-purple-50 rounded-lg text-purple-600"
+                          title="نسخ البرنامج"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
 
-                  {/* Cohorts Expansion */}
+                  {/* Cohorts and Curriculum Expansion */}
                   {expandedProgram === program.id && (
                     <tr>
                       <td colSpan={5} className="px-6 py-4 bg-gray-50">
-                        <div className="space-y-3">
-                          <h4 className="font-bold text-gray-900 mb-3">
-                            الدفعات التدريبية
-                          </h4>
+                        <div className="space-y-6">
+                          {/* Curriculum Section */}
+                          <div className="bg-white rounded-lg p-4 border border-gray-200">
+                            <CurriculumBuilder
+                              programId={program.id}
+                              initialModules={program.modules || []}
+                              onUpdate={() => fetchPrograms()}
+                            />
+                          </div>
+
+                          {/* Cohorts Section */}
+                          <div>
+                            <h4 className="font-bold text-gray-900 mb-3">
+                              الدفعات التدريبية
+                            </h4>
                           {cohorts[program.id]?.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {cohorts[program.id].map((cohort) => (
@@ -636,11 +764,12 @@ export default function AdminProgramsPage() {
                               لا توجد دفعات لهذا البرنامج
                             </p>
                           )}
+                          </div>
                         </div>
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
@@ -653,14 +782,19 @@ export default function AdminProgramsPage() {
         )}
       </div>
 
-      {/* Create Program Modal */}
+      {/* Create/Edit Program Modal */}
       {showProgramModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">إضافة برنامج جديد</h3>
+              <h3 className="text-2xl font-bold text-gray-900">
+                {editingProgramId ? 'تعديل البرنامج' : 'إضافة برنامج جديد'}
+              </h3>
               <button
-                onClick={() => setShowProgramModal(false)}
+                onClick={() => {
+                  setShowProgramModal(false);
+                  setEditingProgramId(null);
+                }}
                 className="p-2 hover:bg-gray-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
@@ -761,7 +895,7 @@ export default function AdminProgramsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    السعر (ر.س) *
+                    السعر الأساسي (ر.س) *
                   </label>
                   <input
                     type="number"
@@ -773,6 +907,40 @@ export default function AdminProgramsPage() {
                       setProgramForm({ ...programForm, price: e.target.value })
                     }
                     className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    سعر الحجز المبكر (ر.س)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={programForm.earlyBirdPrice}
+                    onChange={(e) =>
+                      setProgramForm({ ...programForm, earlyBirdPrice: e.target.value })
+                    }
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    placeholder="اختياري"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    السعر المؤسسي (ر.س)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={programForm.corporatePrice}
+                    onChange={(e) =>
+                      setProgramForm({ ...programForm, corporatePrice: e.target.value })
+                    }
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    placeholder="اختياري"
                   />
                 </div>
 
@@ -813,25 +981,43 @@ export default function AdminProgramsPage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    المدرب (اختياري)
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={programForm.certificateEnabled}
+                      onChange={(e) =>
+                        setProgramForm({ ...programForm, certificateEnabled: e.target.checked })
+                      }
+                      className="rounded border-gray-300"
+                    />
+                    تفعيل الشهادات
                   </label>
-                  <select
-                    value={programForm.instructorId}
-                    onChange={(e) =>
-                      setProgramForm({ ...programForm, instructorId: e.target.value })
-                    }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
-                  >
-                    <option value="">بدون مدرب</option>
-                    {instructors.map((instructor) => (
-                      <option key={instructor.id} value={instructor.id}>
-                        {instructor.nameAr}
-                      </option>
-                    ))}
-                  </select>
                 </div>
+
+                {programForm.certificateEnabled && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      نسبة الحضور المطلوبة للشهادة: {programForm.certificateAttendanceThreshold}%
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={programForm.certificateAttendanceThreshold}
+                      onChange={(e) =>
+                        setProgramForm({ ...programForm, certificateAttendanceThreshold: parseInt(e.target.value) })
+                      }
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>0%</span>
+                      <span>50%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -895,12 +1081,15 @@ export default function AdminProgramsPage() {
 
               <div className="flex gap-3 pt-4">
                 <Button type="submit" className="flex-1">
-                  إنشاء البرنامج
+                  {editingProgramId ? 'حفظ التعديلات' : 'إنشاء البرنامج'}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowProgramModal(false)}
+                  onClick={() => {
+                    setShowProgramModal(false);
+                    setEditingProgramId(null);
+                  }}
                   className="flex-1"
                 >
                   إلغاء

@@ -77,12 +77,20 @@ export class CreateProgramDto {
     @Type(() => Number)
     price: number;
 
-    @IsString()
-    categoryId: string;
+    @IsNumber()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    earlyBirdPrice?: number;
+
+    @IsNumber()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    corporatePrice?: number;
 
     @IsString()
-    @IsOptional()
-    instructorId?: string;
+    categoryId: string;
 
     @IsString()
     @IsOptional()
@@ -121,6 +129,16 @@ export class CreateProgramDto {
     @IsBoolean()
     @IsOptional()
     isFeatured?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    certificateEnabled?: boolean;
+
+    @IsInt()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    certificateAttendanceThreshold?: number;
 }
 
 /**
@@ -179,6 +197,18 @@ export class UpdateProgramDto {
     @Type(() => Number)
     price?: number;
 
+    @IsNumber()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    earlyBirdPrice?: number;
+
+    @IsNumber()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    corporatePrice?: number;
+
     @IsEnum(ProgramStatus)
     @IsOptional()
     status?: ProgramStatus;
@@ -186,10 +216,6 @@ export class UpdateProgramDto {
     @IsString()
     @IsOptional()
     categoryId?: string;
-
-    @IsString()
-    @IsOptional()
-    instructorId?: string;
 
     @IsString()
     @IsOptional()
@@ -229,6 +255,16 @@ export class UpdateProgramDto {
     @IsOptional()
     isFeatured?: boolean;
 
+    @IsBoolean()
+    @IsOptional()
+    certificateEnabled?: boolean;
+
+    @IsInt()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    certificateAttendanceThreshold?: number;
+
     @IsInt()
     @Min(0)
     @IsOptional()
@@ -267,6 +303,10 @@ export class ProgramQueryDto {
     @IsString()
     @IsOptional()
     search?: string;
+
+    @IsEnum(DeliveryMode)
+    @IsOptional()
+    deliveryMode?: DeliveryMode;
 
     @IsBoolean()
     @IsOptional()

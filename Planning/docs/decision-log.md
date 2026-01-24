@@ -2,7 +2,7 @@
 
 **Document Type:** Planning Artifact  
 **Status:** Living Document  
-**Last Updated:** 2026-01-03
+**Last Updated:** 2026-01-23
 
 ---
 
@@ -20,14 +20,14 @@ This document tracks all significant decisions related to the SEU Short Courses 
 
 | Category | Made | Pending | Deferred |
 |----------|------|---------|----------|
-| Strategic | 5 | 0 | 0 |
-| Integration | 4 | 2 | 1 |
-| Product | 6 | 2 | 2 |
+| Strategic | 7 | 0 | 0 |
+| Integration | 6 | 2 | 1 |
+| Product | 8 | 2 | 2 |
 | Technical | 7 | 0 | 3 |
 | UX/Design | 6 | 0 | 0 |
 
 > [!IMPORTANT]
-> **Phase 0 + Design & Architecture Complete** — All blocking decisions closed. Implementation authorized.
+> **Scope Finalized (2026-01-23)** — Major changes: Blackboard removed, HyperPay replaces Moyasar, Zoom added, B2B in MVP.
 
 ---
 
@@ -37,20 +37,24 @@ This document tracks all significant decisions related to the SEU Short Courses 
 
 | ID | Decision | Rationale | Date | Owner |
 |----|----------|-----------|------|-------|
-| D-S01 | **Blackboard retained as LMS** | Existing investment, no need to replace learning delivery | BRD | Stakeholder |
-| D-S02 | **Platform manages experience, not learning** | Clear scope separation between commerce and learning | BRD | Architecture |
+| D-S01 | **~~Blackboard retained as LMS~~ REMOVED** | ~~Existing investment~~ → Full learning delivery in-platform | 2026-01-23 | Stakeholder |
+| D-S02 | **Platform manages full learning lifecycle** | Scope expanded to include live training delivery | 2026-01-23 | Architecture |
 | D-S03 | **Individual + Corporate (B2B) support required** | Business model requires both segments | BRD | Business |
 | D-S04 | **Arabic is primary language; English secondary** | Saudi market, institutional requirement | BRD | Product |
 | D-S05 | **Phased delivery approach** | Start with MVP, expand to B2B, then ecosystem | BRD | PMO |
+| D-S06 | **B2B Coordinator Portal in MVP** | Client requirement; moved from Phase 2 | 2026-01-23 | Product |
+| D-S07 | **Live training format (synchronous only)** | All training via live Zoom sessions | 2026-01-23 | Product |
 
 ### Integration Decisions
 
 | ID | Decision | Rationale | Date | Owner |
 |----|----------|-----------|------|-------|
-| D-I01 | **Moyasar for card payments** | Saudi-based, PCI-compliant, established | BRD | Finance |
+| D-I01 | **~~Moyasar~~ HyperPay for card payments** | Client preference; HyperPay replaces Moyasar | 2026-01-23 | Finance |
 | D-I02 | **Tabby + Tamara for BNPL** | Market-leading BNPL providers in Saudi | BRD | Finance |
-| D-I03 | **Blackboard REST APIs as primary integration** | Full control over provisioning, enrollment, completion sync; better error handling and retry; fits transactional workflows | 2026-01-03 | Architecture |
-| D-I04 | **LTI deferred to future enhancement** | Optional for future embedded experiences | 2026-01-03 | Architecture |
+| D-I03 | **~~Blackboard REST APIs~~ REMOVED** | Learning delivery now in-platform | 2026-01-23 | Architecture |
+| D-I04 | **Zoom Meeting SDK + API for live training** | Embedded sessions, automatic attendance tracking | 2026-01-23 | Architecture |
+| D-I05 | **Zoom webhooks for attendance** | Automatic participant tracking via webhooks | 2026-01-23 | Architecture |
+| D-I06 | **Zoom Pro licenses for instructors** | ~15-17 licenses for concurrent courses | 2026-01-23 | Operations |
 
 ### Product Decisions
 
@@ -62,6 +66,8 @@ This document tracks all significant decisions related to the SEU Short Courses 
 | D-P04 | **BNPL enabled only for paid public courses** | Minimum price threshold required; disabled for free courses, corporate bulk, custom cohorts | 2026-01-03 | Product + Finance |
 | D-P05 | **Standardized refund policy** | Full refund before cutoff (course start – N days); no refund after course start; BNPL follows provider workflows | 2026-01-03 | Finance + Legal |
 | D-P06 | **SEU brand assets confirmed available** | Located in `ui/` folder: logos (PNG, AI), color palettes, decorative elements | 2026-01-03 | Brand |
+| D-P07 | **Approval workflows for risky operations** | Refunds, cancellations, bulk enrollment, certificate overrides require approval | 2026-01-23 | Operations |
+| D-P08 | **Instructor portal with messaging** | Materials upload, attendance tracking, learner messaging | 2026-01-23 | Product |
 
 ### Technical Decisions
 
@@ -138,7 +144,9 @@ This document tracks all significant decisions related to the SEU Short Courses 
 
 | Decision Area | Status | Reference |
 |---------------|--------|-----------|
-| Blackboard integration method | ✅ Closed | D-I03 (REST APIs) |
+| ~~Blackboard integration~~ | ❌ REMOVED | D-I03 (Now in-platform) |
+| Zoom integration | ✅ Added | D-I04, D-I05 |
+| Payment provider | ✅ Changed | D-I01 (HyperPay) |
 | Technical stack direction | ✅ Closed | D-T01 (Modern cloud-ready) |
 | Hosting strategy | ✅ Closed | D-T02 (SEU-approved cloud) |
 | Authentication approach | ✅ Closed | D-T03 (Email/password + RBAC) |
@@ -146,6 +154,7 @@ This document tracks all significant decisions related to the SEU Short Courses 
 | Refund policy | ✅ Closed | D-P05 (Standardized policy) |
 | Brand assets availability | ✅ Closed | D-P06, D-U05 (Available in `ui/`) |
 | Design system foundation | ✅ Closed | D-U04 (Platforms Code mandatory) |
+| B2B in MVP | ✅ Added | D-S06 |
 
 ➡️ **Phase 0 Gate criteria met.**
 

@@ -30,11 +30,22 @@ function VerifyEmailPageContent() {
 
     const verifyEmail = async () => {
         try {
-            // TODO: Call API to verify email
-            // await authService.verifyEmail(token!);
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/verify-email`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ token }),
+                }
+            );
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "فشل التحقق من البريد الإلكتروني");
+            }
 
             setIsSuccess(true);
             setIsVerifying(false);

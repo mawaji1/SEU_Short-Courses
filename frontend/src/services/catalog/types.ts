@@ -42,6 +42,33 @@ export interface Instructor {
     };
 }
 
+export interface ProgramModule {
+    id: string;
+    programId: string;
+    titleAr: string;
+    titleEn: string;
+    descriptionAr?: string;
+    descriptionEn?: string;
+    durationHours: number;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+    sessions?: Session[];
+}
+
+export interface Session {
+    id: string;
+    moduleId: string;
+    titleAr: string;
+    titleEn: string;
+    descriptionAr?: string;
+    descriptionEn?: string;
+    durationMinutes: number;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Program {
     id: string;
     titleAr: string;
@@ -55,10 +82,11 @@ export interface Program {
     deliveryMode: DeliveryMode;
     durationHours: number;
     price: string | number;
+    earlyBirdPrice?: string | number;
+    corporatePrice?: string | number;
     currency: string;
     status: ProgramStatus;
     categoryId: string;
-    instructorId?: string;
     imageUrl?: string;
     prerequisitesAr?: string;
     prerequisitesEn?: string;
@@ -67,6 +95,8 @@ export interface Program {
     targetAudienceAr?: string;
     targetAudienceEn?: string;
     blackboardCourseId?: string;
+    certificateEnabled: boolean;
+    certificateAttendanceThreshold: number;
     isFeatured: boolean;
     sortOrder: number;
     createdAt: string;
@@ -74,6 +104,7 @@ export interface Program {
     category?: Category;
     instructor?: Instructor;
     cohorts?: Cohort[];
+    modules?: ProgramModule[];
     _count?: {
         cohorts: number;
     };
