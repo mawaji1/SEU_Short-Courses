@@ -1,0 +1,107 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/learner';
+import { CourseCard } from '@/components/learner/dashboard';
+
+interface Enrollment {
+  id: string;
+  progress: number;
+  completionStatus: string | null;
+  cohort: {
+    program: {
+      titleAr: string;
+      certificateEnabled: boolean;
+    };
+    instructor: { nameAr: string } | null;
+  };
+}
+
+export default function MyCoursesPage() {
+  const router = useRouter();
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/enrollments/my-courses`,
+          { credentials: 'include' }
+        );
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            router.push('/login');
+            return;
+          }
+          throw new Error('Failed to fetch');
+        }
+
+        setEnrollments(await res.json());
+      } catch {
+        // Error handling
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEnrollments();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-seu-blue" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-full">
+      <PageHeader
+        title="دوراتي"
+        subtitle={`${enrollments.length} دورة مسجلة`}
+      />
+
+      <div className="p-6">
+        {enrollments.length === 0 ? (
+          <div className="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
+            <p className="text-gray-500">لم تلتحق بأي دورة بعد</p>
+            <button
+              onClick={() => router.push('/programs')}
+              className="mt-4 rounded-lg bg-seu-blue px-6 py-2 text-white"
+            >
+              تصفح الدورات
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {enrollments.map((enrollment) => (
+              <CourseCard
+                key={enrollment.id}
+                id={enrollment.id}
+                title={enrollment.cohort.program.titleAr}
+                instructor={enrollment.cohort.instructor?.nameAr || 'المدرب'}
+                progress={enrollment.progress}
+                status={
+                  enrollment.completionStatus === 'COMPLETED'
+                    ? 'COMPLETED'
+                    : enrollment.completionStatus === 'IN_PROGRESS'
+                      ? 'IN_PROGRESS'
+                      : 'UPCOMING'
+                }
+                certificateReady={
+                  enrollment.completionStatus === 'COMPLETED' &&
+                  enrollment.cohort.program.certificateEnabled
+                }
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
