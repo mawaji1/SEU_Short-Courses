@@ -163,42 +163,6 @@ export async function validatePromoCode(
 }
 
 /**
- * Join waitlist for a cohort
- */
-export async function joinWaitlist(cohortId: string, token: string): Promise<any> {
-    const response = await fetch(`${API_BASE}/api/waitlist`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ cohortId }),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to join waitlist');
-    }
-    return response.json();
-}
-
-/**
- * Get user's waitlist entries
- */
-export async function getUserWaitlistEntries(token: string): Promise<any[]> {
-    const response = await fetch(`${API_BASE}/api/waitlist`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch waitlist entries');
-    }
-    return response.json();
-}
-
-/**
  * Cancel a registration
  */
 export async function cancelRegistration(
