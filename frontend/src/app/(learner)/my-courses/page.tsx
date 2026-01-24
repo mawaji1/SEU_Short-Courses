@@ -23,6 +23,7 @@ export default function MyCoursesPage() {
   const router = useRouter();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -37,12 +38,12 @@ export default function MyCoursesPage() {
             router.push('/login');
             return;
           }
-          throw new Error('Failed to fetch');
+          throw new Error('فشل تحميل البيانات');
         }
 
         setEnrollments(await res.json());
-      } catch {
-        // Error handling
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'حدث خطأ');
       } finally {
         setLoading(false);
       }
@@ -55,6 +56,22 @@ export default function MyCoursesPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-seu-blue" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-lg bg-seu-blue px-4 py-2 text-white"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
       </div>
     );
   }

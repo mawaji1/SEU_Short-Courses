@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Loader2, Download, CheckCircle, Award, Calendar } from 'lucide-react';
 import { PageHeader } from '@/components/learner';
 
@@ -21,12 +22,14 @@ interface Certificate {
 }
 
 export default function CertificatesPage() {
+  const router = useRouter();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchCertificates();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCertificates = async () => {
@@ -39,7 +42,7 @@ export default function CertificatesPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/login';
+          router.push('/login');
           return;
         }
         throw new Error('فشل في جلب الشهادات');
