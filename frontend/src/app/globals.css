@@ -3,6 +3,57 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* SEU/DGA Primary Colors (Green scale - Saudi Design System) */
+    --seu-primary-50: #E8F5E9;
+    --seu-primary-100: #C8E6C9;
+    --seu-primary-200: #A5D6A7;
+    --seu-primary-300: #81C784;
+    --seu-primary-400: #66BB6A;
+    --seu-primary-500: #4CAF50;
+    --seu-primary-600: #43A047;
+    --seu-primary-700: #388E3C;
+    --seu-primary-800: #2E7D32;
+    --seu-primary-900: #1B5E20;
+
+    /* SEU/DGA Secondary Colors (Gold/Amber scale) */
+    --seu-secondary-50: #FFF8E1;
+    --seu-secondary-100: #FFECB3;
+    --seu-secondary-200: #FFE082;
+    --seu-secondary-300: #FFD54F;
+    --seu-secondary-400: #FFCA28;
+    --seu-secondary-500: #FFC107;
+    --seu-secondary-600: #FFB300;
+    --seu-secondary-700: #FFA000;
+    --seu-secondary-800: #FF8F00;
+    --seu-secondary-900: #FF6F00;
+
+    /* Neutral Colors */
+    --seu-neutral-0: #FFFFFF;
+    --seu-neutral-50: #FAFAFA;
+    --seu-neutral-100: #F5F5F5;
+    --seu-neutral-200: #EEEEEE;
+    --seu-neutral-300: #E0E0E0;
+    --seu-neutral-400: #BDBDBD;
+    --seu-neutral-500: #9E9E9E;
+    --seu-neutral-600: #757575;
+    --seu-neutral-700: #616161;
+    --seu-neutral-800: #424242;
+    --seu-neutral-900: #212121;
+
+    /* Semantic Colors */
+    --color-text-inverse: #FFFFFF;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-20: 5rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-5xl: 3rem;
+    --font-weight-bold: 700;
+    --line-height-tight: 1.25;
+  }
+
   html {
     direction: rtl;
   }

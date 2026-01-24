@@ -54,16 +54,21 @@ const config: Config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
-                // SEU Brand Colors
+                // SEU/DGA Brand Colors (Saudi Design System - Green Primary)
                 seu: {
-                    cyan: "#32B7A8",       // PANTONE 3252C
-                    blue: "#0083BE",       // PANTONE 7460C
-                    purple: "#593888",     // PANTONE 267C
-                    navy: "#111E4D",       // PANTONE 662C
-                    orange: "#FFA300",     // PANTONE 137
-                    lime: "#C4D600",       // PANTONE 382
-                    slate: "#5A6872",      // PANTONE 7545
-                    gray: "#D0D3D4",       // PANTONE 427
+                    // Primary (Green) - Main brand color
+                    blue: "#43A047",       // DGA Primary (green-600)
+                    // Dark variant
+                    navy: "#1B5E20",       // DGA Primary dark (green-900)
+                    // Accent colors
+                    cyan: "#66BB6A",       // Light green (green-400)
+                    purple: "#388E3C",     // Medium green (green-700)
+                    // Secondary (Gold/Amber)
+                    orange: "#FFB300",     // DGA Secondary (amber-600)
+                    lime: "#FFC107",       // Amber-500
+                    // Neutrals
+                    slate: "#616161",      // Gray-700
+                    gray: "#E0E0E0",       // Gray-300
                 },
             },
             fontFamily: {
