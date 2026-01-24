@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 import {
     Calendar,
     Clock,
@@ -40,6 +41,8 @@ interface Program {
 
 function CheckoutContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const { isAuthenticated } = useAuth();
     const programSlug = searchParams.get('program');
 
     // State
@@ -155,24 +158,14 @@ function CheckoutContent() {
         setError(null);
         
         try {
-            // Get auth token from localStorage
-            const authData = localStorage.getItem('seu_auth');
-            if (!authData) {
-                window.location.href = `/login?redirect=/checkout?program=${programSlug}`;
-                return;
-            }
-
-            const auth = JSON.parse(authData);
-            const token = auth.accessToken;
-            
-            if (!token) {
-                window.location.href = `/login?redirect=/checkout?program=${programSlug}`;
+            // Check authentication using context
+            if (!isAuthenticated) {
+                router.push(`/login?redirect=/checkout?program=${programSlug}`);
                 return;
             }
 
             console.log('Initiating registration for cohort:', selectedCohort);
-            console.log('Using token:', token.substring(0, 20) + '...');
-            const registrationData = await initiateRegistration(selectedCohort, token);
+            const registrationData = await initiateRegistration(selectedCohort);
             console.log('Registration initiated:', registrationData);
             setRegistration(registrationData);
             setStep(2);
@@ -180,8 +173,7 @@ function CheckoutContent() {
             console.error('Registration error:', err);
             // If unauthorized, redirect to login
             if (err.message === 'Unauthorized' || err.message?.includes('Unauthorized')) {
-                localStorage.removeItem('seu_auth');
-                window.location.href = `/login?redirect=/checkout?program=${programSlug}`;
+                router.push(`/login?redirect=/checkout?program=${programSlug}`);
                 return;
             }
             setError(err.message || 'حدث خطأ في التسجيل');

@@ -103,16 +103,16 @@ export async function checkCohortAvailability(cohortId: string): Promise<Availab
 
 /**
  * Initiate registration for a cohort
+ * Uses cookie-based authentication
  */
 export async function initiateRegistration(
     cohortId: string,
-    token: string,
 ): Promise<RegistrationResponse> {
     const response = await fetch(`${API_BASE}/api/registrations`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ cohortId }),
     });
