@@ -16,6 +16,7 @@ import {
     WaitlistPositionDto,
 } from './dto';
 import { NotificationService } from '../notification/notification.service';
+import { WaitlistService } from './waitlist.service';
 
 /**
  * Registration Service
@@ -36,6 +37,7 @@ export class RegistrationService {
     constructor(
         private prisma: PrismaService,
         private notificationService: NotificationService,
+        private waitlistService: WaitlistService,
     ) { }
 
     /**
@@ -354,6 +356,19 @@ export class RegistrationService {
                 }
             }
         });
+
+        // After transaction completes, promote next person from waitlist if seat became available
+        if (wasConfirmed) {
+            try {
+                const promoted = await this.waitlistService.promoteNext(registration.cohortId);
+                if (promoted) {
+                    this.logger.log(`Promoted user ${promoted.userId} from waitlist for cohort ${registration.cohortId}`);
+                }
+            } catch (error) {
+                this.logger.error(`Failed to promote from waitlist: ${error.message}`);
+                // Don't fail the cancellation if waitlist promotion fails
+            }
+        }
 
         return {
             success: true,

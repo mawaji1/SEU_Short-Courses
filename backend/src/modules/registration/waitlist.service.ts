@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { WaitlistStatus, CohortStatus } from '@prisma/client';
+import { NotificationService } from '../notification/notification.service';
 
 export interface WaitlistEntryResponse {
     id: string;
@@ -29,10 +30,14 @@ export interface WaitlistEntryResponse {
  */
 @Injectable()
 export class WaitlistService {
+    private readonly logger = new Logger(WaitlistService.name);
     // Hours to wait after notification before expiring
     private readonly NOTIFICATION_EXPIRY_HOURS = 24;
 
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService,
+    ) { }
 
     /**
      * Add user to waitlist for a full cohort
@@ -246,7 +251,50 @@ export class WaitlistService {
             },
         });
 
-        // TODO: Trigger notification email (E1.12)
+        // Fetch cohort and program data for notification
+        const cohortData = await this.prisma.cohort.findUnique({
+            where: { id: cohortId },
+            include: { program: true },
+        });
+
+        // Send notification email
+        if (cohortData) {
+            try {
+                // Get user email
+                const user = await this.prisma.user.findUnique({
+                    where: { id: updated.userId },
+                    select: { email: true, firstName: true, lastName: true },
+                });
+
+                if (user) {
+                    await this.notificationService.sendNotification({
+                        userId: updated.userId,
+                        type: 'WAITLIST_AVAILABLE',
+                        channel: 'EMAIL',
+                        recipient: user.email,
+                        subject: 'مقعد متاح الآن! - Seat Now Available!',
+                        templateId: 'waitlist-seat-available',
+                        templateData: {
+                            userName: `${user.firstName} ${user.lastName}`,
+                            programName: cohortData.program.titleAr,
+                            cohortName: cohortData.nameAr,
+                            expiresAt: expiresAt.toISOString(),
+                        },
+                        locale: 'ar',
+                        priority: 'HIGH',
+                        metadata: {
+                            cohortId: updated.cohortId,
+                            programId: cohortData.programId,
+                            expiresAt: expiresAt.toISOString(),
+                        },
+                    });
+                    this.logger.log(`Sent waitlist promotion notification to user ${updated.userId}`);
+                }
+            } catch (error) {
+                this.logger.error(`Failed to send waitlist notification: ${error.message}`);
+                // Don't fail the promotion if notification fails
+            }
+        }
 
         return {
             id: updated.id,
