@@ -13,15 +13,15 @@ import { NotificationModule } from '../../notification/notification.module';
  * Handles all payment provider webhooks (Tabby, Tamara)
  */
 @Module({
-    imports: [NotificationModule],
-    controllers: [TabbyWebhookController, TamaraWebhookController],
-    providers: [
-        TabbyWebhookService,
-        TamaraWebhookService,
-        TabbyService,
-        TamaraService,
-        PrismaService,
-    ],
-    exports: [TabbyWebhookService, TamaraWebhookService],
+  imports: [NotificationModule],
+  controllers: [TabbyWebhookController, TamaraWebhookController],
+  providers: [
+    TabbyWebhookService,
+    TamaraWebhookService,
+    TabbyService,
+    TamaraService,
+    PrismaService,
+  ],
+  exports: [TabbyWebhookService, TamaraWebhookService],
 })
 export class WebhookModule {}

@@ -63,16 +63,23 @@ export class BlackboardEnrollmentService {
 
     // Check if user is provisioned to Blackboard
     if (!enrollment.user.blackboardUserId) {
-      throw new Error(`User not provisioned to Blackboard: ${enrollment.user.email}`);
+      throw new Error(
+        `User not provisioned to Blackboard: ${enrollment.user.email}`,
+      );
     }
 
     // Check if cohort has Blackboard course mapping
     if (!enrollment.cohort.blackboardCourseId) {
-      throw new Error(`Cohort not mapped to Blackboard course: ${enrollment.cohort.nameAr}`);
+      throw new Error(
+        `Cohort not mapped to Blackboard course: ${enrollment.cohort.nameAr}`,
+      );
     }
 
     // Check if already enrolled
-    if (enrollment.blackboardEnrollmentId && enrollment.blackboardSyncStatus === 'SYNCED') {
+    if (
+      enrollment.blackboardEnrollmentId &&
+      enrollment.blackboardSyncStatus === 'SYNCED'
+    ) {
       this.logger.log(`User already enrolled: ${enrollment.user.email}`);
       return {
         success: true,
@@ -148,7 +155,8 @@ export class BlackboardEnrollmentService {
       courseRoleId: this.ROLES.STUDENT,
     };
 
-    const result = await this.blackboardClient.enrollUserInCourse(enrollmentData);
+    const result =
+      await this.blackboardClient.enrollUserInCourse(enrollmentData);
 
     this.logger.log(
       `Enrolled user ${enrollment.user.email} in Blackboard course ${enrollment.cohort.blackboardCourseId}`,
@@ -204,7 +212,10 @@ export class BlackboardEnrollmentService {
         action: 'updated',
       };
     } catch (error) {
-      this.logger.error(`Failed to withdraw user: ${enrollment.user.email}`, error);
+      this.logger.error(
+        `Failed to withdraw user: ${enrollment.user.email}`,
+        error,
+      );
       throw error;
     }
   }
@@ -282,7 +293,9 @@ export class BlackboardEnrollmentService {
       }
     }
 
-    this.logger.log(`Bulk enrollment complete: ${successful} successful, ${failed} failed`);
+    this.logger.log(
+      `Bulk enrollment complete: ${successful} successful, ${failed} failed`,
+    );
 
     return { successful, failed, results };
   }
@@ -290,7 +303,10 @@ export class BlackboardEnrollmentService {
   /**
    * Handle enrollment failure
    */
-  private async handleEnrollmentFailure(enrollment: any, error: any): Promise<void> {
+  private async handleEnrollmentFailure(
+    enrollment: any,
+    error: any,
+  ): Promise<void> {
     // Update sync status to FAILED
     await this.updateSyncStatus(enrollment.id, 'FAILED', error.message);
 
@@ -307,7 +323,10 @@ export class BlackboardEnrollmentService {
       },
     });
 
-    this.logger.error(`Enrollment failed for user: ${enrollment.user.email}`, error);
+    this.logger.error(
+      `Enrollment failed for user: ${enrollment.user.email}`,
+      error,
+    );
   }
 
   /**
@@ -362,6 +381,6 @@ export class BlackboardEnrollmentService {
    * Sleep utility
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

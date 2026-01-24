@@ -20,10 +20,10 @@ import { PrismaService } from '../../common/prisma.service';
           delay: 5000,
         },
         removeOnComplete: 100, // Keep last 100 completed jobs
-        removeOnFail: 500,     // Keep last 500 failed jobs for debugging
+        removeOnFail: 500, // Keep last 500 failed jobs for debugging
       },
     }),
-    
+
     // Mailer configuration
     MailerModule.forRoot({
       transport: {
@@ -48,11 +48,7 @@ import { PrismaService } from '../../common/prisma.service';
     }),
   ],
   controllers: [NotificationController],
-  providers: [
-    NotificationService,
-    EmailProcessor,
-    PrismaService,
-  ],
+  providers: [NotificationService, EmailProcessor, PrismaService],
   exports: [NotificationService],
 })
 export class NotificationModule {}

@@ -47,8 +47,10 @@ export class BlackboardApiClient {
     private readonly configService: ConfigService,
   ) {
     this.baseUrl = this.configService.get<string>('BLACKBOARD_API_URL') || '';
-    this.clientId = this.configService.get<string>('BLACKBOARD_CLIENT_ID') || '';
-    this.clientSecret = this.configService.get<string>('BLACKBOARD_CLIENT_SECRET') || '';
+    this.clientId =
+      this.configService.get<string>('BLACKBOARD_CLIENT_ID') || '';
+    this.clientSecret =
+      this.configService.get<string>('BLACKBOARD_CLIENT_SECRET') || '';
   }
 
   /**
@@ -84,7 +86,7 @@ export class BlackboardApiClient {
       this.tokenExpiry = new Date(Date.now() + expiresIn * 1000);
 
       this.logger.log('Successfully obtained Blackboard access token');
-      return this.accessToken!;
+      return this.accessToken;
     } catch (error) {
       this.logger.error('Failed to obtain Blackboard access token', error);
       throw new Error('Blackboard authentication failed');
@@ -130,7 +132,9 @@ export class BlackboardApiClient {
    */
   async findUserByEmail(email: string): Promise<BlackboardUserResponse | null> {
     try {
-      const response = await this.makeRequest<{ results: BlackboardUserResponse[] }>(
+      const response = await this.makeRequest<{
+        results: BlackboardUserResponse[];
+      }>(
         'GET',
         `/learn/api/public/v1/users?email=${encodeURIComponent(email)}`,
       );
@@ -150,21 +154,30 @@ export class BlackboardApiClient {
   /**
    * Search for user by external ID (national ID)
    */
-  async findUserByExternalId(externalId: string): Promise<BlackboardUserResponse | null> {
+  async findUserByExternalId(
+    externalId: string,
+  ): Promise<BlackboardUserResponse | null> {
     try {
-      const response = await this.makeRequest<{ results: BlackboardUserResponse[] }>(
+      const response = await this.makeRequest<{
+        results: BlackboardUserResponse[];
+      }>(
         'GET',
         `/learn/api/public/v1/users?externalId=${encodeURIComponent(externalId)}`,
       );
 
       if (response.results && response.results.length > 0) {
-        this.logger.log(`Found existing Blackboard user by externalId: ${externalId}`);
+        this.logger.log(
+          `Found existing Blackboard user by externalId: ${externalId}`,
+        );
         return response.results[0];
       }
 
       return null;
     } catch (error) {
-      this.logger.warn(`User search failed for externalId: ${externalId}`, error);
+      this.logger.warn(
+        `User search failed for externalId: ${externalId}`,
+        error,
+      );
       return null;
     }
   }
@@ -185,10 +198,15 @@ export class BlackboardApiClient {
         },
       );
 
-      this.logger.log(`Successfully created Blackboard user: ${userData.userName}`);
+      this.logger.log(
+        `Successfully created Blackboard user: ${userData.userName}`,
+      );
       return response;
     } catch (error) {
-      this.logger.error(`Failed to create Blackboard user: ${userData.userName}`, error);
+      this.logger.error(
+        `Failed to create Blackboard user: ${userData.userName}`,
+        error,
+      );
       throw error;
     }
   }
@@ -196,7 +214,10 @@ export class BlackboardApiClient {
   /**
    * Update existing user in Blackboard
    */
-  async updateUser(userId: string, userData: Partial<BlackboardUser>): Promise<BlackboardUserResponse> {
+  async updateUser(
+    userId: string,
+    userData: Partial<BlackboardUser>,
+  ): Promise<BlackboardUserResponse> {
     try {
       const response = await this.makeRequest<BlackboardUserResponse>(
         'PATCH',
@@ -273,7 +294,10 @@ export class BlackboardApiClient {
 
       return response;
     } catch (error) {
-      this.logger.error(`Failed to get enrollment for user ${userId} in course ${courseId}`, error);
+      this.logger.error(
+        `Failed to get enrollment for user ${userId} in course ${courseId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -288,7 +312,9 @@ export class BlackboardApiClient {
         `/learn/api/public/v1/courses/${courseId}/users/${userId}`,
       );
 
-      this.logger.log(`Successfully deleted enrollment for user ${userId} from course ${courseId}`);
+      this.logger.log(
+        `Successfully deleted enrollment for user ${userId} from course ${courseId}`,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to delete enrollment for user ${userId} from course ${courseId}`,
@@ -316,7 +342,9 @@ export class BlackboardApiClient {
         data,
       );
 
-      this.logger.log(`Successfully updated enrollment for user ${userId} in course ${courseId}`);
+      this.logger.log(
+        `Successfully updated enrollment for user ${userId} in course ${courseId}`,
+      );
       return response;
     } catch (error) {
       this.logger.error(
@@ -330,7 +358,10 @@ export class BlackboardApiClient {
   /**
    * Get user course progress and completion status
    */
-  async getUserCourseProgress(courseId: string, userId: string): Promise<{
+  async getUserCourseProgress(
+    courseId: string,
+    userId: string,
+  ): Promise<{
     completionPercentage: number;
     lastActivityAt: Date;
     isComplete: boolean;

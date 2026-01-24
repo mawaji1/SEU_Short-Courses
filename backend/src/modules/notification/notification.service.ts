@@ -2,11 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
-import { 
-  NotificationType, 
-  NotificationChannel, 
+import {
+  NotificationType,
+  NotificationChannel,
   NotificationStatus,
-  NotificationPriority 
+  NotificationPriority,
 } from '@prisma/client';
 import { SendNotificationDto } from './dto/send-notification.dto';
 import { NotificationResult } from './interfaces/notification.interface';
@@ -27,7 +27,9 @@ export class NotificationService {
   /**
    * Send a notification (queues it for async processing)
    */
-  async sendNotification(dto: SendNotificationDto): Promise<NotificationResult> {
+  async sendNotification(
+    dto: SendNotificationDto,
+  ): Promise<NotificationResult> {
     try {
       // Create notification record
       const notification = await this.prisma.notification.create({
@@ -48,7 +50,11 @@ export class NotificationService {
       });
 
       // Log creation
-      await this.createLog(notification.id, NotificationStatus.QUEUED, 'Notification queued for processing');
+      await this.createLog(
+        notification.id,
+        NotificationStatus.QUEUED,
+        'Notification queued for processing',
+      );
 
       // Add to queue based on priority
       const delay = this.getQueueDelay(dto.priority);
@@ -102,7 +108,10 @@ export class NotificationService {
       type: NotificationType.REGISTRATION_CONFIRMATION,
       channel: NotificationChannel.EMAIL,
       recipient: email,
-      subject: locale === 'ar' ? 'تأكيد التسجيل - الجامعة السعودية الإلكترونية' : 'Registration Confirmation - SEU',
+      subject:
+        locale === 'ar'
+          ? 'تأكيد التسجيل - الجامعة السعودية الإلكترونية'
+          : 'Registration Confirmation - SEU',
       templateId: 'registration-confirmation',
       templateData: data,
       locale,
@@ -132,7 +141,10 @@ export class NotificationService {
       type: NotificationType.PAYMENT_RECEIPT,
       channel: NotificationChannel.EMAIL,
       recipient: email,
-      subject: locale === 'ar' ? 'إيصال الدفع - الجامعة السعودية الإلكترونية' : 'Payment Receipt - SEU',
+      subject:
+        locale === 'ar'
+          ? 'إيصال الدفع - الجامعة السعودية الإلكترونية'
+          : 'Payment Receipt - SEU',
       templateId: 'payment-receipt',
       templateData: data,
       locale,
@@ -160,7 +172,10 @@ export class NotificationService {
       type: NotificationType.PAYMENT_FAILED,
       channel: NotificationChannel.EMAIL,
       recipient: email,
-      subject: locale === 'ar' ? 'فشل عملية الدفع - الجامعة السعودية الإلكترونية' : 'Payment Failed - SEU',
+      subject:
+        locale === 'ar'
+          ? 'فشل عملية الدفع - الجامعة السعودية الإلكترونية'
+          : 'Payment Failed - SEU',
       templateId: 'payment-failed',
       templateData: data,
       locale,
@@ -189,7 +204,10 @@ export class NotificationService {
       type: NotificationType.BLACKBOARD_ACCESS,
       channel: NotificationChannel.EMAIL,
       recipient: email,
-      subject: locale === 'ar' ? 'معلومات الدخول إلى المنصة التعليمية' : 'LMS Access Information',
+      subject:
+        locale === 'ar'
+          ? 'معلومات الدخول إلى المنصة التعليمية'
+          : 'LMS Access Information',
       templateId: 'blackboard-access',
       templateData: data,
       locale,
@@ -207,7 +225,7 @@ export class NotificationService {
     metadata?: any;
   }): Promise<NotificationResult> {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@seu.edu.sa';
-    
+
     return this.sendNotification({
       userId: 'system', // System-generated notification
       type: NotificationType.SYSTEM_ALERT,
@@ -222,7 +240,9 @@ export class NotificationService {
         ...data.metadata,
       },
       locale: 'en',
-      priority: data.priority ? NotificationPriority[data.priority] : NotificationPriority.HIGH,
+      priority: data.priority
+        ? NotificationPriority[data.priority]
+        : NotificationPriority.HIGH,
       metadata: data.metadata,
     });
   }
@@ -246,7 +266,10 @@ export class NotificationService {
       type: NotificationType.COURSE_REMINDER, // Will use COMPLETION type when added
       channel: NotificationChannel.EMAIL,
       recipient: email,
-      subject: locale === 'ar' ? 'تهانينا! لقد أكملت الدورة بنجاح' : 'Congratulations! Course Completed',
+      subject:
+        locale === 'ar'
+          ? 'تهانينا! لقد أكملت الدورة بنجاح'
+          : 'Congratulations! Course Completed',
       templateId: 'course-completion',
       templateData: data,
       locale,
@@ -300,7 +323,9 @@ export class NotificationService {
         notificationId,
         status,
         message,
-        errorDetails: errorDetails ? JSON.parse(JSON.stringify(errorDetails)) : null,
+        errorDetails: errorDetails
+          ? JSON.parse(JSON.stringify(errorDetails))
+          : null,
       },
     });
   }
@@ -391,7 +416,11 @@ export class NotificationService {
 
     // Reset status and add back to queue
     await this.updateStatus(notificationId, NotificationStatus.QUEUED);
-    await this.createLog(notificationId, NotificationStatus.QUEUED, 'Manual retry initiated');
+    await this.createLog(
+      notificationId,
+      NotificationStatus.QUEUED,
+      'Manual retry initiated',
+    );
 
     await this.notificationQueue.add(
       'send-notification',

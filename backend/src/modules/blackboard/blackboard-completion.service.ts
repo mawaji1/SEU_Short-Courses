@@ -45,7 +45,10 @@ export class BlackboardCompletionService {
       throw new Error(`Enrollment not found: ${enrollmentId}`);
     }
 
-    if (!enrollment.blackboardEnrollmentId || !enrollment.user.blackboardUserId) {
+    if (
+      !enrollment.blackboardEnrollmentId ||
+      !enrollment.user.blackboardUserId
+    ) {
       this.logger.warn(`Enrollment ${enrollmentId} not synced with Blackboard`);
       return;
     }
@@ -58,7 +61,8 @@ export class BlackboardCompletionService {
       );
 
       // Update enrollment with completion data
-      const isComplete = completionData.completionPercentage >= this.completionThreshold;
+      const isComplete =
+        completionData.completionPercentage >= this.completionThreshold;
       const wasNotComplete = enrollment.status !== EnrollmentStatus.COMPLETED;
 
       await this.prisma.enrollment.update({
@@ -67,8 +71,11 @@ export class BlackboardCompletionService {
           completionPercentage: completionData.completionPercentage,
           lastActivityAt: completionData.lastActivityAt,
           completionStatus: isComplete ? 'COMPLETED' : 'IN_PROGRESS',
-          status: isComplete ? EnrollmentStatus.COMPLETED : EnrollmentStatus.IN_PROGRESS,
-          completedAt: isComplete && wasNotComplete ? new Date() : enrollment.completedAt,
+          status: isComplete
+            ? EnrollmentStatus.COMPLETED
+            : EnrollmentStatus.IN_PROGRESS,
+          completedAt:
+            isComplete && wasNotComplete ? new Date() : enrollment.completedAt,
           certificateEligible: isComplete,
           progress: completionData.completionPercentage,
         },
@@ -82,7 +89,10 @@ export class BlackboardCompletionService {
         await this.handleCourseCompletion(enrollment);
       }
     } catch (error) {
-      this.logger.error(`Failed to sync completion for enrollment ${enrollmentId}`, error);
+      this.logger.error(
+        `Failed to sync completion for enrollment ${enrollmentId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -108,14 +118,24 @@ export class BlackboardCompletionService {
       try {
         // Note: CertificateService will be injected when module is imported
         // For now, this is a placeholder for the integration
-        this.logger.log(`Certificate generation triggered for enrollment: ${enrollment.id}`);
+        this.logger.log(
+          `Certificate generation triggered for enrollment: ${enrollment.id}`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to generate certificate for enrollment ${enrollment.id}`, error);
+        this.logger.error(
+          `Failed to generate certificate for enrollment ${enrollment.id}`,
+          error,
+        );
       }
 
-      this.logger.log(`Sent completion notification for enrollment: ${enrollment.id}`);
+      this.logger.log(
+        `Sent completion notification for enrollment: ${enrollment.id}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to handle course completion for enrollment ${enrollment.id}`, error);
+      this.logger.error(
+        `Failed to handle course completion for enrollment ${enrollment.id}`,
+        error,
+      );
     }
   }
 
@@ -139,7 +159,9 @@ export class BlackboardCompletionService {
       });
 
       if (!enrollment) {
-        this.logger.warn(`No enrollment found for Blackboard user ${userId} in course ${courseId}`);
+        this.logger.warn(
+          `No enrollment found for Blackboard user ${userId} in course ${courseId}`,
+        );
         return;
       }
 
@@ -167,7 +189,7 @@ export class BlackboardCompletionService {
       try {
         await this.syncEnrollmentCompletion(enrollmentId);
         successful++;
-        
+
         // Small delay to avoid rate limiting
         await this.sleep(500);
       } catch (error) {
@@ -176,7 +198,9 @@ export class BlackboardCompletionService {
       }
     }
 
-    this.logger.log(`Bulk completion sync: ${successful} successful, ${failed} failed`);
+    this.logger.log(
+      `Bulk completion sync: ${successful} successful, ${failed} failed`,
+    );
     return { successful, failed, errors };
   }
 
@@ -186,7 +210,9 @@ export class BlackboardCompletionService {
    */
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async syncAllActiveEnrollments(): Promise<void> {
-    this.logger.log('Starting daily completion sync for all active enrollments');
+    this.logger.log(
+      'Starting daily completion sync for all active enrollments',
+    );
 
     try {
       // Get all active enrollments that are synced with Blackboard
@@ -228,7 +254,7 @@ export class BlackboardCompletionService {
       }
     } catch (error) {
       this.logger.error('Failed to run daily completion sync', error);
-      
+
       await this.notificationService.sendAdminAlert({
         subject: 'Daily Completion Sync Failed',
         message: `The daily completion sync job failed to run.\n\nError: ${error.message}`,
@@ -261,15 +287,25 @@ export class BlackboardCompletionService {
     });
 
     const total = enrollments.length;
-    const completed = enrollments.filter((e) => e.status === EnrollmentStatus.COMPLETED).length;
-    const inProgress = enrollments.filter((e) => e.status === EnrollmentStatus.IN_PROGRESS).length;
+    const completed = enrollments.filter(
+      (e) => e.status === EnrollmentStatus.COMPLETED,
+    ).length;
+    const inProgress = enrollments.filter(
+      (e) => e.status === EnrollmentStatus.IN_PROGRESS,
+    ).length;
     const notStarted = enrollments.filter(
-      (e) => e.status === EnrollmentStatus.ENROLLED || e.completionStatus === 'NOT_STARTED',
+      (e) =>
+        e.status === EnrollmentStatus.ENROLLED ||
+        e.completionStatus === 'NOT_STARTED',
     ).length;
 
-    const totalProgress = enrollments.reduce((sum, e) => sum + (e.progress || 0), 0);
+    const totalProgress = enrollments.reduce(
+      (sum, e) => sum + (e.progress || 0),
+      0,
+    );
     const averageProgress = total > 0 ? Math.round(totalProgress / total) : 0;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return {
       total,
@@ -303,10 +339,16 @@ export class BlackboardCompletionService {
     });
 
     const total = enrollments.length;
-    const completed = enrollments.filter((e) => e.status === EnrollmentStatus.COMPLETED).length;
-    const totalProgress = enrollments.reduce((sum, e) => sum + (e.progress || 0), 0);
+    const completed = enrollments.filter(
+      (e) => e.status === EnrollmentStatus.COMPLETED,
+    ).length;
+    const totalProgress = enrollments.reduce(
+      (sum, e) => sum + (e.progress || 0),
+      0,
+    );
     const averageProgress = total > 0 ? Math.round(totalProgress / total) : 0;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return {
       total,

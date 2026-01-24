@@ -4,7 +4,7 @@ export const ROLES_KEY = 'roles';
 
 /**
  * Roles Decorator
- * 
+ *
  * Marks routes that require specific roles.
  * Example: @Roles('ADMIN', 'COORDINATOR')
  */

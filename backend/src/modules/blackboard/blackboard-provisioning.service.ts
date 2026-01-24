@@ -36,7 +36,10 @@ export class BlackboardProvisioningService {
     }
 
     // Check if already provisioned
-    if (user.blackboardUserId && user.blackboardProvisionStatus === 'PROVISIONED') {
+    if (
+      user.blackboardUserId &&
+      user.blackboardProvisionStatus === 'PROVISIONED'
+    ) {
       this.logger.log(`User already provisioned: ${user.email}`);
       return {
         success: true,
@@ -52,7 +55,7 @@ export class BlackboardProvisioningService {
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
         const result = await this.attemptProvisioning(user);
-        
+
         // Update user record with Blackboard ID
         await this.prisma.user.update({
           where: { id: userId },
@@ -63,7 +66,9 @@ export class BlackboardProvisioningService {
           },
         });
 
-        this.logger.log(`Successfully provisioned user: ${user.email} (attempt ${attempt})`);
+        this.logger.log(
+          `Successfully provisioned user: ${user.email} (attempt ${attempt})`,
+        );
         return result;
       } catch (error) {
         this.logger.error(
@@ -99,9 +104,11 @@ export class BlackboardProvisioningService {
   private async attemptProvisioning(user: User): Promise<ProvisioningResult> {
     // Strategy 1: Try to match by email
     let existingUser = await this.blackboardClient.findUserByEmail(user.email);
-    
+
     if (existingUser) {
-      this.logger.log(`Matched existing Blackboard user by email: ${user.email}`);
+      this.logger.log(
+        `Matched existing Blackboard user by email: ${user.email}`,
+      );
       return {
         success: true,
         blackboardUserId: existingUser.id,
@@ -111,10 +118,14 @@ export class BlackboardProvisioningService {
 
     // Strategy 2: Try to match by national ID (if available)
     if (user.nationalId) {
-      existingUser = await this.blackboardClient.findUserByExternalId(user.nationalId);
-      
+      existingUser = await this.blackboardClient.findUserByExternalId(
+        user.nationalId,
+      );
+
       if (existingUser) {
-        this.logger.log(`Matched existing Blackboard user by nationalId: ${user.nationalId}`);
+        this.logger.log(
+          `Matched existing Blackboard user by nationalId: ${user.nationalId}`,
+        );
         return {
           success: true,
           blackboardUserId: existingUser.id,
@@ -147,7 +158,10 @@ export class BlackboardProvisioningService {
   /**
    * Handle provisioning failure
    */
-  private async handleProvisioningFailure(user: User, error: any): Promise<void> {
+  private async handleProvisioningFailure(
+    user: User,
+    error: any,
+  ): Promise<void> {
     // Update status to FAILED
     await this.updateProvisionStatus(user.id, 'FAILED', error.message);
 
@@ -198,7 +212,7 @@ export class BlackboardProvisioningService {
     for (const userId of userIds) {
       const result = await this.provisionUser(userId);
       results.push(result);
-      
+
       if (result.success) {
         successful++;
       } else {
@@ -209,8 +223,10 @@ export class BlackboardProvisioningService {
       await this.sleep(500);
     }
 
-    this.logger.log(`Bulk provisioning complete: ${successful} successful, ${failed} failed`);
-    
+    this.logger.log(
+      `Bulk provisioning complete: ${successful} successful, ${failed} failed`,
+    );
+
     return { successful, failed, results };
   }
 
@@ -258,7 +274,9 @@ export class BlackboardProvisioningService {
     }
 
     if (user.blackboardProvisionStatus !== 'FAILED') {
-      throw new Error(`User provisioning status is not FAILED: ${user.blackboardProvisionStatus}`);
+      throw new Error(
+        `User provisioning status is not FAILED: ${user.blackboardProvisionStatus}`,
+      );
     }
 
     this.logger.log(`Retrying failed provisioning for user: ${user.email}`);
@@ -269,6 +287,6 @@ export class BlackboardProvisioningService {
    * Sleep utility
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

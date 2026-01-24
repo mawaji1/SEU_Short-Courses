@@ -20,4 +20,4 @@ import { WebhookModule } from './webhooks/webhook.module';
   ],
   exports: [PaymentService, BNPLService],
 })
-export class PaymentModule { }
+export class PaymentModule {}

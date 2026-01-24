@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Param, Body, UseGuards, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Patch,
+} from '@nestjs/common';
 import { BlackboardProvisioningService } from './blackboard-provisioning.service';
 import { BlackboardEnrollmentService } from './blackboard-enrollment.service';
 import { BlackboardCompletionService } from './blackboard-completion.service';
@@ -44,7 +54,9 @@ export class BlackboardController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async bulkProvisionUsers(@Body() body: { userIds: string[] }) {
-    const result = await this.provisioningService.bulkProvisionUsers(body.userIds);
+    const result = await this.provisioningService.bulkProvisionUsers(
+      body.userIds,
+    );
     return {
       successful: result.successful,
       failed: result.failed,
@@ -71,7 +83,8 @@ export class BlackboardController {
   @Roles(UserRole.ADMIN, UserRole.OPERATIONS)
   @HttpCode(HttpStatus.OK)
   async retryFailedProvisioning(@Param('userId') userId: string) {
-    const result = await this.provisioningService.retryFailedProvisioning(userId);
+    const result =
+      await this.provisioningService.retryFailedProvisioning(userId);
     return {
       success: result.success,
       blackboardUserId: result.blackboardUserId,
@@ -105,7 +118,9 @@ export class BlackboardController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async bulkEnrollUsers(@Body() body: { enrollmentIds: string[] }) {
-    const result = await this.enrollmentService.bulkEnrollUsers(body.enrollmentIds);
+    const result = await this.enrollmentService.bulkEnrollUsers(
+      body.enrollmentIds,
+    );
     return {
       successful: result.successful,
       failed: result.failed,
@@ -257,7 +272,9 @@ export class BlackboardController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async bulkSyncCompletion(@Body() body: { enrollmentIds: string[] }) {
-    const result = await this.completionService.bulkSyncCompletion(body.enrollmentIds);
+    const result = await this.completionService.bulkSyncCompletion(
+      body.enrollmentIds,
+    );
     return {
       successful: result.successful,
       failed: result.failed,

@@ -3,13 +3,13 @@ import { PrismaService } from './prisma.service';
 
 /**
  * Common Module
- * 
+ *
  * Provides shared services across all modules.
  * Global module - no need to import in other modules.
  */
 @Global()
 @Module({
-    providers: [PrismaService],
-    exports: [PrismaService],
+  providers: [PrismaService],
+  exports: [PrismaService],
 })
-export class CommonModule { }
+export class CommonModule {}

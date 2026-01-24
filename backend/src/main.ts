@@ -12,9 +12,9 @@ async function bootstrap() {
   // Enable validation globally
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,           // Strip unknown properties
+      whitelist: true, // Strip unknown properties
       forbidNonWhitelisted: true, // Throw on unknown properties
-      transform: true,           // Auto-transform payloads to DTO instances
+      transform: true, // Auto-transform payloads to DTO instances
       transformOptions: {
         enableImplicitConversion: true,
       },
@@ -36,4 +36,3 @@ async function bootstrap() {
   console.log(`🚀 SEU Short Courses API running on http://localhost:${port}`);
 }
 bootstrap();
-

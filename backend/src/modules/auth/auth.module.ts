@@ -11,7 +11,7 @@ import { PrismaService } from '../../common/prisma.service';
 
 /**
  * Auth Module
- * 
+ *
  * Handles user authentication and authorization:
  * - User registration
  * - Login with email/password
@@ -21,29 +21,34 @@ import { PrismaService } from '../../common/prisma.service';
  * - Rate limiting for brute-force protection
  */
 @Module({
-    imports: [
-        PassportModule.register({ defaultStrategy: 'jwt' }),
-        JwtModule.register({
-            secret: process.env.JWT_SECRET || 'jwt-secret',
-            signOptions: { expiresIn: '15m' },
-        }),
-        // Rate limiting configuration
-        ThrottlerModule.forRoot([
-            {
-                name: 'auth',
-                ttl: 60000, // 60 seconds
-                limit: 5,   // 5 requests per 60 seconds for auth endpoints
-            },
-            {
-                name: 'default',
-                ttl: 60000, // 60 seconds  
-                limit: 10,  // 10 requests per 60 seconds for other endpoints
-            },
-        ]),
-    ],
-    controllers: [AuthController, UserController],
-    providers: [AuthService, UserService, JwtStrategy, LocalStrategy, PrismaService],
-    exports: [AuthService, UserService, JwtModule],
+  imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'jwt-secret',
+      signOptions: { expiresIn: '15m' },
+    }),
+    // Rate limiting configuration
+    ThrottlerModule.forRoot([
+      {
+        name: 'auth',
+        ttl: 60000, // 60 seconds
+        limit: 5, // 5 requests per 60 seconds for auth endpoints
+      },
+      {
+        name: 'default',
+        ttl: 60000, // 60 seconds
+        limit: 10, // 10 requests per 60 seconds for other endpoints
+      },
+    ]),
+  ],
+  controllers: [AuthController, UserController],
+  providers: [
+    AuthService,
+    UserService,
+    JwtStrategy,
+    LocalStrategy,
+    PrismaService,
+  ],
+  exports: [AuthService, UserService, JwtModule],
 })
-export class AuthModule { }
-
+export class AuthModule {}

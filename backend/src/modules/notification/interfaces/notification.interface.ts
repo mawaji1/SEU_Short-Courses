@@ -1,4 +1,8 @@
-import { NotificationType, NotificationChannel, NotificationPriority } from '@prisma/client';
+import {
+  NotificationType,
+  NotificationChannel,
+  NotificationPriority,
+} from '@prisma/client';
 
 export interface SendNotificationDto {
   userId?: string;

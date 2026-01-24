@@ -21,8 +21,10 @@ export class EmailProcessor {
   @Process('send-notification')
   async handleSendNotification(job: Job) {
     const { notificationId } = job.data;
-    
-    this.logger.log(`Processing notification ${notificationId} (Attempt ${job.attemptsMade + 1}/${job.opts.attempts})`);
+
+    this.logger.log(
+      `Processing notification ${notificationId} (Attempt ${job.attemptsMade + 1}/${job.opts.attempts})`,
+    );
 
     try {
       // Fetch notification details
@@ -93,9 +95,11 @@ export class EmailProcessor {
           },
         });
       }, 1000);
-
     } catch (error) {
-      this.logger.error(`Failed to send notification ${notificationId}:`, error);
+      this.logger.error(
+        `Failed to send notification ${notificationId}:`,
+        error,
+      );
 
       // Update notification with error
       await this.prisma.notification.update({
@@ -130,7 +134,8 @@ export class EmailProcessor {
    * Send email using MailerService
    */
   private async sendEmail(notification: any) {
-    const { recipient, subject, templateId, templateData, locale } = notification;
+    const { recipient, subject, templateId, templateData, locale } =
+      notification;
 
     try {
       await this.mailerService.sendMail({
@@ -157,8 +162,10 @@ export class EmailProcessor {
   async handleFailedJob(job: Job) {
     if (job.attemptsMade >= (job.opts.attempts || 3)) {
       const { notificationId } = job.data;
-      
-      this.logger.error(`Notification ${notificationId} failed after ${job.attemptsMade} attempts`);
+
+      this.logger.error(
+        `Notification ${notificationId} failed after ${job.attemptsMade} attempts`,
+      );
 
       await this.prisma.notificationLog.create({
         data: {

@@ -30,7 +30,9 @@ export class BNPLService {
    * Check BNPL eligibility for a registration
    * PRODUCTION-READY: Uses pre-scoring API for accurate eligibility
    */
-  async checkEligibility(registrationId: string): Promise<BNPLEligibilityCheck[]> {
+  async checkEligibility(
+    registrationId: string,
+  ): Promise<BNPLEligibilityCheck[]> {
     const registration = await this.prisma.registration.findUnique({
       where: { id: registrationId },
       include: {
@@ -50,7 +52,10 @@ export class BNPLService {
     const eligibility: BNPLEligibilityCheck[] = [];
 
     // Check Tabby eligibility via pre-scoring API
-    const tabbyEligibility = await this.tabbyService.checkEligibility(amount, 'SAR');
+    const tabbyEligibility = await this.tabbyService.checkEligibility(
+      amount,
+      'SAR',
+    );
     eligibility.push({
       eligible: tabbyEligibility.eligible,
       provider: BNPLProvider.TABBY,
@@ -136,7 +141,10 @@ export class BNPLService {
     }
 
     if (!response.success) {
-      this.logger.error(`BNPL checkout failed for ${provider}:`, response.error);
+      this.logger.error(
+        `BNPL checkout failed for ${provider}:`,
+        response.error,
+      );
       throw new BadRequestException(response.error);
     }
 
@@ -147,7 +155,10 @@ export class BNPLService {
         registrationId: registration.id,
         amount: amount,
         currency: 'SAR',
-        method: provider === BNPLProvider.TABBY ? PaymentMethod.TABBY : PaymentMethod.TAMARA,
+        method:
+          provider === BNPLProvider.TABBY
+            ? PaymentMethod.TABBY
+            : PaymentMethod.TAMARA,
         status: 'PENDING',
         providerPaymentId: response.paymentId || response.sessionId || '',
         metadata: {
@@ -160,7 +171,9 @@ export class BNPLService {
       },
     });
 
-    this.logger.log(`BNPL checkout created for ${provider}: ${response.sessionId}`);
+    this.logger.log(
+      `BNPL checkout created for ${provider}: ${response.sessionId}`,
+    );
 
     return response;
   }
@@ -168,7 +181,10 @@ export class BNPLService {
   /**
    * Handle BNPL payment confirmation (called from webhook)
    */
-  async confirmPayment(provider: BNPLProvider, sessionId: string): Promise<any> {
+  async confirmPayment(
+    provider: BNPLProvider,
+    sessionId: string,
+  ): Promise<any> {
     const payment = await this.prisma.payment.findFirst({
       where: {
         providerPaymentId: sessionId,
@@ -200,7 +216,10 @@ export class BNPLService {
     }
 
     // Update payment status
-    if (paymentStatus.status === 'approved' || paymentStatus.order_status === 'approved') {
+    if (
+      paymentStatus.status === 'approved' ||
+      paymentStatus.order_status === 'approved'
+    ) {
       await this.prisma.payment.update({
         where: { id: payment.id },
         data: {
@@ -271,7 +290,10 @@ export class BNPLService {
     }
 
     const refundAmount = amount || Number(payment.amount);
-    const provider = payment.method === PaymentMethod.TABBY ? BNPLProvider.TABBY : BNPLProvider.TAMARA;
+    const provider =
+      payment.method === PaymentMethod.TABBY
+        ? BNPLProvider.TABBY
+        : BNPLProvider.TAMARA;
 
     if (!payment.providerPaymentId) {
       throw new BadRequestException('معرف الدفع غير موجود');
@@ -315,12 +337,17 @@ export class BNPLService {
    * Get installment plan details for display
    * Fetches real-time options from provider APIs
    */
-  async getInstallmentPlan(amount: number, provider: BNPLProvider): Promise<any> {
+  async getInstallmentPlan(
+    amount: number,
+    provider: BNPLProvider,
+  ): Promise<any> {
     if (provider === BNPLProvider.TABBY) {
       const options = await this.tabbyService.getInstallmentOptions(amount);
-      
+
       if (options.length === 0) {
-        throw new BadRequestException('لا توجد خيارات تقسيط متاحة من Tabby لهذا المبلغ');
+        throw new BadRequestException(
+          'لا توجد خيارات تقسيط متاحة من Tabby لهذا المبلغ',
+        );
       }
 
       // Return the first available option (usually 4 installments)
@@ -337,9 +364,11 @@ export class BNPLService {
 
     if (provider === BNPLProvider.TAMARA) {
       const options = await this.tamaraService.getInstallmentOptions(amount);
-      
+
       if (options.length === 0) {
-        throw new BadRequestException('لا توجد خيارات تقسيط متاحة من Tamara لهذا المبلغ');
+        throw new BadRequestException(
+          'لا توجد خيارات تقسيط متاحة من Tamara لهذا المبلغ',
+        );
       }
 
       // Return the first available option (prefer fewer installments)

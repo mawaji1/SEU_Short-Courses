@@ -5,23 +5,23 @@ import { AuthService } from '../auth.service';
 
 /**
  * Local Strategy
- * 
+ *
  * Validates email/password credentials for login.
  */
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
-    constructor(private authService: AuthService) {
-        super({
-            usernameField: 'email',
-            passwordField: 'password',
-        });
-    }
+  constructor(private authService: AuthService) {
+    super({
+      usernameField: 'email',
+      passwordField: 'password',
+    });
+  }
 
-    async validate(email: string, password: string) {
-        const user = await this.authService.validateUser(email, password);
-        if (!user) {
-            throw new UnauthorizedException('بيانات الدخول غير صحيحة');
-        }
-        return user;
+  async validate(email: string, password: string) {
+    const user = await this.authService.validateUser(email, password);
+    if (!user) {
+      throw new UnauthorizedException('بيانات الدخول غير صحيحة');
     }
+    return user;
+  }
 }

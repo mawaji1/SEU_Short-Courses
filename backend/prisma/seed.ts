@@ -413,6 +413,180 @@ async function main() {
 
     console.log(`   ✅ Created ${users.length} test users`);
 
+    // =========================================================================
+    // 7. LEARNER EXPERIENCE - ENROLLMENTS
+    // =========================================================================
+    console.log('🎓 Creating learner enrollments...');
+
+    const learnerUser = users.find(u => u.email === 'learner@seu.edu.sa');
+    if (!learnerUser) {
+        throw new Error('Learner user not found');
+    }
+
+    // Get first two cohorts (AI and Digital Marketing)
+    const allCohorts = await prisma.cohort.findMany({
+        take: 2,
+        orderBy: { createdAt: 'asc' },
+    });
+
+    // Create registrations and enrollments
+    const enrollments = await Promise.all(
+        allCohorts.map(async (cohort, index) => {
+            // Create registration first
+            const registration = await prisma.registration.create({
+                data: {
+                    userId: learnerUser.id,
+                    cohortId: cohort.id,
+                    status: 'CONFIRMED',
+                    confirmedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+                },
+            });
+
+            // Create enrollment
+            const enrollment = await prisma.enrollment.create({
+                data: {
+                    userId: learnerUser.id,
+                    cohortId: cohort.id,
+                    registrationId: registration.id,
+                    status: index === 0 ? 'IN_PROGRESS' : 'ENROLLED',
+                    progress: index === 0 ? 65 : 15, // First course: 65% progress, Second: 15%
+                    completionPercentage: index === 0 ? 65 : 15,
+                    certificateEligible: index === 0 ? false : false, // Not yet eligible
+                    lastActivityAt: new Date(),
+                },
+            });
+
+            return enrollment;
+        })
+    );
+
+    console.log(`   ✅ Created ${enrollments.length} enrollments for learner`);
+
+    // =========================================================================
+    // 8. COURSE MATERIALS
+    // =========================================================================
+    console.log('📄 Creating course materials...');
+
+    const allPrograms = await prisma.program.findMany({
+        take: 2,
+        orderBy: { createdAt: 'asc' },
+    });
+
+    const materials = await Promise.all([
+        // Materials for AI Fundamentals
+        prisma.courseMaterial.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'مقدمة في الذكاء الاصطناعي',
+                titleEn: 'Introduction to AI',
+                descriptionAr: 'عرض تقديمي شامل عن أساسيات الذكاء الاصطناعي',
+                descriptionEn: 'Comprehensive presentation on AI fundamentals',
+                type: 'PRESENTATION',
+                externalLink: 'https://example.com/ai-intro.pptx',
+                fileSize: 2500000, // 2.5MB
+            },
+        }),
+        prisma.courseMaterial.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'دليل Python للمبتدئين',
+                titleEn: 'Python Guide for Beginners',
+                descriptionAr: 'دليل PDF شامل لتعلم لغة Python',
+                descriptionEn: 'Comprehensive PDF guide to learn Python',
+                type: 'PDF',
+                externalLink: 'https://example.com/python-guide.pdf',
+                fileSize: 5000000, // 5MB
+            },
+        }),
+        prisma.courseMaterial.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'محاضرة مسجلة: تطبيقات الذكاء الاصطناعي',
+                titleEn: 'Recorded Lecture: AI Applications',
+                descriptionAr: 'محاضرة مسجلة عن تطبيقات الذكاء الاصطناعي في الأعمال',
+                descriptionEn: 'Recorded lecture on AI applications in business',
+                type: 'VIDEO',
+                externalLink: 'https://example.com/ai-applications.mp4',
+                fileSize: 150000000, // 150MB
+            },
+        }),
+        // Materials for Digital Marketing
+        prisma.courseMaterial.create({
+            data: {
+                programId: allPrograms[1].id,
+                titleAr: 'استراتيجيات التسويق الرقمي',
+                titleEn: 'Digital Marketing Strategies',
+                descriptionAr: 'ملف شامل عن استراتيجيات التسويق الرقمي الحديثة',
+                descriptionEn: 'Comprehensive file on modern digital marketing strategies',
+                type: 'DOCUMENT',
+                externalLink: 'https://example.com/marketing-strategies.docx',
+                fileSize: 1800000, // 1.8MB
+            },
+        }),
+        prisma.courseMaterial.create({
+            data: {
+                programId: allPrograms[1].id,
+                titleAr: 'رابط: أدوات Google Analytics',
+                titleEn: 'Link: Google Analytics Tools',
+                descriptionAr: 'رابط مباشر لأدوات Google Analytics',
+                descriptionEn: 'Direct link to Google Analytics tools',
+                type: 'LINK',
+                externalLink: 'https://analytics.google.com',
+                fileSize: null,
+            },
+        }),
+    ]);
+
+    console.log(`   ✅ Created ${materials.length} course materials`);
+
+    // =========================================================================
+    // 9. INSTRUCTOR MESSAGES
+    // =========================================================================
+    console.log('✉️ Creating instructor messages...');
+
+    const messages = await Promise.all([
+        // Messages for first cohort (AI Fundamentals)
+        prisma.cohortMessage.create({
+            data: {
+                cohortId: allCohorts[0].id,
+                instructorId: instructors[0].id,
+                subject: 'مرحباً بكم في دورة الذكاء الاصطناعي',
+                message: 'أهلاً بكم جميعاً في دورة أساسيات الذكاء الاصطناعي!\n\nأنا سعيد بانضمامكم لهذه الرحلة التعليمية المميزة. خلال الأسابيع القادمة سنتعلم معاً أساسيات الذكاء الاصطناعي وتطبيقاته العملية.\n\nيرجى التأكد من:\n- تحميل المواد التدريبية من القسم المخصص\n- الحضور في الوقت المحدد للجلسات\n- التفاعل والمشاركة في النقاشات\n\nأتطلع للقائكم في الجلسة الأولى!\n\nد. أحمد العتيبي',
+                sentAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), // 25 days ago
+            },
+        }),
+        prisma.cohortMessage.create({
+            data: {
+                cohortId: allCohorts[0].id,
+                instructorId: instructors[0].id,
+                subject: 'تذكير: الواجب الأول',
+                message: 'السلام عليكم طلابي الأعزاء،\n\nأذكركم بموعد تسليم الواجب الأول والذي يتضمن:\n1. قراءة الفصل الثالث من كتاب المقرر\n2. حل التمارين المرفقة\n3. إعداد تقرير بسيط عن تطبيق عملي للذكاء الاصطناعي\n\nالموعد النهائي للتسليم: نهاية الأسبوع الحالي.\n\nبالتوفيق للجميع!',
+                sentAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+            },
+        }),
+        prisma.cohortMessage.create({
+            data: {
+                cohortId: allCohorts[0].id,
+                instructorId: instructors[0].id,
+                subject: 'إعلان مهم: تغيير موعد الجلسة القادمة',
+                message: 'عزيزي الطالب،\n\nنود إعلامكم بتغيير موعد الجلسة القادمة من الثلاثاء إلى الأربعاء في نفس التوقيت بسبب ظرف طارئ.\n\nالموعد الجديد: الأربعاء 7:00 مساءً\n\nنعتذر عن هذا التغيير المفاجئ ونتمنى لكم التوفيق.',
+                sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+            },
+        }),
+        // Messages for second cohort (Digital Marketing)
+        prisma.cohortMessage.create({
+            data: {
+                cohortId: allCohorts[1].id,
+                instructorId: instructors[1].id,
+                subject: 'مرحباً بكم في دورة التسويق الرقمي',
+                message: 'السلام عليكم ورحمة الله وبركاته،\n\nأهلاً وسهلاً بكم في دورة التسويق الرقمي الاحترافي. يسعدني أن أكون مدربتكم في هذه الرحلة نحو إتقان فنون التسويق الرقمي.\n\nما سنتعلمه معاً:\n- إعلانات Google و Facebook\n- تحسين محركات البحث (SEO)\n- التسويق بالمحتوى\n- تحليل البيانات\n\nأنصحكم بإنشاء حسابات تجريبية على المنصات التي سندرسها للتطبيق العملي.\n\nأراكم قريباً!\nد. سارة الشمري',
+                sentAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
+            },
+        }),
+    ]);
+
+    console.log(`   ✅ Created ${messages.length} instructor messages`);
+
     console.log('\n✅ Database seeding completed successfully!');
     console.log('\n📋 Test Credentials:');
     console.log('   Admin: admin@seu.edu.sa / Test@123');

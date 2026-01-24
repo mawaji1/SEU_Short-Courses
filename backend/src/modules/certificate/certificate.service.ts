@@ -15,7 +15,11 @@ export interface GenerateCertificateDto {
 @Injectable()
 export class CertificateService {
   private readonly logger = new Logger(CertificateService.name);
-  private readonly certificatesPath = join(process.cwd(), 'uploads', 'certificates');
+  private readonly certificatesPath = join(
+    process.cwd(),
+    'uploads',
+    'certificates',
+  );
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -102,7 +106,10 @@ export class CertificateService {
       where: { enrollmentId },
     });
 
-    if (existingCertificate && existingCertificate.status !== CertificateStatus.REVOKED) {
+    if (
+      existingCertificate &&
+      existingCertificate.status !== CertificateStatus.REVOKED
+    ) {
       return existingCertificate;
     }
 
@@ -142,7 +149,9 @@ export class CertificateService {
       },
     });
 
-    this.logger.log(`Certificate generated: ${certificateNumber} for user: ${enrollment.user.email}`);
+    this.logger.log(
+      `Certificate generated: ${certificateNumber} for user: ${enrollment.user.email}`,
+    );
 
     return updatedCertificate;
   }
@@ -150,7 +159,11 @@ export class CertificateService {
   /**
    * Generate PDF certificate
    */
-  private async generatePDF(certificate: any, enrollment: any, locale: 'ar' | 'en'): Promise<string> {
+  private async generatePDF(
+    certificate: any,
+    enrollment: any,
+    locale: 'ar' | 'en',
+  ): Promise<string> {
     const fileName = `${certificate.number}.pdf`;
     const filePath = join(this.certificatesPath, fileName);
 
@@ -169,9 +182,19 @@ export class CertificateService {
     const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
 
     if (locale === 'ar') {
-      await this.generateArabicCertificate(doc, certificate, enrollment, qrCodeDataUrl);
+      await this.generateArabicCertificate(
+        doc,
+        certificate,
+        enrollment,
+        qrCodeDataUrl,
+      );
     } else {
-      await this.generateEnglishCertificate(doc, certificate, enrollment, qrCodeDataUrl);
+      await this.generateEnglishCertificate(
+        doc,
+        certificate,
+        enrollment,
+        qrCodeDataUrl,
+      );
     }
 
     doc.end();
@@ -190,7 +213,9 @@ export class CertificateService {
   ): Promise<void> {
     const userName = `${enrollment.user.firstName} ${enrollment.user.lastName}`;
     const programName = enrollment.cohort.program.titleAr;
-    const issueDate = new Date(certificate.issuedAt).toLocaleDateString('ar-SA');
+    const issueDate = new Date(certificate.issuedAt).toLocaleDateString(
+      'ar-SA',
+    );
 
     // Border
     doc
@@ -317,12 +342,16 @@ export class CertificateService {
     qrCodeDataUrl: string,
   ): Promise<void> {
     const userName = `${enrollment.user.firstName} ${enrollment.user.lastName}`;
-    const programName = enrollment.cohort.program.titleEn || enrollment.cohort.program.titleAr;
-    const issueDate = new Date(certificate.issuedAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    const programName =
+      enrollment.cohort.program.titleEn || enrollment.cohort.program.titleAr;
+    const issueDate = new Date(certificate.issuedAt).toLocaleDateString(
+      'en-US',
+      {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      },
+    );
 
     // Border
     doc
@@ -376,7 +405,9 @@ export class CertificateService {
       .fontSize(16)
       .font('Helvetica')
       .fillColor('#334155')
-      .text('has successfully completed the training program', 0, 330, { align: 'center' });
+      .text('has successfully completed the training program', 0, 330, {
+        align: 'center',
+      });
 
     // Program name
     doc
@@ -396,7 +427,9 @@ export class CertificateService {
     doc
       .fontSize(12)
       .fillColor('#94a3b8')
-      .text(`Certificate No: ${certificate.number}`, 0, 455, { align: 'center' });
+      .text(`Certificate No: ${certificate.number}`, 0, 455, {
+        align: 'center',
+      });
 
     // QR Code
     doc.image(qrCodeDataUrl, doc.page.width - 150, doc.page.height - 150, {
@@ -509,7 +542,10 @@ export class CertificateService {
   /**
    * Re-issue certificate
    */
-  async reissueCertificate(enrollmentId: string, locale: 'ar' | 'en' = 'ar'): Promise<any> {
+  async reissueCertificate(
+    enrollmentId: string,
+    locale: 'ar' | 'en' = 'ar',
+  ): Promise<any> {
     // Revoke existing certificate
     const existing = await this.prisma.certificate.findUnique({
       where: { enrollmentId },

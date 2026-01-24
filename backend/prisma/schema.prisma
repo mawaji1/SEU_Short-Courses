@@ -62,6 +62,8 @@ model User {
   notifications          Notification[]
   auditLogs              AuditLog[]
   programInterests       ProgramInterest[]
+  messageReadReceipts    MessageReadReceipt[]
+  waitlistEntries        WaitlistEntry[]
 
   @@map("users")
 }
@@ -166,6 +168,7 @@ model Instructor {
 
   // Relations
   cohorts  Cohort[]
+  messages CohortMessage[]
 
   @@map("instructors")
 }
@@ -246,6 +249,7 @@ model Program {
   cohorts     Cohort[]
   modules     ProgramModule[]
   interests   ProgramInterest[]
+  materials   CourseMaterial[]
 
   @@index([status])
   @@index([categoryId])
@@ -315,6 +319,81 @@ model Session {
   @@map("sessions")
 }
 
+enum MaterialType {
+  PDF
+  VIDEO
+  DOCUMENT
+  LINK
+  PRESENTATION
+  OTHER
+}
+
+model CourseMaterial {
+  id            String       @id @default(cuid())
+  programId     String
+  moduleId      String?
+  sessionId     String?
+  titleAr       String
+  titleEn       String
+  descriptionAr String?      @db.Text
+  descriptionEn String?      @db.Text
+  type          MaterialType @default(DOCUMENT)
+  fileUrl       String?
+  externalLink  String?
+  fileSize      Int?         // in bytes
+  fileName      String?
+  sortOrder     Int          @default(0)
+  isPublic      Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([moduleId])
+  @@index([sessionId])
+  @@index([sortOrder])
+  @@map("course_materials")
+}
+
+model CohortMessage {
+  id          String   @id @default(cuid())
+  cohortId    String
+  instructorId String?
+  subject     String
+  message     String   @db.Text
+  sentAt      DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cohort      Cohort      @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  instructor  Instructor? @relation(fields: [instructorId], references: [id])
+  readReceipts MessageReadReceipt[]
+
+  @@index([cohortId])
+  @@index([sentAt])
+  @@map("cohort_messages")
+}
+
+model MessageReadReceipt {
+  id         String   @id @default(cuid())
+  messageId  String
+  userId     String
+  readAt     DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  // Relations
+  message CohortMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+  @@map("message_read_receipts")
+}
+
 // =============================================================================
 // COHORTS
 // =============================================================================
@@ -351,6 +430,8 @@ model Cohort {
   registrations Registration[]
   enrollments   Enrollment[]
   certificates  Certificate[]
+  messages      CohortMessage[]
+  waitlist      WaitlistEntry[]
 
   @@index([programId])
   @@index([status])
@@ -648,6 +729,10 @@ model WaitlistEntry {
   expiresAt  DateTime? // Deadline to register after notification
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  cohort Cohort @relation(fields: [cohortId], references: [id])
 
   @@unique([userId, cohortId])
   @@index([cohortId, position])

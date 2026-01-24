@@ -13,7 +13,7 @@ export interface AuditLogEntry {
 
 /**
  * Audit Logging Service
- * 
+ *
  * Tracks all admin actions for security and compliance
  */
 @Injectable()
@@ -121,10 +121,13 @@ export class AuditService {
     });
 
     // Group by action
-    const actionCounts = logs.reduce((acc, log) => {
-      acc[log.action] = (acc[log.action] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const actionCounts = logs.reduce(
+      (acc, log) => {
+        acc[log.action] = (acc[log.action] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return {
       totalActions: logs.length,

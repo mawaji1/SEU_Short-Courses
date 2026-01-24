@@ -24,6 +24,10 @@ import { NotificationModule } from '../notification/notification.module';
     BlackboardEnrollmentService,
     BlackboardCompletionService,
   ],
-  exports: [BlackboardProvisioningService, BlackboardEnrollmentService, BlackboardCompletionService],
+  exports: [
+    BlackboardProvisioningService,
+    BlackboardEnrollmentService,
+    BlackboardCompletionService,
+  ],
 })
 export class BlackboardModule {}

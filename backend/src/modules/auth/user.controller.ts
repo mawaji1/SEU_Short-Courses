@@ -35,7 +35,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async updateProfile(
     @CurrentUser('id') userId: string,
-    @Body() body: { firstName?: string; lastName?: string; phone?: string }
+    @Body() body: { firstName?: string; lastName?: string; phone?: string },
   ) {
     return this.userService.updateProfile(userId, body);
   }
@@ -64,7 +64,10 @@ export class UserController {
    */
   @Patch(':id/role')
   @HttpCode(HttpStatus.OK)
-  async changeUserRole(@Param('id') id: string, @Body() body: { role: UserRole }) {
+  async changeUserRole(
+    @Param('id') id: string,
+    @Body() body: { role: UserRole },
+  ) {
     return this.userService.changeUserRole(id, body.role);
   }
 
@@ -74,7 +77,10 @@ export class UserController {
    */
   @Patch(':id/status')
   @HttpCode(HttpStatus.OK)
-  async toggleUserStatus(@Param('id') id: string, @Body() body: { isActive: boolean }) {
+  async toggleUserStatus(
+    @Param('id') id: string,
+    @Body() body: { isActive: boolean },
+  ) {
     return this.userService.toggleUserStatus(id, body.isActive);
   }
 }

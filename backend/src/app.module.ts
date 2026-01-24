@@ -16,7 +16,7 @@ import { AuditModule } from './modules/audit';
 
 /**
  * SEU Short Courses Platform — App Module
- * 
+ *
  * Root application module.
  * Imports CommonModule (global - provides PrismaService)
  * and feature modules.
@@ -47,6 +47,4 @@ import { AuditModule } from './modules/audit';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
-
-
+export class AppModule {}

@@ -11,7 +11,7 @@ import {
 /**
  * Tamara Payment Service
  * Handles Tamara Buy Now Pay Later integration
- * 
+ *
  * Tamara offers Pay in 3 or Pay in 4 installments
  */
 @Injectable()
@@ -36,7 +36,7 @@ export class TamaraService {
   isEligible(amount: number): boolean {
     const minAmount = parseFloat(process.env.TAMARA_MIN_AMOUNT || '100');
     const maxAmount = parseFloat(process.env.TAMARA_MAX_AMOUNT || '10000');
-    
+
     return amount >= minAmount && amount <= maxAmount;
   }
 
@@ -44,7 +44,10 @@ export class TamaraService {
    * Get available installment options from Tamara for a given amount
    * PRODUCTION-READY: Dynamic options based on amount, supports up to 12 installments
    */
-  async getInstallmentOptions(amount: number, currency: string = 'SAR'): Promise<any[]> {
+  async getInstallmentOptions(
+    amount: number,
+    currency: string = 'SAR',
+  ): Promise<any[]> {
     try {
       const options = [];
 
@@ -92,12 +95,14 @@ export class TamaraService {
     } catch (error) {
       this.logger.error('Failed to get Tamara installment options:', error);
       // Fallback to default
-      return [{
-        installments: amount >= 1000 ? 4 : 3,
-        minLimit: 300,
-        maxLimit: 10000,
-        installmentAmount: amount / (amount >= 1000 ? 4 : 3),
-      }];
+      return [
+        {
+          installments: amount >= 1000 ? 4 : 3,
+          minLimit: 300,
+          maxLimit: 10000,
+          installmentAmount: amount / (amount >= 1000 ? 4 : 3),
+        },
+      ];
     }
   }
 
@@ -105,10 +110,16 @@ export class TamaraService {
    * Create Tamara checkout session
    * PRODUCTION-READY: Includes language support and dynamic installments
    */
-  async createCheckout(request: BNPLCheckoutRequest, language: string = 'ar'): Promise<BNPLCheckoutResponse> {
+  async createCheckout(
+    request: BNPLCheckoutRequest,
+    language: string = 'ar',
+  ): Promise<BNPLCheckoutResponse> {
     try {
       // Determine best installment option based on amount
-      const installmentOptions = await this.getInstallmentOptions(request.amount, request.currency);
+      const installmentOptions = await this.getInstallmentOptions(
+        request.amount,
+        request.currency,
+      );
       const selectedOption = installmentOptions[0]; // Use first available option
 
       const session: TamaraCheckoutSession = {
@@ -146,18 +157,16 @@ export class TamaraService {
         },
       };
 
-      const response = await axios.post(
-        `${this.apiUrl}/checkout`,
-        session,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
-            'Content-Type': 'application/json',
-          },
+      const response = await axios.post(`${this.apiUrl}/checkout`, session, {
+        headers: {
+          Authorization: `Bearer ${this.apiToken}`,
+          'Content-Type': 'application/json',
         },
-      );
+      });
 
-      this.logger.log(`Tamara checkout session created: ${response.data.order_id}`);
+      this.logger.log(
+        `Tamara checkout session created: ${response.data.order_id}`,
+      );
 
       return {
         success: true,
@@ -165,10 +174,14 @@ export class TamaraService {
         sessionId: response.data.order_id,
       };
     } catch (error) {
-      this.logger.error('Tamara checkout creation failed:', error.response?.data || error.message);
+      this.logger.error(
+        'Tamara checkout creation failed:',
+        error.response?.data || error.message,
+      );
       return {
         success: false,
-        error: error.response?.data?.message || 'فشل إنشاء جلسة الدفع مع Tamara',
+        error:
+          error.response?.data?.message || 'فشل إنشاء جلسة الدفع مع Tamara',
       };
     }
   }
@@ -182,7 +195,7 @@ export class TamaraService {
         `${this.apiUrl}/merchants/orders/${orderId}`,
         {
           headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${this.apiToken}`,
           },
         },
       );
@@ -205,7 +218,7 @@ export class TamaraService {
         { order_id: orderId },
         {
           headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${this.apiToken}`,
             'Content-Type': 'application/json',
           },
         },
@@ -217,7 +230,10 @@ export class TamaraService {
         data: response.data,
       };
     } catch (error) {
-      this.logger.error(`Tamara order authorization failed for ${orderId}:`, error.response?.data || error.message);
+      this.logger.error(
+        `Tamara order authorization failed for ${orderId}:`,
+        error.response?.data || error.message,
+      );
       return {
         success: false,
         error: error.response?.data?.message || 'فشل تأكيد الطلب',
@@ -245,7 +261,7 @@ export class TamaraService {
         },
         {
           headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${this.apiToken}`,
             'Content-Type': 'application/json',
           },
         },
@@ -276,7 +292,7 @@ export class TamaraService {
         },
         {
           headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${this.apiToken}`,
             'Content-Type': 'application/json',
           },
         },
@@ -307,7 +323,7 @@ export class TamaraService {
         {},
         {
           headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
+            Authorization: `Bearer ${this.apiToken}`,
             'Content-Type': 'application/json',
           },
         },

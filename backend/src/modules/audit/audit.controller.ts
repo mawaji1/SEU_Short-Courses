@@ -7,7 +7,7 @@ import { UserRole } from '@prisma/client';
 
 /**
  * Audit Controller
- * 
+ *
  * Admin-only endpoints for viewing audit logs
  */
 @Controller('audit')
@@ -50,6 +50,9 @@ export class AuditController {
     @Query('userId') userId: string,
     @Query('days') days?: string,
   ) {
-    return this.auditService.getUserActivity(userId, days ? parseInt(days) : 30);
+    return this.auditService.getUserActivity(
+      userId,
+      days ? parseInt(days) : 30,
+    );
   }
 }

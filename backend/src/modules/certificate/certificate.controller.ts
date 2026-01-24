@@ -74,23 +74,28 @@ export class CertificateController {
    */
   @Get(':id/download')
   @UseGuards(JwtAuthGuard)
-  async downloadCertificate(
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async downloadCertificate(@Param('id') id: string, @Res() res: Response) {
     // Get certificate details
     const certificate = await this.certificateService.getUserCertificates(id);
-    
+
     if (!certificate || certificate.length === 0) {
       return res.status(404).json({ message: 'Certificate not found' });
     }
 
     const cert = certificate[0];
-    const filePath = join(process.cwd(), 'uploads', 'certificates', `${cert.number}.pdf`);
+    const filePath = join(
+      process.cwd(),
+      'uploads',
+      'certificates',
+      `${cert.number}.pdf`,
+    );
 
     // Stream PDF file
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${cert.number}.pdf"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${cert.number}.pdf"`,
+    );
 
     const fileStream = createReadStream(filePath);
     fileStream.pipe(res);
@@ -116,7 +121,10 @@ export class CertificateController {
   async reissueCertificate(
     @Body() body: { enrollmentId: string; locale?: 'ar' | 'en' },
   ) {
-    return this.certificateService.reissueCertificate(body.enrollmentId, body.locale);
+    return this.certificateService.reissueCertificate(
+      body.enrollmentId,
+      body.locale,
+    );
   }
 
   /**
