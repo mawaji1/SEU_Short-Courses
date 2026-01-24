@@ -36,8 +36,8 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
   const [error, setError] = useState('');
 
   const handleCreateModule = async () => {
-    if (!moduleForm.titleAr || !moduleForm.titleEn || !moduleForm.durationHours) {
-      setError('يرجى ملء جميع الحقول المطلوبة');
+    if (!moduleForm.titleAr) {
+      setError('يرجى إدخال عنوان الوحدة');
       return;
     }
 
@@ -54,10 +54,10 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
         body: JSON.stringify({
           programId,
           titleAr: moduleForm.titleAr,
-          titleEn: moduleForm.titleEn,
+          titleEn: moduleForm.titleEn || undefined,
           descriptionAr: moduleForm.descriptionAr || undefined,
           descriptionEn: moduleForm.descriptionEn || undefined,
-          durationHours: parseInt(moduleForm.durationHours),
+          durationHours: moduleForm.durationHours ? parseInt(moduleForm.durationHours) : undefined,
           sortOrder: modules.length,
         }),
       });
@@ -88,10 +88,10 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
         },
         body: JSON.stringify({
           titleAr: moduleForm.titleAr,
-          titleEn: moduleForm.titleEn,
+          titleEn: moduleForm.titleEn || undefined,
           descriptionAr: moduleForm.descriptionAr || undefined,
           descriptionEn: moduleForm.descriptionEn || undefined,
-          durationHours: parseInt(moduleForm.durationHours),
+          durationHours: moduleForm.durationHours ? parseInt(moduleForm.durationHours) : undefined,
         }),
       });
 
@@ -132,8 +132,8 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
   };
 
   const handleCreateSession = async (moduleId: string) => {
-    if (!sessionForm.titleAr || !sessionForm.titleEn || !sessionForm.durationMinutes) {
-      setError('يرجى ملء جميع الحقول المطلوبة');
+    if (!sessionForm.titleAr) {
+      setError('يرجى إدخال عنوان الجلسة');
       return;
     }
 
@@ -151,10 +151,10 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
         body: JSON.stringify({
           moduleId,
           titleAr: sessionForm.titleAr,
-          titleEn: sessionForm.titleEn,
+          titleEn: sessionForm.titleEn || undefined,
           descriptionAr: sessionForm.descriptionAr || undefined,
           descriptionEn: sessionForm.descriptionEn || undefined,
-          durationMinutes: parseInt(sessionForm.durationMinutes),
+          durationMinutes: sessionForm.durationMinutes ? parseInt(sessionForm.durationMinutes) : undefined,
           sortOrder: module?.sessions?.length || 0,
         }),
       });
@@ -249,14 +249,14 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
-              placeholder="العنوان بالعربية *"
+              placeholder="عنوان الوحدة *"
               value={moduleForm.titleAr}
               onChange={(e) => setModuleForm({ ...moduleForm, titleAr: e.target.value })}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
             />
             <input
               type="text"
-              placeholder="Title in English *"
+              placeholder="Title in English"
               value={moduleForm.titleEn}
               onChange={(e) => setModuleForm({ ...moduleForm, titleEn: e.target.value })}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
@@ -277,7 +277,7 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
             />
             <input
               type="number"
-              placeholder="عدد الساعات *"
+              placeholder="عدد الساعات"
               value={moduleForm.durationHours}
               onChange={(e) => setModuleForm({ ...moduleForm, durationHours: e.target.value })}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
@@ -354,7 +354,7 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
               </div>
               {editingModule !== module.id && (
                 <>
-                  <span className="text-sm text-accent font-medium">{module.durationHours} ساعة</span>
+                  {module.durationHours && <span className="text-sm text-accent font-medium">{module.durationHours} ساعة</span>}
                   <button
                     onClick={() => startEditModule(module)}
                     className="p-1.5 hover:bg-gray-200 rounded text-gray-600"
@@ -403,21 +403,21 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
                     <div className="grid grid-cols-2 gap-2">
                       <input
                         type="text"
-                        placeholder="العنوان بالعربية *"
+                        placeholder="موضوع الجلسة *"
                         value={sessionForm.titleAr}
                         onChange={(e) => setSessionForm({ ...sessionForm, titleAr: e.target.value })}
                         className="border border-gray-200 rounded px-2 py-1.5 text-sm"
                       />
                       <input
                         type="text"
-                        placeholder="Title in English *"
+                        placeholder="Title in English"
                         value={sessionForm.titleEn}
                         onChange={(e) => setSessionForm({ ...sessionForm, titleEn: e.target.value })}
                         className="border border-gray-200 rounded px-2 py-1.5 text-sm"
                       />
                       <input
                         type="number"
-                        placeholder="المدة بالدقائق *"
+                        placeholder="المدة بالدقائق"
                         value={sessionForm.durationMinutes}
                         onChange={(e) => setSessionForm({ ...sessionForm, durationMinutes: e.target.value })}
                         className="border border-gray-200 rounded px-2 py-1.5 text-sm"
@@ -447,7 +447,7 @@ export function CurriculumBuilder({ programId, initialModules = [], onUpdate }: 
                           <p className="text-sm font-medium text-gray-900">{session.titleAr}</p>
                           <p className="text-xs text-gray-600">{session.titleEn}</p>
                         </div>
-                        <span className="text-xs text-gray-500">{session.durationMinutes} دقيقة</span>
+                        {session.durationMinutes && <span className="text-xs text-gray-500">{session.durationMinutes} دقيقة</span>}
                         <button
                           onClick={() => handleDeleteSession(session.id, module.id)}
                           className="p-1 hover:bg-red-50 rounded text-red-600"

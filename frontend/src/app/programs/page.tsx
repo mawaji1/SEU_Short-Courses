@@ -20,6 +20,7 @@ export default function ProgramsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [deliveryMode, setDeliveryMode] = useState<string | null>(null);
+    const [availabilityFilter, setAvailabilityFilter] = useState<string | null>(null);
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -57,15 +58,19 @@ export default function ProgramsPage() {
         const matchesDeliveryMode =
             !deliveryMode || program.deliveryMode === deliveryMode;
 
+        const matchesAvailability =
+            !availabilityFilter || program.availabilityStatus === availabilityFilter;
+
         const price = typeof program.price === 'string' ? parseFloat(program.price) : program.price;
         const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
-        return matchesSearch && matchesCategory && matchesDeliveryMode && matchesPrice;
+        return matchesSearch && matchesCategory && matchesDeliveryMode && matchesAvailability && matchesPrice;
     });
 
     const clearFilters = () => {
         setSelectedCategory(null);
         setDeliveryMode(null);
+        setAvailabilityFilter(null);
         setPriceRange([0, 10000]);
         setSearchQuery("");
     };
@@ -73,6 +78,7 @@ export default function ProgramsPage() {
     const activeFiltersCount =
         (selectedCategory ? 1 : 0) +
         (deliveryMode ? 1 : 0) +
+        (availabilityFilter ? 1 : 0) +
         (priceRange[0] !== 0 || priceRange[1] !== 10000 ? 1 : 0);
 
     if (isLoading) {
@@ -212,6 +218,53 @@ export default function ProgramsPage() {
                                             }`}
                                         >
                                             <span className="text-sm font-medium">مدمج</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Availability Filter */}
+                                <div className="mb-6">
+                                    <h3 className="text-sm font-bold text-gray-900 mb-3">التوفر</h3>
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={() => setAvailabilityFilter(null)}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                !availabilityFilter
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">الكل</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setAvailabilityFilter('AVAILABLE')}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                availabilityFilter === 'AVAILABLE'
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">متاح للتسجيل</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setAvailabilityFilter('UPCOMING')}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                availabilityFilter === 'UPCOMING'
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">يبدأ قريباً</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setAvailabilityFilter('COMING_SOON')}
+                                            className={`w-full text-right px-4 py-2 rounded-lg transition-colors ${
+                                                availabilityFilter === 'COMING_SOON'
+                                                    ? "bg-accent text-white"
+                                                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                        >
+                                            <span className="text-sm font-medium">قريباً</span>
                                         </button>
                                     </div>
                                 </div>

@@ -6,6 +6,7 @@ export type ProgramStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 export type ProgramType = 'COURSE' | 'WORKSHOP' | 'BOOTCAMP' | 'CERTIFICATION';
 export type DeliveryMode = 'ONLINE' | 'IN_PERSON' | 'HYBRID';
 export type CohortStatus = 'UPCOMING' | 'OPEN' | 'FULL' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type AvailabilityStatus = 'COMING_SOON' | 'UPCOMING' | 'AVAILABLE' | 'SOLD_OUT';
 
 export interface Category {
     id: string;
@@ -99,6 +100,7 @@ export interface Program {
     certificateAttendanceThreshold: number;
     isFeatured: boolean;
     sortOrder: number;
+    availabilityStatus?: AvailabilityStatus;
     createdAt: string;
     updatedAt: string;
     category?: Category;

@@ -97,6 +97,9 @@ export class CohortService {
             },
         });
 
+        // Update program availability status
+        await this.updateProgramAvailability(dto.programId);
+
         return this.formatCohortResponse(cohort);
     }
 
@@ -186,6 +189,11 @@ export class CohortService {
             },
         });
 
+        // Update program availability status if status changed
+        if (dto.status) {
+            await this.updateProgramAvailability(cohort.programId);
+        }
+
         return this.formatCohortResponse(cohort);
     }
 
@@ -205,10 +213,14 @@ export class CohortService {
         }
 
         if (cohort.registrations.length > 0) {
-            throw new NotFoundException('لا يمكن حذف موعد به تسجيلات');
+            throw new NotFoundException('لا يمكن حذف دورة بها تسجيلات');
         }
 
+        const programId = cohort.programId;
         await this.prisma.cohort.delete({ where: { id } });
+
+        // Update program availability status
+        await this.updateProgramAvailability(programId);
     }
 
     /**
@@ -304,5 +316,44 @@ export class CohortService {
                 nameEn: cohort.instructor.nameEn,
             } : undefined,
         };
+    }
+
+    /**
+     * Update program availability status based on cohorts
+     * Called after cohort create/update/delete
+     */
+    private async updateProgramAvailability(programId: string): Promise<void> {
+        const cohorts = await this.prisma.cohort.findMany({
+            where: { programId },
+            select: { status: true },
+        });
+
+        let availabilityStatus: 'AVAILABLE' | 'UPCOMING' | 'SOLD_OUT' | 'COMING_SOON';
+
+        if (cohorts.length === 0) {
+            availabilityStatus = 'COMING_SOON';
+        } else {
+            const hasOpen = cohorts.some(c => c.status === 'OPEN');
+            const hasUpcoming = cohorts.some(c => c.status === 'UPCOMING');
+            const allFullOrDone = cohorts.every(c => 
+                c.status === 'FULL' || c.status === 'COMPLETED' || c.status === 'CANCELLED'
+            );
+            const hasFull = cohorts.some(c => c.status === 'FULL');
+
+            if (hasOpen) {
+                availabilityStatus = 'AVAILABLE';
+            } else if (hasUpcoming) {
+                availabilityStatus = 'UPCOMING';
+            } else if (hasFull && allFullOrDone) {
+                availabilityStatus = 'SOLD_OUT';
+            } else {
+                availabilityStatus = 'COMING_SOON';
+            }
+        }
+
+        await this.prisma.program.update({
+            where: { id: programId },
+            data: { availabilityStatus },
+        });
     }
 }

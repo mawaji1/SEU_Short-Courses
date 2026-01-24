@@ -9,7 +9,10 @@ import {
     Query,
     HttpCode,
     HttpStatus,
+    UseGuards,
+    Request,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CatalogService } from './catalog.service';
 import {
     CreateCategoryDto,
@@ -50,6 +53,15 @@ export class CatalogController {
     @Get('programs/featured')
     async findFeaturedPrograms(@Query('limit') limit?: number) {
         return this.catalogService.findFeaturedPrograms(limit || 6);
+    }
+
+    /**
+     * Get all program interests (admin)
+     * MUST be before programs/:id to avoid route conflict
+     */
+    @Get('programs/interests')
+    async getAllProgramInterests() {
+        return this.catalogService.getAllProgramInterests();
     }
 
     @Get('programs/slug/:slug')
@@ -101,10 +113,32 @@ export class CatalogController {
         return this.catalogService.cloneProgram(id);
     }
 
+    /**
+     * Register interest in a program (for "Notify Me" feature)
+     * Requires authentication
+     */
+    @Post('programs/:id/interest')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.CREATED)
+    async registerInterest(
+        @Param('id') id: string,
+        @Request() req: any,
+    ) {
+        return this.catalogService.registerProgramInterest(id, req.user.id);
+    }
+
     @Delete('programs/:id')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteProgram(@Param('id') id: string) {
         await this.catalogService.deleteProgram(id);
+    }
+
+    /**
+     * Sync availability status for all programs (admin utility)
+     */
+    @Post('programs/sync-availability')
+    async syncAvailability() {
+        return this.catalogService.syncAllProgramsAvailability();
     }
 
     // ===========================================================================

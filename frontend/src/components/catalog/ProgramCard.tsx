@@ -3,9 +3,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Clock, Calendar, Users, ArrowLeft } from "lucide-react";
+import { Clock, Calendar, Users, ArrowLeft, Bell } from "lucide-react";
 import { motion } from "framer-motion";
-import { Program } from "@/services/catalog/types";
+import { Program, AvailabilityStatus } from "@/services/catalog/types";
+
+// Arabic labels for availability status
+const availabilityLabels: Record<AvailabilityStatus, { label: string; color: string; bg: string }> = {
+  AVAILABLE: { label: 'متاح للتسجيل', color: '#32B7A8', bg: 'rgba(50, 183, 168, 0.1)' },
+  UPCOMING: { label: 'يبدأ قريباً', color: '#0083BE', bg: 'rgba(0, 131, 190, 0.1)' },
+  COMING_SOON: { label: 'قريباً', color: '#593888', bg: 'rgba(89, 56, 136, 0.1)' },
+  SOLD_OUT: { label: 'مكتمل', color: '#FFA300', bg: 'rgba(255, 163, 0, 0.1)' },
+};
 
 interface ProgramCardProps {
     program: Program;
@@ -79,12 +87,25 @@ export function ProgramCard({ program, index = 0 }: ProgramCardProps) {
                             </div>
                         )}
                         
-                        {/* Badge */}
-                        {program.isFeatured && (
-                            <div className="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-full text-sm font-bold">
-                                مميز
-                            </div>
-                        )}
+                        {/* Badges */}
+                        <div className="absolute top-4 right-4 flex flex-col gap-2">
+                            {program.isFeatured && (
+                                <div className="bg-accent text-white px-3 py-1 rounded-full text-sm font-bold">
+                                    مميز
+                                </div>
+                            )}
+                            {program.availabilityStatus && (
+                                <div
+                                    className="px-3 py-1 rounded-full text-sm font-bold"
+                                    style={{
+                                        background: availabilityLabels[program.availabilityStatus]?.bg,
+                                        color: availabilityLabels[program.availabilityStatus]?.color,
+                                    }}
+                                >
+                                    {availabilityLabels[program.availabilityStatus]?.label}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Content */}
@@ -108,10 +129,12 @@ export function ProgramCard({ program, index = 0 }: ProgramCardProps) {
 
                         {/* Meta Info */}
                         <div className="space-y-2 mb-4">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <Clock className="w-4 h-4 text-gray-400" />
-                                <span>{program.durationHours} ساعة تدريبية</span>
-                            </div>
+                            {program.durationHours && (
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Clock className="w-4 h-4 text-gray-400" />
+                                    <span>{program.durationHours} ساعة تدريبية</span>
+                                </div>
+                            )}
 
                             {nextStartDate && (
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -131,6 +154,14 @@ export function ProgramCard({ program, index = 0 }: ProgramCardProps) {
                                 <div className="flex items-center gap-2 text-sm text-red-600">
                                     <Users className="w-4 h-4" />
                                     <span>المقاعد ممتلئة</span>
+                                </div>
+                            )}
+
+                            {/* Show "Notify Me" hint for coming soon programs */}
+                            {program.availabilityStatus === 'COMING_SOON' && (
+                                <div className="flex items-center gap-2 text-sm" style={{ color: '#593888' }}>
+                                    <Bell className="w-4 h-4" />
+                                    <span>أعلمني عند التوفر</span>
                                 </div>
                             )}
                         </div>

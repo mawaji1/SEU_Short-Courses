@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
-  Plus, Search, Pencil, Trash2, Eye, Calendar, Users,
-  ChevronDown, ChevronUp, X, Loader2, UserPlus, Copy
+  Plus, Search, Pencil, Calendar, Users,
+  ChevronDown, ChevronUp, X, UserPlus, Copy, Sparkles
 } from 'lucide-react';
 import { CurriculumBuilder } from '@/components/admin';
 
@@ -113,27 +114,20 @@ export default function AdminProgramsPage() {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    fetchPrograms();
-    fetchInstructors();
-    fetchCategories();
+    Promise.all([
+      fetchPrograms(),
+      fetchInstructors(),
+      fetchCategories()
+    ]);
   }, []);
 
   const fetchPrograms = async () => {
     try {
       setLoading(true);
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) {
-        setError('يرجى تسجيل الدخول أولاً');
-        return;
-      }
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs`,
         {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+          credentials: 'include',
         },
       );
 
@@ -152,16 +146,10 @@ export default function AdminProgramsPage() {
 
   const fetchInstructors = async () => {
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/instructors`,
         {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+          credentials: 'include',
         },
       );
 
@@ -176,16 +164,10 @@ export default function AdminProgramsPage() {
 
   const fetchCategories = async () => {
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/categories`,
         {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+          credentials: 'include',
         },
       );
 
@@ -200,16 +182,10 @@ export default function AdminProgramsPage() {
 
   const fetchCohorts = async (programId: string) => {
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/cohorts?programId=${programId}`,
         {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+          credentials: 'include',
         },
       );
 
@@ -240,17 +216,13 @@ export default function AdminProgramsPage() {
     if (!selectedProgram) return;
 
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/cohorts`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth.accessToken}`,
           },
           body: JSON.stringify({
             programId: selectedProgram,
@@ -290,10 +262,6 @@ export default function AdminProgramsPage() {
     e.preventDefault();
 
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const isEditing = !!editingProgramId;
       const url = isEditing
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs/${editingProgramId}`
@@ -301,9 +269,9 @@ export default function AdminProgramsPage() {
 
       const response = await fetch(url, {
         method: isEditing ? 'PUT' : 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${auth.accessToken}`,
         },
         body: JSON.stringify({
           titleAr: programForm.titleAr,
@@ -360,17 +328,13 @@ export default function AdminProgramsPage() {
 
   const handleStatusChange = async (programId: string, newStatus: string) => {
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs/${programId}`,
         {
           method: 'PUT',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth.accessToken}`,
           },
           body: JSON.stringify({ status: newStatus }),
         },
@@ -389,17 +353,11 @@ export default function AdminProgramsPage() {
 
   const handleCloneProgram = async (programId: string) => {
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/catalog/programs/${programId}/clone`,
         {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+          credentials: 'include',
         },
       );
 
@@ -416,17 +374,13 @@ export default function AdminProgramsPage() {
 
   const handleAssignInstructor = async (cohortId: string, instructorId: string) => {
     try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) return;
-
-      const auth = JSON.parse(authData);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/cohorts/${cohortId}/instructor`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/cohorts/${cohortId}`,
         {
           method: 'PUT',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${auth.accessToken}`,
           },
           body: JSON.stringify({ instructorId }),
         },
@@ -445,27 +399,72 @@ export default function AdminProgramsPage() {
     }
   };
 
-  const filteredPrograms = programs.filter((prog) => {
-    const matchesSearch =
-      prog.titleAr.includes(searchQuery) ||
-      prog.titleEn.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = !filterStatus || prog.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredPrograms = useMemo(() =>
+    programs.filter((prog) => {
+      const matchesSearch =
+        prog.titleAr.includes(searchQuery) ||
+        prog.titleEn.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = !filterStatus || prog.status === filterStatus;
+      return matchesSearch && matchesStatus;
+    }), [programs, searchQuery, filterStatus]
+  );
 
-  const statusCounts = {
+  const statusCounts = useMemo(() => ({
     all: programs.length,
     PUBLISHED: programs.filter((p) => p.status === 'PUBLISHED').length,
     DRAFT: programs.filter((p) => p.status === 'DRAFT').length,
     ARCHIVED: programs.filter((p) => p.status === 'ARCHIVED').length,
-  };
+  }), [programs]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-600">جاري التحميل...</p>
+      <div className="max-w-[1400px] mx-auto" dir="rtl">
+        {/* Skeleton Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="h-9 w-48 bg-gray-200 rounded-lg animate-pulse mb-2" />
+            <div className="h-5 w-64 bg-gray-100 rounded animate-pulse" />
+          </div>
+          <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse" />
+        </div>
+
+        {/* Skeleton Filters */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1 h-12 bg-gray-100 rounded-xl animate-pulse" />
+            <div className="flex gap-2">
+              <div className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="h-10 w-20 bg-gray-100 rounded-lg animate-pulse" />
+              <div className="h-10 w-20 bg-gray-100 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Table */}
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div className="p-6 space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">
+                <div className="flex-1">
+                  <div className="h-5 w-48 bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-32 bg-gray-100 rounded animate-pulse" />
+                </div>
+                <div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
+                <div className="h-4 w-20 bg-gray-100 rounded animate-pulse" />
+                <div className="h-6 w-16 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="flex gap-2">
+                  <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse" />
+                  <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse" />
+                  <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Screen reader loading announcement */}
+        <div className="sr-only" role="status" aria-live="polite">
+          جاري تحميل البرامج…
         </div>
       </div>
     );
@@ -473,87 +472,136 @@ export default function AdminProgramsPage() {
 
   return (
     <div className="max-w-[1400px] mx-auto" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">البرامج التدريبية</h1>
-          <p className="text-gray-600">إدارة البرامج والدفعات التدريبية</p>
+      {/* Header with SEU gradient */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative mb-8 rounded-3xl p-8 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #111E4D 0%, #0083BE 50%, #32B7A8 100%)' }}
+      >
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full translate-x-1/4 translate-y-1/4" style={{ background: 'rgba(196, 214, 0, 0.1)' }} />
+        
+        <div className="relative flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Sparkles className="w-8 h-8" style={{ color: '#C4D600' }} />
+              <h1 className="text-4xl font-bold text-white">البرامج التدريبية</h1>
+            </div>
+            <p className="text-white/80 text-lg">إدارة البرامج والدفعات التدريبية</p>
+          </div>
+          <Button
+            onClick={() => setShowProgramModal(true)}
+            size="lg"
+            className="gap-2 shadow-xl hover:shadow-2xl transition-all duration-300"
+            style={{ background: 'white', color: '#111E4D' }}
+          >
+            <Plus className="w-5 h-5" />
+            إضافة برنامج
+          </Button>
         </div>
-        <Button
-          onClick={() => setShowProgramModal(true)}
-          className="gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          إضافة برنامج
-        </Button>
-      </div>
+      </motion.div>
 
-      {/* Alerts */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-700">{error}</p>
-        </div>
-      )}
+      {/* Alerts with animation */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="bg-red-50 border-r-4 border-red-500 rounded-lg p-4 mb-6 shadow-sm"
+            role="alert"
+          >
+            <p className="text-red-700 font-medium">{error}</p>
+          </motion.div>
+        )}
 
-      {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <p className="text-green-700">{success}</p>
-        </div>
-      )}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="bg-green-50 border-r-4 border-green-500 rounded-lg p-4 mb-6 shadow-sm"
+            role="status"
+          >
+            <p className="text-green-700 font-medium">{success}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
+      {/* Filters with animation */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="bg-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm"
+      >
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <div className="flex-1 relative group">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-seu-blue transition-colors" />
             <input
               type="text"
-              placeholder="البحث في البرامج..."
+              placeholder="البحث في البرامج…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pr-12 pl-4 rounded-xl border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
+              className="w-full h-12 pr-12 pl-4 rounded-xl border border-gray-200 focus:border-seu-blue focus-visible:ring-2 focus-visible:ring-seu-blue/20 outline-none transition-all"
+              aria-label="البحث في البرامج"
+              name="search"
             />
           </div>
 
           {/* Status Filter */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" role="group" aria-label="تصفية حسب الحالة">
             <button
               onClick={() => setFilterStatus(null)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${!filterStatus
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+              className="px-5 py-2.5 rounded-xl font-medium transition-all focus-visible:ring-2 focus-visible:ring-offset-2 shadow-sm"
+              style={!filterStatus 
+                ? { background: '#111E4D', color: 'white' } 
+                : { background: '#f3f4f6', color: '#374151' }}
+              aria-label="عرض جميع البرامج"
+              aria-pressed={!filterStatus}
             >
               الكل ({statusCounts.all})
             </button>
             <button
               onClick={() => setFilterStatus('PUBLISHED')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filterStatus === 'PUBLISHED'
-                ? 'bg-green-600 text-white'
-                : 'bg-green-100 text-green-700 hover:bg-green-200'
-                }`}
+              className="px-5 py-2.5 rounded-xl font-medium transition-all focus-visible:ring-2 focus-visible:ring-offset-2 shadow-sm"
+              style={filterStatus === 'PUBLISHED'
+                ? { background: '#32B7A8', color: 'white' }
+                : { background: 'rgba(50, 183, 168, 0.1)', color: '#32B7A8' }}
+              aria-label="عرض البرامج المنشورة"
+              aria-pressed={filterStatus === 'PUBLISHED'}
             >
               منشور ({statusCounts.PUBLISHED})
             </button>
             <button
               onClick={() => setFilterStatus('DRAFT')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filterStatus === 'DRAFT'
-                ? 'bg-gray-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+              className="px-5 py-2.5 rounded-xl font-medium transition-all focus-visible:ring-2 focus-visible:ring-offset-2 shadow-sm"
+              style={filterStatus === 'DRAFT'
+                ? { background: '#593888', color: 'white' }
+                : { background: 'rgba(89, 56, 136, 0.1)', color: '#593888' }}
+              aria-label="عرض المسودات"
+              aria-pressed={filterStatus === 'DRAFT'}
             >
               مسودة ({statusCounts.DRAFT})
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Programs Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      {/* Programs Table with animation */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm"
+      >
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100/50">
               <tr>
                 <th className="text-right px-6 py-4 text-sm font-bold text-gray-900">
                   البرنامج
@@ -586,19 +634,20 @@ export default function AdminProgramsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-gray-900">
-                        {program.price.toLocaleString()} ر.س
+                      <span className="text-sm font-bold text-gray-900 tabular-nums">
+                        {program.price.toLocaleString('ar-SA')} ر.س
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <select
                         value={program.status}
                         onChange={(e) => handleStatusChange(program.id, e.target.value)}
-                        className={`text-xs px-3 py-1.5 rounded-lg border font-medium cursor-pointer ${
+                        aria-label={`تغيير حالة ${program.titleAr}`}
+                        className={`text-xs px-3 py-1.5 rounded-lg border font-medium cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 transition-all ${
                           program.status === 'PUBLISHED'
-                            ? 'bg-green-50 text-green-700 border-green-200'
+                            ? 'bg-green-50 text-green-700 border-green-200 focus-visible:ring-green-500'
                             : program.status === 'DRAFT'
-                            ? 'bg-gray-50 text-gray-600 border-gray-200'
+                            ? 'bg-gray-50 text-gray-600 border-gray-200 focus-visible:ring-gray-400'
                             : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                         }`}
                       >
@@ -611,8 +660,10 @@ export default function AdminProgramsPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => toggleProgramExpansion(program.id)}
-                          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
-                          title="عرض الدفعات"
+                          className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all"
+                          title="عرض الدورات والمحتوى"
+                          aria-label={expandedProgram === program.id ? 'إخفاء تفاصيل البرنامج' : 'عرض تفاصيل البرنامج'}
+                          aria-expanded={expandedProgram === program.id}
                         >
                           {expandedProgram === program.id ? (
                             <ChevronUp className="w-4 h-4" />
@@ -625,8 +676,9 @@ export default function AdminProgramsPage() {
                             setSelectedProgram(program.id);
                             setShowCohortModal(true);
                           }}
-                          className="p-2 hover:bg-blue-50 rounded-lg text-blue-600"
-                          title="إضافة دفعة"
+                          className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-all"
+                          title="إضافة دورة جديدة"
+                          aria-label="إضافة دورة جديدة"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -653,17 +705,19 @@ export default function AdminProgramsPage() {
                             });
                             setShowProgramModal(true);
                           }}
-                          className="p-2 hover:bg-green-50 rounded-lg text-green-600"
+                          className="p-2 hover:bg-green-50 rounded-lg text-green-600 focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 transition-all"
                           title="تعديل البرنامج"
+                          aria-label="تعديل البرنامج"
                         >
-                          <Pencil className="w-4 h-4" />
+                          <Pencil className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => handleCloneProgram(program.id)}
-                          className="p-2 hover:bg-purple-50 rounded-lg text-purple-600"
+                          className="p-2 hover:bg-purple-50 rounded-lg text-purple-600 focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 transition-all"
                           title="نسخ البرنامج"
+                          aria-label="نسخ البرنامج"
                         >
-                          <Copy className="w-4 h-4" />
+                          <Copy className="w-4 h-4" aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -683,88 +737,6 @@ export default function AdminProgramsPage() {
                             />
                           </div>
 
-                          {/* Cohorts Section */}
-                          <div>
-                            <h4 className="font-bold text-gray-900 mb-3">
-                              الدفعات التدريبية
-                            </h4>
-                          {cohorts[program.id]?.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {cohorts[program.id].map((cohort) => (
-                                <div
-                                  key={cohort.id}
-                                  className="bg-white rounded-lg border border-gray-200 p-4"
-                                >
-                                  <div className="flex items-start justify-between mb-3">
-                                    <div>
-                                      <h5 className="font-bold text-gray-900">
-                                        {cohort.nameAr}
-                                      </h5>
-                                      <p className="text-sm text-gray-500">
-                                        {cohort.nameEn}
-                                      </p>
-                                    </div>
-                                    <span
-                                      className={`text-xs px-2 py-1 rounded-full ${cohort.status === 'OPEN'
-                                        ? 'bg-green-100 text-green-700'
-                                        : cohort.status === 'FULL'
-                                          ? 'bg-red-100 text-red-700'
-                                          : 'bg-gray-100 text-gray-600'
-                                        }`}
-                                    >
-                                      {cohort.status}
-                                    </span>
-                                  </div>
-
-                                  <div className="space-y-2 text-sm text-gray-600">
-                                    <div className="flex items-center gap-2">
-                                      <Calendar className="w-4 h-4" />
-                                      <span>
-                                        {new Date(cohort.startDate).toLocaleDateString('ar-SA')} -{' '}
-                                        {new Date(cohort.endDate).toLocaleDateString('ar-SA')}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <Users className="w-4 h-4" />
-                                      <span>
-                                        {cohort.enrolledCount} / {cohort.capacity} متدرب
-                                      </span>
-                                    </div>
-                                    {cohort.instructor && (
-                                      <div className="flex items-center gap-2">
-                                        <UserPlus className="w-4 h-4" />
-                                        <span>{cohort.instructor.nameAr}</span>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Instructor Assignment */}
-                                  {!cohort.instructor && instructors.length > 0 && (
-                                    <div className="mt-3 pt-3 border-t border-gray-200">
-                                      <select
-                                        onChange={(e) =>
-                                          handleAssignInstructor(cohort.id, e.target.value)
-                                        }
-                                        className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2"
-                                      >
-                                        <option value="">تعيين مدرب...</option>
-                                        {instructors.map((instructor) => (
-                                          <option key={instructor.id} value={instructor.id}>
-                                            {instructor.nameAr} - {instructor.titleAr}
-                                          </option>
-                                        ))}
-                                      </select>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-gray-500 text-center py-4">
-                              لا توجد دفعات لهذا البرنامج
-                            </p>
-                          )}
-                          </div>
                         </div>
                       </td>
                     </tr>
@@ -780,7 +752,7 @@ export default function AdminProgramsPage() {
             <p className="text-gray-500">لا توجد برامج</p>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Create/Edit Program Modal */}
       {showProgramModal && (
@@ -795,95 +767,109 @@ export default function AdminProgramsPage() {
                   setShowProgramModal(false);
                   setEditingProgramId(null);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-gray-100 rounded-lg focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 transition-all"
+                aria-label="إغلاق النافذة"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={handleCreateProgram} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="titleAr" className="block text-sm font-medium text-gray-700 mb-2">
                     عنوان البرنامج (عربي) *
                   </label>
                   <input
+                    id="titleAr"
+                    name="titleAr"
                     type="text"
                     required
+                    autoComplete="off"
                     value={programForm.titleAr}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, titleAr: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    عنوان البرنامج (English) *
+                  <label htmlFor="titleEn" className="block text-sm font-medium text-gray-700 mb-2">
+                    عنوان البرنامج (English)
                   </label>
                   <input
+                    id="titleEn"
+                    name="titleEn"
                     type="text"
-                    required
+                    autoComplete="off"
                     value={programForm.titleEn}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, titleEn: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="shortDescriptionAr" className="block text-sm font-medium text-gray-700 mb-2">
                     الوصف المختصر (عربي) *
                   </label>
                   <input
+                    id="shortDescriptionAr"
+                    name="shortDescriptionAr"
                     type="text"
                     required
+                    autoComplete="off"
                     value={programForm.shortDescriptionAr}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, shortDescriptionAr: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الوصف المختصر (English) *
+                  <label htmlFor="shortDescriptionEn" className="block text-sm font-medium text-gray-700 mb-2">
+                    الوصف المختصر (English)
                   </label>
                   <input
+                    id="shortDescriptionEn"
+                    name="shortDescriptionEn"
                     type="text"
-                    required
+                    autoComplete="off"
                     value={programForm.shortDescriptionEn}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, shortDescriptionEn: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="descriptionAr" className="block text-sm font-medium text-gray-700 mb-2">
                     الوصف الكامل (عربي) *
                   </label>
                   <textarea
+                    id="descriptionAr"
+                    name="descriptionAr"
                     required
                     rows={3}
                     value={programForm.descriptionAr}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, descriptionAr: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الوصف الكامل (English) *
+                  <label htmlFor="descriptionEn" className="block text-sm font-medium text-gray-700 mb-2">
+                    الوصف الكامل (English)
                   </label>
                   <textarea
-                    required
+                    id="descriptionEn"
+                    name="descriptionEn"
                     rows={3}
                     value={programForm.descriptionEn}
                     onChange={(e) =>
@@ -894,85 +880,99 @@ export default function AdminProgramsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
                     السعر الأساسي (ر.س) *
                   </label>
                   <input
+                    id="price"
+                    name="price"
                     type="number"
                     required
                     min="0"
                     step="0.01"
+                    inputMode="decimal"
                     value={programForm.price}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, price: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all tabular-nums"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="earlyBirdPrice" className="block text-sm font-medium text-gray-700 mb-2">
                     سعر الحجز المبكر (ر.س)
                   </label>
                   <input
+                    id="earlyBirdPrice"
+                    name="earlyBirdPrice"
                     type="number"
                     min="0"
                     step="0.01"
+                    inputMode="decimal"
                     value={programForm.earlyBirdPrice}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, earlyBirdPrice: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all tabular-nums"
                     placeholder="اختياري"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="corporatePrice" className="block text-sm font-medium text-gray-700 mb-2">
                     السعر المؤسسي (ر.س)
                   </label>
                   <input
+                    id="corporatePrice"
+                    name="corporatePrice"
                     type="number"
                     min="0"
                     step="0.01"
+                    inputMode="decimal"
                     value={programForm.corporatePrice}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, corporatePrice: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all tabular-nums"
                     placeholder="اختياري"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="durationHours" className="block text-sm font-medium text-gray-700 mb-2">
                     عدد الساعات *
                   </label>
                   <input
+                    id="durationHours"
+                    name="durationHours"
                     type="number"
                     required
                     min="1"
+                    inputMode="numeric"
                     value={programForm.durationHours}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, durationHours: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all tabular-nums"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-2">
                     التصنيف *
                   </label>
                   <select
+                    id="categoryId"
+                    name="categoryId"
                     required
                     value={programForm.categoryId}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, categoryId: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   >
-                    <option value="">اختر التصنيف...</option>
+                    <option value="">اختر التصنيف…</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.nameAr}
@@ -1020,16 +1020,18 @@ export default function AdminProgramsPage() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="programType" className="block text-sm font-medium text-gray-700 mb-2">
                     نوع البرنامج *
                   </label>
                   <select
+                    id="programType"
+                    name="type"
                     required
                     value={programForm.type}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, type: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   >
                     <option value="COURSE">دورة تدريبية</option>
                     <option value="WORKSHOP">ورشة عمل</option>
@@ -1039,16 +1041,18 @@ export default function AdminProgramsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="deliveryMode" className="block text-sm font-medium text-gray-700 mb-2">
                     طريقة التقديم *
                   </label>
                   <select
+                    id="deliveryMode"
+                    name="deliveryMode"
                     required
                     value={programForm.deliveryMode}
                     onChange={(e) =>
                       setProgramForm({ ...programForm, deliveryMode: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all"
                   >
                     <option value="ONLINE">عن بُعد</option>
                     <option value="ONSITE">حضوري</option>
@@ -1108,9 +1112,10 @@ export default function AdminProgramsPage() {
               <h3 className="text-2xl font-bold text-gray-900">إضافة دفعة جديدة</h3>
               <button
                 onClick={() => setShowCohortModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-gray-100 rounded-lg focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 transition-all"
+                aria-label="إغلاق النافذة"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 

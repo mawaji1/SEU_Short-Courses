@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
@@ -339,6 +339,66 @@ export class CatalogService {
         return this.updateProgram(id, { status: 'ARCHIVED' as any });
     }
 
+    /**
+     * Compute and update program availability status based on cohorts
+     * Called when cohorts are created/updated/deleted
+     * 
+     * Status logic:
+     * - AVAILABLE: Has at least one OPEN cohort
+     * - UPCOMING: Has UPCOMING cohorts but none OPEN
+     * - SOLD_OUT: All cohorts are FULL
+     * - COMING_SOON: No cohorts or all completed/cancelled
+     */
+    async updateProgramAvailability(programId: string) {
+        const cohorts = await this.prisma.cohort.findMany({
+            where: { programId },
+            select: { status: true },
+        });
+
+        let availabilityStatus: 'AVAILABLE' | 'UPCOMING' | 'SOLD_OUT' | 'COMING_SOON';
+
+        if (cohorts.length === 0) {
+            availabilityStatus = 'COMING_SOON';
+        } else {
+            const hasOpen = cohorts.some(c => c.status === 'OPEN');
+            const hasUpcoming = cohorts.some(c => c.status === 'UPCOMING');
+            const allFull = cohorts.every(c => c.status === 'FULL' || c.status === 'COMPLETED' || c.status === 'CANCELLED');
+            const hasFull = cohorts.some(c => c.status === 'FULL');
+
+            if (hasOpen) {
+                availabilityStatus = 'AVAILABLE';
+            } else if (hasUpcoming) {
+                availabilityStatus = 'UPCOMING';
+            } else if (hasFull && allFull) {
+                availabilityStatus = 'SOLD_OUT';
+            } else {
+                availabilityStatus = 'COMING_SOON';
+            }
+        }
+
+        return this.prisma.program.update({
+            where: { id: programId },
+            data: { availabilityStatus },
+        });
+    }
+
+    /**
+     * Sync availability status for all published programs
+     * Call this once to fix existing data
+     */
+    async syncAllProgramsAvailability() {
+        const programs = await this.prisma.program.findMany({
+            where: { status: 'PUBLISHED' },
+            select: { id: true },
+        });
+
+        for (const program of programs) {
+            await this.updateProgramAvailability(program.id);
+        }
+
+        return { synced: programs.length };
+    }
+
     async cloneProgram(id: string) {
         const original = await this.prisma.program.findUnique({
             where: { id },
@@ -486,5 +546,67 @@ export class CatalogService {
     async deleteInstructor(id: string) {
         await this.findInstructorById(id); // Ensure exists
         return this.prisma.instructor.delete({ where: { id } });
+    }
+
+    /**
+     * Register interest in a program ("Notify Me" feature)
+     * Links authenticated user to program for notification when cohort becomes available
+     */
+    async registerProgramInterest(programId: string, userId: string) {
+        // Check if already registered
+        const existing = await this.prisma.programInterest.findUnique({
+            where: {
+                programId_userId: {
+                    programId,
+                    userId,
+                },
+            },
+        });
+
+        if (existing) {
+            throw new BadRequestException('تم تسجيل اهتمامك مسبقاً');
+        }
+
+        return this.prisma.programInterest.create({
+            data: {
+                programId,
+                userId,
+            },
+        });
+    }
+
+    /**
+     * Get all interests for a program (admin)
+     */
+    async getProgramInterests(programId: string) {
+        return this.prisma.programInterest.findMany({
+            where: { programId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    /**
+     * Get all program interests across all programs (for admin)
+     */
+    async getAllProgramInterests() {
+        return this.prisma.programInterest.findMany({
+            include: {
+                program: {
+                    select: {
+                        titleAr: true,
+                        titleEn: true,
+                    },
+                },
+                user: {
+                    select: {
+                        email: true,
+                        phone: true,
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
     }
 }

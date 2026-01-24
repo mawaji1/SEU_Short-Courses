@@ -21,6 +21,7 @@ import {
     GitBranch,
     Activity,
     Shield,
+    Calendar,
 } from "lucide-react";
 
 const sidebarLinks = [
@@ -28,7 +29,9 @@ const sidebarLinks = [
     { href: "/admin", label: "لوحة التحكم", icon: LayoutDashboard },
 
     // Content Management
-    { href: "/admin/programs", label: "البرامج", icon: BookOpen },
+    { href: "/admin/programs", label: "البرامج التدريبية", icon: BookOpen },
+    { href: "/admin/cohorts", label: "الدورات", icon: Calendar },
+    { href: "/admin/interests", label: "الاهتمامات", icon: Bell },
     { href: "/admin/categories", label: "التصنيفات", icon: FolderOpen },
     { href: "/admin/instructors", label: "المدربون", icon: Users },
 

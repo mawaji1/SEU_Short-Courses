@@ -20,7 +20,8 @@ export class CreateModuleDto {
 
     @IsString()
     @MaxLength(200)
-    titleEn: string;
+    @IsOptional()
+    titleEn?: string;
 
     @IsString()
     @IsOptional()
@@ -32,8 +33,9 @@ export class CreateModuleDto {
 
     @IsInt()
     @Min(1)
+    @IsOptional()
     @Type(() => Number)
-    durationHours: number;
+    durationHours?: number;
 
     @IsInt()
     @Min(0)
@@ -90,7 +92,8 @@ export class CreateSessionDto {
 
     @IsString()
     @MaxLength(200)
-    titleEn: string;
+    @IsOptional()
+    titleEn?: string;
 
     @IsString()
     @IsOptional()
@@ -102,8 +105,9 @@ export class CreateSessionDto {
 
     @IsInt()
     @Min(1)
+    @IsOptional()
     @Type(() => Number)
-    durationMinutes: number;
+    durationMinutes?: number;
 
     @IsInt()
     @Min(0)

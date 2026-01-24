@@ -20,7 +20,7 @@ export class CurriculumService {
             data: {
                 programId: dto.programId,
                 titleAr: dto.titleAr,
-                titleEn: dto.titleEn,
+                titleEn: dto.titleEn || dto.titleAr,
                 descriptionAr: dto.descriptionAr,
                 descriptionEn: dto.descriptionEn,
                 durationHours: dto.durationHours,
@@ -128,7 +128,7 @@ export class CurriculumService {
             data: {
                 moduleId: dto.moduleId,
                 titleAr: dto.titleAr,
-                titleEn: dto.titleEn,
+                titleEn: dto.titleEn || dto.titleAr,
                 descriptionAr: dto.descriptionAr,
                 descriptionEn: dto.descriptionEn,
                 durationMinutes: dto.durationMinutes,

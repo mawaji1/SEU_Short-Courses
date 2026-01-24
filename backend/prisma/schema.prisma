@@ -61,6 +61,7 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   notifications          Notification[]
   auditLogs              AuditLog[]
+  programInterests       ProgramInterest[]
 
   @@map("users")
 }
@@ -186,6 +187,15 @@ enum ProgramType {
   CERTIFICATION
 }
 
+// Availability status - computed from cohorts
+// Used to show learners: متاح للتسجيل / قريباً / يبدأ قريباً / مكتمل
+enum AvailabilityStatus {
+  COMING_SOON    // قريباً - Published but no cohorts
+  UPCOMING       // يبدأ قريباً - Has future cohorts
+  AVAILABLE      // متاح للتسجيل - Has open cohorts
+  SOLD_OUT       // مكتمل - All cohorts full
+}
+
 enum DeliveryMode {
   ONLINE
   IN_PERSON
@@ -203,7 +213,7 @@ model Program {
   slug               String        @unique
   type               ProgramType   @default(COURSE)
   deliveryMode       DeliveryMode  @default(ONLINE)
-  durationHours      Int
+  durationHours      Int?
   price              Decimal       @db.Decimal(10, 2)
   earlyBirdPrice     Decimal?      @db.Decimal(10, 2)
   corporatePrice     Decimal?      @db.Decimal(10, 2)
@@ -221,6 +231,9 @@ model Program {
   isFeatured         Boolean       @default(false)
   sortOrder          Int           @default(0)
   
+  // Computed availability (updated when cohorts change)
+  availabilityStatus AvailabilityStatus @default(COMING_SOON)
+  
   // Certificate settings
   certificateEnabled          Boolean @default(true)
   certificateAttendanceThreshold Int  @default(80)
@@ -232,10 +245,29 @@ model Program {
   category    Category          @relation(fields: [categoryId], references: [id])
   cohorts     Cohort[]
   modules     ProgramModule[]
+  interests   ProgramInterest[]
 
   @@index([status])
   @@index([categoryId])
+  @@index([availabilityStatus])
   @@map("programs")
+}
+
+// "أعلمني عند التوفر" - Notify me when available
+model ProgramInterest {
+  id        String   @id @default(cuid())
+  programId String
+  userId    String
+  createdAt DateTime @default(now())
+  notifiedAt DateTime?
+  
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([programId, userId])
+  @@index([programId])
+  @@index([userId])
+  @@map("program_interests")
 }
 
 // =============================================================================
@@ -249,7 +281,7 @@ model ProgramModule {
   titleEn     String
   descriptionAr String? @db.Text
   descriptionEn String? @db.Text
-  durationHours Int
+  durationHours Int?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -270,7 +302,7 @@ model Session {
   titleEn     String
   descriptionAr String? @db.Text
   descriptionEn String? @db.Text
-  durationMinutes Int
+  durationMinutes Int?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

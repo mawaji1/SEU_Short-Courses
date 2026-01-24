@@ -40,13 +40,15 @@ export class CreateProgramDto {
 
     @IsString()
     @MaxLength(200)
-    titleEn: string;
+    @IsOptional()
+    titleEn?: string;
 
     @IsString()
     descriptionAr: string;
 
     @IsString()
-    descriptionEn: string;
+    @IsOptional()
+    descriptionEn?: string;
 
     @IsString()
     @MaxLength(500)
@@ -54,7 +56,8 @@ export class CreateProgramDto {
 
     @IsString()
     @MaxLength(500)
-    shortDescriptionEn: string;
+    @IsOptional()
+    shortDescriptionEn?: string;
 
     @IsString()
     slug: string;
@@ -69,8 +72,9 @@ export class CreateProgramDto {
 
     @IsInt()
     @Min(1)
+    @IsOptional()
     @Type(() => Number)
-    durationHours: number;
+    durationHours?: number;
 
     @IsNumber()
     @Min(0)

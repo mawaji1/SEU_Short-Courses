@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Clock, Users, Calendar, Award, ArrowLeft, ChevronDown, ChevronUp, Loader2, AlertCircle } from "lucide-react";
+import { Clock, Users, Calendar, Award, ArrowLeft, ChevronDown, ChevronUp, Loader2, AlertCircle, Bell } from "lucide-react";
+import { NotifyMeModal } from "@/components/program/NotifyMeModal";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { catalogService } from "@/services/catalog";
@@ -26,6 +27,15 @@ export default function ProgramDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [existingRegistration, setExistingRegistration] = useState<ExistingRegistrationCheck | null>(null);
+    const [showNotifyModal, setShowNotifyModal] = useState(false);
+
+    const handleNotifyMe = () => {
+        if (!isAuthenticated) {
+            router.push(`/login?redirect=/programs/${slug}`);
+            return;
+        }
+        setShowNotifyModal(true);
+    };
 
     useEffect(() => {
         loadProgramData();
@@ -162,14 +172,29 @@ export default function ProgramDetailPage() {
                             <p className="text-xl text-gray-200 max-w-3xl mb-8">{program.shortDescriptionAr || program.descriptionAr}</p>
 
                             <div className="flex flex-wrap items-center gap-6 text-gray-200">
-                                <div className="flex items-center gap-2">
-                                    <Clock className="w-5 h-5" />
-                                    {program.durationHours} ساعة
-                                </div>
+                                {program.durationHours && (
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-5 h-5" />
+                                        {program.durationHours} ساعة
+                                    </div>
+                                )}
                                 {program.isFeatured && (
                                     <div className="flex items-center gap-2">
                                         <span className="text-yellow-400">⭐</span>
                                         مميز
+                                    </div>
+                                )}
+                                {/* Availability Badge */}
+                                {program.availabilityStatus && (
+                                    <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold ${
+                                        program.availabilityStatus === 'AVAILABLE' ? 'bg-white text-green-600' :
+                                        program.availabilityStatus === 'UPCOMING' ? 'bg-white text-blue-600' :
+                                        program.availabilityStatus === 'COMING_SOON' ? 'bg-white text-purple-600' :
+                                        'bg-white text-orange-600'
+                                    }`}>
+                                        {program.availabilityStatus === 'AVAILABLE' ? 'متاح للتسجيل' :
+                                         program.availabilityStatus === 'UPCOMING' ? 'يبدأ قريباً' :
+                                         program.availabilityStatus === 'COMING_SOON' ? 'قريباً' : 'مكتمل'}
                                     </div>
                                 )}
                             </div>
@@ -215,9 +240,11 @@ export default function ProgramDetailPage() {
                                                             <p className="text-sm text-gray-600 mt-2">{module.descriptionAr}</p>
                                                         )}
                                                     </div>
+                                                    {module.durationHours && (
                                                     <span className="text-sm font-medium text-accent mr-4">
                                                         {module.durationHours} ساعة
                                                     </span>
+                                                    )}
                                                 </div>
                                                 
                                                 {module.sessions && module.sessions.length > 0 && (
@@ -234,9 +261,11 @@ export default function ProgramDetailPage() {
                                                                             <p className="text-sm text-gray-500 mt-1">{session.descriptionAr}</p>
                                                                         )}
                                                                     </div>
+                                                                    {session.durationMinutes && (
                                                                     <span className="text-sm text-gray-500 flex-shrink-0">
                                                                         {session.durationMinutes} دقيقة
                                                                     </span>
+                                                                    )}
                                                                 </li>
                                                             ))}
                                                         </ul>
@@ -244,6 +273,32 @@ export default function ProgramDetailPage() {
                                                 )}
                                             </div>
                                         ))}
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Notify Me Section - No Cohorts */}
+                            {cohorts.length === 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="bg-gradient-to-br from-[#32B7A8]/10 to-[#0083BE]/10 rounded-2xl p-6 border-2 border-[#32B7A8]/30"
+                                >
+                                    <div className="text-center">
+                                        <Bell className="w-12 h-12 text-[#32B7A8] mx-auto mb-4" />
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-2">لا توجد دورات متاحة حالياً</h2>
+                                        <p className="text-gray-600 mb-6">
+                                            سجل اهتمامك وسنعلمك فور توفر دورة جديدة
+                                        </p>
+                                        <Button 
+                                            size="lg"
+                                            className="gap-2 bg-gradient-to-r from-[#32B7A8] to-[#0083BE] hover:opacity-90"
+                                            onClick={handleNotifyMe}
+                                        >
+                                            <Bell className="w-5 h-5" />
+                                            أعلمني عند التوفر
+                                        </Button>
                                     </div>
                                 </motion.div>
                             )}
@@ -346,10 +401,12 @@ export default function ProgramDetailPage() {
                                 </div>
 
                                 <div className="space-y-3 mb-6">
+                                    {program.durationHours && (
                                     <div className="flex items-center justify-between py-3 border-b border-gray-100">
                                         <span className="text-gray-600">المدة</span>
                                         <span className="font-bold text-gray-900">{program.durationHours} ساعة</span>
                                     </div>
+                                    )}
                                     {cohorts.length > 0 && (
                                         <div className="flex items-center justify-between py-3 border-b border-gray-100">
                                             <span className="text-gray-600">عدد المواعيد</span>
@@ -366,18 +423,25 @@ export default function ProgramDetailPage() {
                                     </div>
                                 </div>
 
-                                <Button 
-                                    size="lg" 
-                                    className="w-full text-lg gap-2 mb-3"
-                                    onClick={handleRegister}
-                                >
-                                    سجل الآن
-                                    <ArrowLeft className="w-5 h-5" />
-                                </Button>
-
-                                <Button size="lg" variant="outline" className="w-full">
-                                    تحدث مع مستشار
-                                </Button>
+                                {cohorts.length > 0 ? (
+                                    <Button 
+                                        size="lg" 
+                                        className="w-full text-lg gap-2 mb-3"
+                                        onClick={handleRegister}
+                                    >
+                                        سجل الآن
+                                        <ArrowLeft className="w-5 h-5" />
+                                    </Button>
+                                ) : (
+                                    <Button 
+                                        size="lg" 
+                                        className="w-full text-lg gap-2 mb-3 bg-gradient-to-r from-[#32B7A8] to-[#0083BE] hover:opacity-90"
+                                        onClick={handleNotifyMe}
+                                    >
+                                        <Bell className="w-5 h-5" />
+                                        أعلمني عند التوفر
+                                    </Button>
+                                )}
 
                                 <p className="text-center text-sm text-gray-500 mt-4">
                                     متاح التقسيط عبر تابي وتمارا
@@ -389,6 +453,15 @@ export default function ProgramDetailPage() {
             </main>
 
             <Footer />
+
+            {/* Notify Me Modal */}
+            {showNotifyModal && program && (
+                <NotifyMeModal
+                    programId={program.id}
+                    programTitle={program.titleAr}
+                    onClose={() => setShowNotifyModal(false)}
+                />
+            )}
         </div>
     );
 }
