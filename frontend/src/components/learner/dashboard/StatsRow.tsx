@@ -21,25 +21,25 @@ export function StatsRow({
       label: 'دورات نشطة',
       value: activeCourses,
       icon: BookOpen,
-      bgColor: 'bg-seu-blue/10',
-      textColor: 'text-seu-blue',
-      borderColor: 'border-seu-blue',
+      bgColor: 'bg-primary/10',
+      textColor: 'text-primary',
+      borderColor: 'border-primary',
     },
     {
       label: 'مكتملة',
       value: completedCourses,
       icon: CheckCircle2,
-      bgColor: 'bg-seu-cyan/10',
-      textColor: 'text-seu-cyan',
-      borderColor: 'border-seu-cyan',
+      bgColor: 'bg-accent/10',
+      textColor: 'text-accent',
+      borderColor: 'border-accent',
     },
     {
       label: 'التقدم الإجمالي',
       value: `${overallProgress}%`,
       icon: TrendingUp,
-      bgColor: 'bg-seu-purple/10',
-      textColor: 'text-seu-purple',
-      borderColor: 'border-seu-purple',
+      bgColor: 'bg-primary-dark/10',
+      textColor: 'text-primary-dark',
+      borderColor: 'border-primary-dark',
       isProgress: true,
       progressValue: overallProgress,
     },
@@ -47,9 +47,9 @@ export function StatsRow({
       label: 'شهادات',
       value: certificatesEarned,
       icon: Award,
-      bgColor: 'bg-seu-orange/10',
-      textColor: 'text-seu-orange',
-      borderColor: 'border-seu-orange',
+      bgColor: 'bg-accent/10',
+      textColor: 'text-accent',
+      borderColor: 'border-accent',
     },
   ];
 
@@ -71,14 +71,14 @@ export function StatsRow({
                 <Icon className={`h-5 w-5 ${stat.textColor}`} aria-hidden="true" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-seu-navy">{stat.value}</p>
+            <p className="text-3xl font-bold text-primary-dark">{stat.value}</p>
             {stat.isProgress && (
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${stat.progressValue}%` }}
                   transition={{ delay: 0.5, duration: 0.8 }}
-                  className="h-full rounded-full bg-gradient-to-r from-seu-blue to-seu-cyan"
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
                 />
               </div>
             )}

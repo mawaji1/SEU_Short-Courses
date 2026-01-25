@@ -25,17 +25,17 @@ export function CourseCard({
 }: CourseCardProps) {
   const statusConfig = {
     IN_PROGRESS: {
-      gradient: 'from-seu-blue to-seu-cyan',
+      gradient: 'from-primary to-accent',
       label: 'قيد التقدم',
       textColor: 'text-white',
     },
     COMPLETED: {
-      gradient: 'from-seu-cyan to-seu-lime',
+      gradient: 'from-accent to-accent-light',
       label: 'مكتمل',
-      textColor: 'text-seu-navy',
+      textColor: 'text-primary-dark',
     },
     UPCOMING: {
-      gradient: 'from-seu-purple to-seu-blue',
+      gradient: 'from-primary-dark to-primary',
       label: 'قادم',
       textColor: 'text-white',
     },
@@ -48,7 +48,7 @@ export function CourseCard({
       <motion.div
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
-        className="group cursor-pointer overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm transition-all hover:border-seu-blue hover:shadow-lg"
+        className="group cursor-pointer overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm transition-all hover:border-primary hover:shadow-lg"
       >
         {/* Header */}
         <div className={`bg-gradient-to-r ${config.gradient} p-4 ${config.textColor}`}>
@@ -60,7 +60,7 @@ export function CourseCard({
 
         {/* Body */}
         <div className="p-5">
-          <h3 className="mb-2 text-lg font-bold text-seu-navy group-hover:text-seu-blue">
+          <h3 className="mb-2 text-lg font-bold text-primary-dark group-hover:text-primary">
             {title}
           </h3>
           <p className="mb-4 text-sm text-gray-600">{instructor}</p>
@@ -70,11 +70,11 @@ export function CourseCard({
             <div className="mb-4">
               <div className="mb-1 flex items-center justify-between text-sm">
                 <span className="font-medium text-gray-700">التقدم</span>
-                <span className="font-bold text-seu-blue">{progress}%</span>
+                <span className="font-bold text-primary">{progress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-seu-blue to-seu-cyan transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -83,16 +83,16 @@ export function CourseCard({
 
           {/* Footer Info */}
           {nextSession && (
-            <div className="flex items-center gap-2 rounded-lg bg-seu-orange/10 p-3">
-              <Clock className="h-4 w-4 text-seu-orange" aria-hidden="true" />
-              <span className="text-sm font-medium text-seu-navy">{nextSession}</span>
+            <div className="flex items-center gap-2 rounded-lg bg-accent/10 p-3">
+              <Clock className="h-4 w-4 text-accent" aria-hidden="true" />
+              <span className="text-sm font-medium text-primary-dark">{nextSession}</span>
             </div>
           )}
 
           {certificateReady && (
-            <div className="flex items-center gap-2 rounded-lg bg-seu-cyan/10 p-3">
-              <Award className="h-4 w-4 text-seu-cyan" aria-hidden="true" />
-              <span className="text-sm font-medium text-seu-navy">شهادة جاهزة للتحميل</span>
+            <div className="flex items-center gap-2 rounded-lg bg-accent/10 p-3">
+              <Award className="h-4 w-4 text-accent" aria-hidden="true" />
+              <span className="text-sm font-medium text-primary-dark">شهادة جاهزة للتحميل</span>
             </div>
           )}
         </div>

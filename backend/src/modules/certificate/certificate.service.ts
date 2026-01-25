@@ -234,13 +234,13 @@ export class CertificateService {
       .fontSize(24)
       .font('Helvetica-Bold')
       .fillColor('#1e3a8a')
-      .text('جامعة الأمير سلطان', 0, 80, { align: 'center' });
+      .text('الجامعة السعودية الإلكترونية', 0, 80, { align: 'center' });
 
     doc
       .fontSize(16)
       .font('Helvetica')
       .fillColor('#64748b')
-      .text('Prince Sultan University', 0, 110, { align: 'center' });
+      .text('Saudi Electronic University', 0, 110, { align: 'center' });
 
     // Certificate title
     doc
@@ -267,7 +267,7 @@ export class CertificateService {
       .fontSize(16)
       .font('Helvetica')
       .fillColor('#334155')
-      .text('تشهد جامعة الأمير سلطان بأن', 0, 260, { align: 'center' });
+      .text('تشهد الجامعة السعودية الإلكترونية بأن', 0, 260, { align: 'center' });
 
     // User name
     doc
@@ -370,7 +370,7 @@ export class CertificateService {
       .fontSize(24)
       .font('Helvetica-Bold')
       .fillColor('#1e3a8a')
-      .text('Prince Sultan University', 0, 80, { align: 'center' });
+      .text('Saudi Electronic University', 0, 80, { align: 'center' });
 
     // Certificate title
     doc

@@ -40,7 +40,7 @@ export function CourseTabs({ tabs, defaultTab }: CourseTabsProps) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium transition-all ${
                   isActive
-                    ? 'text-seu-blue'
+                    ? 'text-primary'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -49,7 +49,7 @@ export function CourseTabs({ tabs, defaultTab }: CourseTabsProps) {
                 {tab.badge && tab.badge > 0 && (
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                      isActive ? 'bg-seu-blue/10 text-seu-blue' : 'bg-seu-orange text-white'
+                      isActive ? 'bg-primary/10 text-primary' : 'bg-accent text-white'
                     }`}
                   >
                     {tab.badge}
@@ -58,7 +58,7 @@ export function CourseTabs({ tabs, defaultTab }: CourseTabsProps) {
                 {isActive && (
                   <motion.div
                     layoutId="activeTabIndicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-seu-blue"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}

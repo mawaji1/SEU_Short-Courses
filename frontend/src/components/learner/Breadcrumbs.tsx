@@ -17,7 +17,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
     <nav className="flex items-center gap-2 text-sm text-gray-600" aria-label="مسار التنقل">
       <Link
         href="/dashboard"
-        className="flex items-center gap-1 text-gray-500 transition-colors hover:text-seu-blue"
+        className="flex items-center gap-1 text-gray-500 transition-colors hover:text-primary"
         aria-label="الصفحة الرئيسية"
       >
         <Home className="h-4 w-4" aria-hidden="true" />
@@ -29,7 +29,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
           {item.href ? (
             <Link
               href={item.href}
-              className="transition-colors hover:text-seu-blue"
+              className="transition-colors hover:text-primary"
             >
               {item.label}
             </Link>

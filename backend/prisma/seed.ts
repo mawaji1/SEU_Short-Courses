@@ -221,18 +221,32 @@ async function main() {
             data: {
                 titleAr: 'الأمن السيبراني للمؤسسات',
                 titleEn: 'Enterprise Cybersecurity',
-                descriptionAr: 'دورة متخصصة في حماية البنية التحتية الرقمية للمؤسسات.',
-                descriptionEn: 'Specialized course in protecting enterprise digital infrastructure.',
+                descriptionAr: 'دورة متخصصة في حماية البنية التحتية الرقمية للمؤسسات. تغطي أحدث التقنيات والممارسات في مجال الأمن السيبراني.',
+                descriptionEn: 'Specialized course in protecting enterprise digital infrastructure. Covers latest cybersecurity technologies and best practices.',
                 shortDescriptionAr: 'احمِ مؤسستك من التهديدات السيبرانية',
                 shortDescriptionEn: 'Protect your organization from cyber threats',
                 slug: 'cybersecurity',
-                type: ProgramType.COURSE,
+                type: ProgramType.CERTIFICATION,
                 deliveryMode: DeliveryMode.ONLINE,
                 durationHours: 30,
                 price: new Decimal(2800),
                 status: ProgramStatus.PUBLISHED,
                 categoryId: techCategory.id,
-                isFeatured: false,
+                isFeatured: true,
+                certificateEnabled: true,
+                certificateAttendanceThreshold: 75,
+                learningOutcomesAr: [
+                    'فهم أساسيات الأمن السيبراني',
+                    'تحديد وتحليل التهديدات الأمنية',
+                    'تطبيق أفضل ممارسات الحماية',
+                    'إدارة الحوادث الأمنية',
+                ],
+                learningOutcomesEn: [
+                    'Understand cybersecurity fundamentals',
+                    'Identify and analyze security threats',
+                    'Apply security best practices',
+                    'Manage security incidents',
+                ],
             },
         }),
     ]);
@@ -250,7 +264,8 @@ async function main() {
         prisma.cohort.create({
             data: {
                 programId: programs[0].id,
-                nameAr: 'الفوج الأول - يناير 2026',
+                instructorId: instructors[0].id, // د. أحمد العتيبي
+                nameAr: 'الموعد الأول - يناير 2026',
                 nameEn: 'Cohort 1 - January 2026',
                 startDate: new Date('2026-01-15'),
                 endDate: new Date('2026-02-15'),
@@ -264,6 +279,7 @@ async function main() {
         prisma.cohort.create({
             data: {
                 programId: programs[0].id,
+                instructorId: instructors[0].id, // د. أحمد العتيبي
                 nameAr: 'الموعد الثاني - فبراير 2026',
                 nameEn: 'Cohort 2 - February 2026',
                 startDate: new Date('2026-02-20'),
@@ -278,6 +294,7 @@ async function main() {
         prisma.cohort.create({
             data: {
                 programId: programs[0].id,
+                instructorId: instructors[0].id, // د. أحمد العتيبي
                 nameAr: 'الموعد الثالث - مارس 2026',
                 nameEn: 'Cohort 3 - March 2026',
                 startDate: new Date('2026-03-15'),
@@ -293,6 +310,7 @@ async function main() {
         prisma.cohort.create({
             data: {
                 programId: programs[1].id,
+                instructorId: instructors[1].id, // د. سارة الشمري
                 nameAr: 'الموعد الأول - يناير 2026',
                 nameEn: 'Cohort 1 - January 2026',
                 startDate: new Date('2026-01-20'),
@@ -308,6 +326,7 @@ async function main() {
         prisma.cohort.create({
             data: {
                 programId: programs[2].id,
+                instructorId: instructors[2].id, // د. محمد القحطاني
                 nameAr: 'الموعد الأول - فبراير 2026',
                 nameEn: 'Cohort 1 - February 2026',
                 startDate: new Date('2026-02-01'),
@@ -317,6 +336,22 @@ async function main() {
                 capacity: 20,
                 enrolledCount: 5,
                 status: CohortStatus.OPEN,
+            },
+        }),
+        // Cybersecurity - Completed cohort (for certificate testing)
+        prisma.cohort.create({
+            data: {
+                programId: programs[3].id,
+                instructorId: instructors[3].id, // د. نورة العنزي
+                nameAr: 'الموعد الأول - ديسمبر 2025',
+                nameEn: 'Cohort 1 - December 2025',
+                startDate: new Date('2025-11-01'),
+                endDate: new Date('2025-12-15'),
+                registrationStartDate: new Date('2025-10-01'),
+                registrationEndDate: new Date('2025-10-25'),
+                capacity: 25,
+                enrolledCount: 22,
+                status: CohortStatus.COMPLETED,
             },
         }),
     ]);
@@ -423,42 +458,117 @@ async function main() {
         throw new Error('Learner user not found');
     }
 
-    // Get first two cohorts (AI and Digital Marketing)
-    const allCohorts = await prisma.cohort.findMany({
-        take: 2,
-        orderBy: { createdAt: 'asc' },
+    // Get specific cohorts by program for enrollments (reliable method)
+    const aiCohort = await prisma.cohort.findFirst({
+        where: { program: { slug: 'ai-fundamentals' } },
+        include: { program: true },
+    });
+    const marketingCohort = await prisma.cohort.findFirst({
+        where: { program: { slug: 'digital-marketing' } },
+        include: { program: true },
+    });
+    const completedCohort = await prisma.cohort.findFirst({
+        where: { program: { slug: 'cybersecurity' }, status: 'COMPLETED' },
+        include: { program: true },
     });
 
-    // Create registrations and enrollments
-    const enrollments = await Promise.all(
-        allCohorts.map(async (cohort, index) => {
-            // Create registration first
-            const registration = await prisma.registration.create({
-                data: {
-                    userId: learnerUser.id,
-                    cohortId: cohort.id,
-                    status: 'CONFIRMED',
-                    confirmedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-                },
-            });
+    if (!aiCohort || !marketingCohort) {
+        throw new Error('Required cohorts not found');
+    }
 
-            // Create enrollment
-            const enrollment = await prisma.enrollment.create({
-                data: {
-                    userId: learnerUser.id,
-                    cohortId: cohort.id,
-                    registrationId: registration.id,
-                    status: index === 0 ? 'IN_PROGRESS' : 'ENROLLED',
-                    progress: index === 0 ? 65 : 15, // First course: 65% progress, Second: 15%
-                    completionPercentage: index === 0 ? 65 : 15,
-                    certificateEligible: index === 0 ? false : false, // Not yet eligible
-                    lastActivityAt: new Date(),
-                },
-            });
+    // Create enrollments for the learner
+    const enrollments: any[] = [];
 
-            return enrollment;
-        })
-    );
+    // 1. AI Fundamentals - In Progress (65%)
+    const aiRegistration = await prisma.registration.create({
+        data: {
+            userId: learnerUser.id,
+            cohortId: aiCohort.id,
+            status: 'CONFIRMED',
+            confirmedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+    });
+    const aiEnrollment = await prisma.enrollment.create({
+        data: {
+            userId: learnerUser.id,
+            cohortId: aiCohort.id,
+            registrationId: aiRegistration.id,
+            status: 'IN_PROGRESS',
+            completionStatus: 'IN_PROGRESS',
+            progress: 65,
+            completionPercentage: 65,
+            certificateEligible: false,
+            lastActivityAt: new Date(),
+        },
+    });
+    enrollments.push(aiEnrollment);
+
+    // 2. Digital Marketing - Just Enrolled (15%)
+    const marketingRegistration = await prisma.registration.create({
+        data: {
+            userId: learnerUser.id,
+            cohortId: marketingCohort.id,
+            status: 'CONFIRMED',
+            confirmedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+        },
+    });
+    const marketingEnrollment = await prisma.enrollment.create({
+        data: {
+            userId: learnerUser.id,
+            cohortId: marketingCohort.id,
+            registrationId: marketingRegistration.id,
+            status: 'ENROLLED',
+            completionStatus: 'NOT_STARTED',
+            progress: 0,
+            completionPercentage: 0,
+            certificateEligible: false,
+            lastActivityAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        },
+    });
+    enrollments.push(marketingEnrollment);
+
+    // 3. Cybersecurity - Completed (100%) with Certificate
+    if (completedCohort) {
+        const cyberRegistration = await prisma.registration.create({
+            data: {
+                userId: learnerUser.id,
+                cohortId: completedCohort.id,
+                status: 'CONFIRMED',
+                confirmedAt: new Date('2025-10-20T10:00:00.000Z'),
+            },
+        });
+        const cyberEnrollment = await prisma.enrollment.create({
+            data: {
+                userId: learnerUser.id,
+                cohortId: completedCohort.id,
+                registrationId: cyberRegistration.id,
+                status: 'COMPLETED',
+                completionStatus: 'COMPLETED',
+                progress: 100,
+                completionPercentage: 100,
+                certificateEligible: true,
+                completedAt: new Date('2025-12-15T14:00:00.000Z'),
+                lastActivityAt: new Date('2025-12-15T14:00:00.000Z'),
+            },
+        });
+        enrollments.push(cyberEnrollment);
+
+        // Create Certificate for completed course - SEU (الجامعة السعودية الإلكترونية)
+        console.log('🏆 Creating certificate for SEU Short Courses...');
+        const certificate = await prisma.certificate.create({
+            data: {
+                enrollmentId: cyberEnrollment.id,
+                userId: learnerUser.id,
+                cohortId: completedCohort.id,
+                number: `SEU-SC-${completedCohort.program.slug.toUpperCase()}-2025-0001`,
+                issuedAt: new Date('2025-12-16T10:00:00.000Z'),
+                status: 'ISSUED',
+                verificationCode: `SEUSC2025${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+                pdfUrl: null, // PDF will be generated on demand
+            },
+        });
+        console.log(`   ✅ Created certificate: ${certificate.number}`);
+    }
 
     console.log(`   ✅ Created ${enrollments.length} enrollments for learner`);
 
@@ -540,15 +650,344 @@ async function main() {
     console.log(`   ✅ Created ${materials.length} course materials`);
 
     // =========================================================================
-    // 9. INSTRUCTOR MESSAGES
+    // 9. CURRICULUM MODULES & SESSIONS
+    // =========================================================================
+    console.log('📖 Creating curriculum modules and sessions...');
+
+    // Curriculum for AI Fundamentals
+    const aiModules = await Promise.all([
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'مقدمة في الذكاء الاصطناعي',
+                titleEn: 'Introduction to AI',
+                descriptionAr: 'التعرف على أساسيات الذكاء الاصطناعي وتاريخه وتطبيقاته',
+                sortOrder: 1,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'ما هو الذكاء الاصطناعي؟',
+                            titleEn: 'What is Artificial Intelligence?',
+                            descriptionAr: 'مقدمة شاملة عن مفهوم الذكاء الاصطناعي',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'تاريخ وتطور الذكاء الاصطناعي',
+                            titleEn: 'History and Evolution of AI',
+                            descriptionAr: 'نظرة على تطور الذكاء الاصطناعي عبر العقود',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'أنواع الذكاء الاصطناعي',
+                            titleEn: 'Types of Artificial Intelligence',
+                            descriptionAr: 'الفرق بين الذكاء الاصطناعي الضيق والعام',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'تعلم الآلة',
+                titleEn: 'Machine Learning',
+                descriptionAr: 'أساسيات تعلم الآلة وأنواعه المختلفة',
+                sortOrder: 2,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'مفاهيم تعلم الآلة الأساسية',
+                            titleEn: 'Basic Machine Learning Concepts',
+                            descriptionAr: 'التعرف على المفاهيم الأساسية في تعلم الآلة',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'التعلم تحت الإشراف',
+                            titleEn: 'Supervised Learning',
+                            descriptionAr: 'فهم التعلم تحت الإشراف وتطبيقاته',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'التعلم بدون إشراف',
+                            titleEn: 'Unsupervised Learning',
+                            descriptionAr: 'فهم التعلم بدون إشراف وتقنياته',
+                            sortOrder: 3,
+                        },
+                        {
+                            titleAr: 'التعلم المعزز',
+                            titleEn: 'Reinforcement Learning',
+                            descriptionAr: 'مقدمة في التعلم المعزز',
+                            sortOrder: 4,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'البرمجة بلغة Python للذكاء الاصطناعي',
+                titleEn: 'Python Programming for AI',
+                descriptionAr: 'تعلم أساسيات Python وأهم المكتبات المستخدمة في الذكاء الاصطناعي',
+                sortOrder: 3,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'أساسيات Python',
+                            titleEn: 'Python Basics',
+                            descriptionAr: 'التعرف على لغة Python وبيئة العمل',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'مكتبة NumPy',
+                            titleEn: 'NumPy Library',
+                            descriptionAr: 'العمل مع المصفوفات والحسابات الرقمية',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'مكتبة Pandas',
+                            titleEn: 'Pandas Library',
+                            descriptionAr: 'تحليل ومعالجة البيانات',
+                            sortOrder: 3,
+                        },
+                        {
+                            titleAr: 'مكتبة Scikit-learn',
+                            titleEn: 'Scikit-learn Library',
+                            descriptionAr: 'بناء نماذج تعلم الآلة',
+                            sortOrder: 4,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[0].id,
+                titleAr: 'مشروع التخرج',
+                titleEn: 'Final Project',
+                descriptionAr: 'تطبيق عملي شامل لما تم تعلمه خلال الدورة',
+                sortOrder: 4,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'تحديد فكرة المشروع',
+                            titleEn: 'Project Idea Definition',
+                            descriptionAr: 'اختيار مشكلة حقيقية وتحديد الحل',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'جمع وتحضير البيانات',
+                            titleEn: 'Data Collection and Preparation',
+                            descriptionAr: 'جمع البيانات المطلوبة وتنظيفها',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'بناء النموذج وتقييمه',
+                            titleEn: 'Model Building and Evaluation',
+                            descriptionAr: 'تطوير النموذج واختباره',
+                            sortOrder: 3,
+                        },
+                        {
+                            titleAr: 'العرض النهائي',
+                            titleEn: 'Final Presentation',
+                            descriptionAr: 'تقديم المشروع ومناقشته',
+                            sortOrder: 4,
+                        },
+                    ],
+                },
+            },
+        }),
+    ]);
+
+    // Curriculum for Digital Marketing
+    const marketingModules = await Promise.all([
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[1].id,
+                titleAr: 'أساسيات التسويق الرقمي',
+                titleEn: 'Digital Marketing Fundamentals',
+                descriptionAr: 'مقدمة شاملة في عالم التسويق الرقمي',
+                sortOrder: 1,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'مفاهيم التسويق الرقمي',
+                            titleEn: 'Digital Marketing Concepts',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'قنوات التسويق الرقمي',
+                            titleEn: 'Digital Marketing Channels',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'بناء الاستراتيجية الرقمية',
+                            titleEn: 'Building Digital Strategy',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[1].id,
+                titleAr: 'إعلانات Google',
+                titleEn: 'Google Ads',
+                descriptionAr: 'إتقان إعلانات Google للوصول للعملاء المستهدفين',
+                sortOrder: 2,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'إنشاء حساب Google Ads',
+                            titleEn: 'Creating Google Ads Account',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'حملات البحث',
+                            titleEn: 'Search Campaigns',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'حملات العرض',
+                            titleEn: 'Display Campaigns',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: allPrograms[1].id,
+                titleAr: 'التسويق عبر وسائل التواصل',
+                titleEn: 'Social Media Marketing',
+                descriptionAr: 'استراتيجيات التسويق على منصات التواصل الاجتماعي',
+                sortOrder: 3,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'التسويق على Instagram',
+                            titleEn: 'Instagram Marketing',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'التسويق على Twitter/X',
+                            titleEn: 'Twitter/X Marketing',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'التسويق على LinkedIn',
+                            titleEn: 'LinkedIn Marketing',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+    ]);
+
+    // Curriculum for Cybersecurity (completed course)
+    const cyberModules = await Promise.all([
+        prisma.programModule.create({
+            data: {
+                programId: programs[3].id,
+                titleAr: 'أساسيات الأمن السيبراني',
+                titleEn: 'Cybersecurity Fundamentals',
+                descriptionAr: 'مقدمة شاملة في أمن المعلومات والتهديدات السيبرانية',
+                sortOrder: 1,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'مفاهيم الأمن السيبراني',
+                            titleEn: 'Cybersecurity Concepts',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'أنواع التهديدات الأمنية',
+                            titleEn: 'Types of Security Threats',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'مبادئ الحماية الأساسية',
+                            titleEn: 'Basic Protection Principles',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: programs[3].id,
+                titleAr: 'أمن الشبكات',
+                titleEn: 'Network Security',
+                descriptionAr: 'حماية الشبكات من الاختراقات والهجمات',
+                sortOrder: 2,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'جدران الحماية',
+                            titleEn: 'Firewalls',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'أنظمة كشف التسلل',
+                            titleEn: 'Intrusion Detection Systems',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'تأمين الشبكات اللاسلكية',
+                            titleEn: 'Wireless Network Security',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+        prisma.programModule.create({
+            data: {
+                programId: programs[3].id,
+                titleAr: 'الاستجابة للحوادث',
+                titleEn: 'Incident Response',
+                descriptionAr: 'كيفية التعامل مع الحوادث الأمنية',
+                sortOrder: 3,
+                sessions: {
+                    create: [
+                        {
+                            titleAr: 'خطة الاستجابة للحوادث',
+                            titleEn: 'Incident Response Plan',
+                            sortOrder: 1,
+                        },
+                        {
+                            titleAr: 'التحقيق الجنائي الرقمي',
+                            titleEn: 'Digital Forensics',
+                            sortOrder: 2,
+                        },
+                        {
+                            titleAr: 'التعافي من الكوارث',
+                            titleEn: 'Disaster Recovery',
+                            sortOrder: 3,
+                        },
+                    ],
+                },
+            },
+        }),
+    ]);
+
+    console.log(`   ✅ Created ${aiModules.length + marketingModules.length + cyberModules.length} curriculum modules with sessions`);
+
+    // =========================================================================
+    // 10. INSTRUCTOR MESSAGES
     // =========================================================================
     console.log('✉️ Creating instructor messages...');
 
     const messages = await Promise.all([
-        // Messages for first cohort (AI Fundamentals)
+        // Messages for AI Fundamentals cohort
         prisma.cohortMessage.create({
             data: {
-                cohortId: allCohorts[0].id,
+                cohortId: aiCohort.id,
                 instructorId: instructors[0].id,
                 subject: 'مرحباً بكم في دورة الذكاء الاصطناعي',
                 message: 'أهلاً بكم جميعاً في دورة أساسيات الذكاء الاصطناعي!\n\nأنا سعيد بانضمامكم لهذه الرحلة التعليمية المميزة. خلال الأسابيع القادمة سنتعلم معاً أساسيات الذكاء الاصطناعي وتطبيقاته العملية.\n\nيرجى التأكد من:\n- تحميل المواد التدريبية من القسم المخصص\n- الحضور في الوقت المحدد للجلسات\n- التفاعل والمشاركة في النقاشات\n\nأتطلع للقائكم في الجلسة الأولى!\n\nد. أحمد العتيبي',
@@ -557,7 +996,7 @@ async function main() {
         }),
         prisma.cohortMessage.create({
             data: {
-                cohortId: allCohorts[0].id,
+                cohortId: aiCohort.id,
                 instructorId: instructors[0].id,
                 subject: 'تذكير: الواجب الأول',
                 message: 'السلام عليكم طلابي الأعزاء،\n\nأذكركم بموعد تسليم الواجب الأول والذي يتضمن:\n1. قراءة الفصل الثالث من كتاب المقرر\n2. حل التمارين المرفقة\n3. إعداد تقرير بسيط عن تطبيق عملي للذكاء الاصطناعي\n\nالموعد النهائي للتسليم: نهاية الأسبوع الحالي.\n\nبالتوفيق للجميع!',
@@ -566,17 +1005,17 @@ async function main() {
         }),
         prisma.cohortMessage.create({
             data: {
-                cohortId: allCohorts[0].id,
+                cohortId: aiCohort.id,
                 instructorId: instructors[0].id,
                 subject: 'إعلان مهم: تغيير موعد الجلسة القادمة',
                 message: 'عزيزي الطالب،\n\nنود إعلامكم بتغيير موعد الجلسة القادمة من الثلاثاء إلى الأربعاء في نفس التوقيت بسبب ظرف طارئ.\n\nالموعد الجديد: الأربعاء 7:00 مساءً\n\nنعتذر عن هذا التغيير المفاجئ ونتمنى لكم التوفيق.',
                 sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
             },
         }),
-        // Messages for second cohort (Digital Marketing)
+        // Messages for Digital Marketing cohort
         prisma.cohortMessage.create({
             data: {
-                cohortId: allCohorts[1].id,
+                cohortId: marketingCohort.id,
                 instructorId: instructors[1].id,
                 subject: 'مرحباً بكم في دورة التسويق الرقمي',
                 message: 'السلام عليكم ورحمة الله وبركاته،\n\nأهلاً وسهلاً بكم في دورة التسويق الرقمي الاحترافي. يسعدني أن أكون مدربتكم في هذه الرحلة نحو إتقان فنون التسويق الرقمي.\n\nما سنتعلمه معاً:\n- إعلانات Google و Facebook\n- تحسين محركات البحث (SEO)\n- التسويق بالمحتوى\n- تحليل البيانات\n\nأنصحكم بإنشاء حسابات تجريبية على المنصات التي سندرسها للتطبيق العملي.\n\nأراكم قريباً!\nد. سارة الشمري',

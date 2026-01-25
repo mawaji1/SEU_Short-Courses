@@ -1,7 +1,8 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Sidebar } from './Sidebar';
+import { TopBar } from './TopBar';
 import { ProtectedRoute } from '@/components/auth';
 
 interface LearnerShellProps {
@@ -9,11 +10,14 @@ interface LearnerShellProps {
 }
 
 export function LearnerShell({ children }: LearnerShellProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen bg-gray-50" dir="rtl">
-        <Sidebar />
-        <main className="flex-1 overflow-auto">
+      <div className="min-h-screen bg-gray-50" dir="rtl">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <TopBar onMenuClick={() => setSidebarOpen(true)} />
+        <main className="mt-16 p-6 lg:mr-64 lg:p-8">
           {children}
         </main>
       </div>

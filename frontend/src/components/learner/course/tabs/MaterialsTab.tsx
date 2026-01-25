@@ -20,9 +20,9 @@ export function MaterialsTab({ materials }: MaterialsTabProps) {
       case 'PDF':
         return { icon: FileText, color: 'text-red-500', bg: 'bg-red-50' };
       case 'VIDEO':
-        return { icon: Video, color: 'text-seu-purple', bg: 'bg-seu-purple/10' };
+        return { icon: Video, color: 'text-primary-dark', bg: 'bg-primary-dark/10' };
       case 'LINK':
-        return { icon: LinkIcon, color: 'text-seu-blue', bg: 'bg-seu-blue/10' };
+        return { icon: LinkIcon, color: 'text-primary', bg: 'bg-primary/10' };
       default:
         return { icon: FileText, color: 'text-gray-500', bg: 'bg-gray-100' };
     }
@@ -36,9 +36,12 @@ export function MaterialsTab({ materials }: MaterialsTabProps) {
 
   if (materials.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
-        <FileText className="mx-auto h-16 w-16 text-gray-300" aria-hidden="true" />
-        <p className="mt-4 text-gray-500">لا توجد مواد متاحة حالياً</p>
+      <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
+        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+          <FileText className="h-10 w-10 text-gray-400" aria-hidden="true" />
+        </div>
+        <h3 className="mb-2 text-lg font-bold text-gray-900">لا توجد مواد متاحة</h3>
+        <p className="text-gray-500">سيتم إضافة المواد التعليمية قريباً</p>
       </div>
     );
   }
@@ -56,13 +59,13 @@ export function MaterialsTab({ materials }: MaterialsTabProps) {
             href={material.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-seu-blue hover:shadow-md"
+            className="group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-primary hover:shadow-md"
           >
             <div className={`rounded-lg p-3 ${config.bg}`}>
               <Icon className={`h-6 w-6 ${config.color}`} aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-medium text-gray-900 group-hover:text-seu-blue">
+              <p className="font-medium text-gray-900 group-hover:text-primary">
                 {material.titleAr}
               </p>
               <p className="mt-1 text-sm text-gray-500">
@@ -70,9 +73,9 @@ export function MaterialsTab({ materials }: MaterialsTabProps) {
               </p>
             </div>
             {isExternal ? (
-              <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-seu-blue" aria-hidden="true" />
+              <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-primary" aria-hidden="true" />
             ) : (
-              <Download className="h-5 w-5 text-gray-400 group-hover:text-seu-blue" aria-hidden="true" />
+              <Download className="h-5 w-5 text-gray-400 group-hover:text-primary" aria-hidden="true" />
             )}
           </a>
         );

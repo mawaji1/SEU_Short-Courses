@@ -22,7 +22,7 @@ export function HeroCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-seu-blue via-seu-cyan to-seu-purple p-8 text-white shadow-2xl"
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary-dark p-8 text-white shadow-2xl"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
@@ -53,7 +53,7 @@ export function HeroCard({
 
         <button
           onClick={onJoin}
-          className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 font-bold text-seu-blue shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 font-bold text-primary shadow-lg transition-all hover:scale-105 hover:shadow-xl"
         >
           <Video className="h-5 w-5" aria-hidden="true" />
           <span>الانضمام الآن</span>

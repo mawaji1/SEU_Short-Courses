@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2, CheckCircle, XCircle, Award, Calendar, User, BookOpen } from 'lucide-react';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 interface CertificateVerification {
   valid: boolean;
@@ -55,17 +57,23 @@ export default function VerifyCertificatePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-600">جاري التحقق من الشهادة...</p>
+      <>
+        <Header />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-gray-600">جاري التحقق من الشهادة...</p>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12" dir="rtl">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 py-12" dir="rtl">
       <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -74,7 +82,7 @@ export default function VerifyCertificatePage() {
             التحقق من الشهادة
           </h1>
           <p className="text-gray-600">
-            جامعة الأمير سلطان - نظام التحقق من الشهادات
+            الجامعة السعودية الإلكترونية - نظام التحقق من الشهادات
           </p>
         </div>
 
@@ -103,7 +111,7 @@ export default function VerifyCertificatePage() {
                 شهادة صالحة ومعتمدة
               </h2>
               <p className="text-gray-600">
-                هذه الشهادة صادرة من جامعة الأمير سلطان وموثقة رسمياً
+                هذه الشهادة صادرة من الجامعة السعودية الإلكترونية وموثقة رسمياً
               </p>
             </div>
 
@@ -194,13 +202,9 @@ export default function VerifyCertificatePage() {
           </div>
         )}
 
-        {/* SEU Branding */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500">
-            جامعة الأمير سلطان - نظام إدارة البرامج التدريبية القصيرة
-          </p>
-        </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

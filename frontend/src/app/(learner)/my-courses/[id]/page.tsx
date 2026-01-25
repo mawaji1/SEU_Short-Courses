@@ -2,8 +2,9 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpen, TrendingUp, Mail, FileText, Loader2 } from 'lucide-react';
-import { PageHeader } from '@/components/learner';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { BookOpen, TrendingUp, Mail, FileText, Loader2, ChevronRight } from 'lucide-react';
 import { CourseHeader, CourseTabs, OverviewTab, ProgressTab, MessagesTab, MaterialsTab } from '@/components/learner/course';
 
 interface CourseDetail {
@@ -145,20 +146,27 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-seu-blue" />
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-primary" />
+          <p className="text-gray-600">جاري تحميل تفاصيل الدورة...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !courseDetail) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-[60vh] items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">{error || 'البرنامج غير موجود'}</p>
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+            <BookOpen className="h-10 w-10 text-red-600" />
+          </div>
+          <h2 className="mb-3 text-xl font-bold text-gray-900">حدث خطأ</h2>
+          <p className="mb-6 text-gray-600">{error || 'البرنامج غير موجود'}</p>
           <button
             onClick={() => router.push('/my-courses')}
-            className="mt-4 rounded-lg bg-seu-blue px-4 py-2 text-white"
+            className="rounded-xl bg-primary px-6 py-3 font-medium text-white transition-colors hover:bg-primary-dark"
           >
             العودة لدوراتي
           </button>
@@ -166,6 +174,11 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
       </div>
     );
   }
+
+  // Get instructor info with proper fallback
+  const instructor = courseDetail.cohort.instructor;
+  const instructorName = instructor?.nameAr;
+  const hasInstructor = !!instructorName;
 
   const tabs = [
     {
@@ -178,9 +191,10 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
             ...mod,
             sessions: mod.sessions.map((s) => ({ ...s, isCompleted: false })),
           }))}
-          instructorName={courseDetail.cohort.instructor?.nameAr || 'المدرب'}
-          instructorBio={courseDetail.cohort.instructor?.bio}
-          instructorImage={courseDetail.cohort.instructor?.imageUrl}
+          instructorName={instructorName}
+          instructorBio={instructor?.bio}
+          instructorImage={instructor?.imageUrl}
+          hasInstructor={hasInstructor}
         />
       ),
     },
@@ -208,7 +222,7 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
         <MessagesTab
           messages={messages.map((m) => ({
             ...m,
-            instructorName: m.instructor?.nameAr || 'المدرب',
+            instructorName: m.instructor?.nameAr,
           }))}
           onMarkAsRead={handleMarkAsRead}
         />
@@ -223,18 +237,25 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
   ];
 
   return (
-    <div className="min-h-full">
-      <PageHeader
-        title={courseDetail.cohort.program.titleAr}
-        breadcrumbs={[
-          { label: 'دوراتي', href: '/my-courses' },
-          { label: courseDetail.cohort.program.titleAr },
-        ]}
-      />
+    <div className="space-y-6">
+      {/* Breadcrumb */}
+      <motion.nav
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 text-sm text-gray-600"
+        aria-label="التنقل"
+      >
+        <Link href="/my-courses" className="hover:text-primary transition-colors">
+          دوراتي
+        </Link>
+        <ChevronRight className="h-4 w-4 rotate-180" />
+        <span className="text-gray-900 font-medium">{courseDetail.cohort.program.titleAr}</span>
+      </motion.nav>
 
       <CourseHeader
         title={courseDetail.cohort.program.titleAr}
-        instructor={courseDetail.cohort.instructor?.nameAr || 'المدرب'}
+        instructorName={instructorName}
+        hasInstructor={hasInstructor}
         cohortName={courseDetail.cohort.nameAr}
         progress={courseDetail.progress}
         totalHours={courseDetail.cohort.program.totalHours}

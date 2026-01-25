@@ -26,7 +26,7 @@ export function PageHeader({ title, subtitle, breadcrumbs, actions }: PageHeader
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-seu-navy">{title}</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">{title}</h1>
           {subtitle && (
             <p className="mt-1 text-gray-600">{subtitle}</p>
           )}

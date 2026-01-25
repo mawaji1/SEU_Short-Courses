@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { Loader2, Download, CheckCircle, Award, Calendar } from 'lucide-react';
-import { PageHeader } from '@/components/learner';
 
 interface Certificate {
   id: string;
@@ -84,47 +84,74 @@ export default function CertificatesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-seu-blue" />
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-primary" />
+          <p className="text-gray-600">جاري تحميل الشهادات...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-full">
-      <PageHeader
-        title="شهاداتي"
-        subtitle="عرض وتحميل الشهادات الصادرة لك"
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10">
+            <Award className="h-7 w-7 text-accent" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">شهاداتي</h1>
+            <p className="text-gray-600">عرض وتحميل الشهادات الصادرة لك</p>
+          </div>
+        </div>
+      </motion.div>
 
-      <div className="p-6">
+      <div>
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
             <p className="text-red-700">{error}</p>
           </div>
         )}
 
         {/* Certificates Grid */}
         {certificates.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
-            <Award className="mx-auto h-16 w-16 text-gray-300" />
-            <h3 className="mt-4 text-xl font-semibold text-gray-900">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-sm"
+          >
+            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
+              <Award className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="mb-3 text-xl font-bold text-gray-900">
               لا توجد شهادات بعد
             </h3>
-            <p className="mt-2 text-gray-600">
+            <p className="mx-auto max-w-md text-gray-600">
               ستظهر شهاداتك هنا بعد إتمام البرامج التدريبية بنجاح
             </p>
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          >
             {certificates.map((certificate) => (
               <div
                 key={certificate.id}
-                className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm transition-all hover:border-seu-blue hover:shadow-lg"
+                className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm transition-all hover:border-primary hover:shadow-lg"
               >
                 {/* Certificate Header */}
-                <div className="bg-gradient-to-br from-seu-blue to-seu-navy p-6 text-white">
+                <div className="bg-gradient-to-br from-primary to-primary-dark p-6 text-white">
                   <div className="mb-4 flex items-center justify-between">
                     <Award className="h-10 w-10" />
                     <span className="flex items-center gap-2 text-sm">
@@ -160,7 +187,7 @@ export default function CertificatesPage() {
                   <div className="space-y-2">
                     <button
                       onClick={() => handleDownload(certificate.id, certificate.number)}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-seu-blue px-4 py-3 font-medium text-white transition-colors hover:bg-seu-navy"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-medium text-white transition-colors hover:bg-primary-dark"
                     >
                       <Download className="h-4 w-4" />
                       تحميل الشهادة (PDF)
@@ -172,7 +199,7 @@ export default function CertificatesPage() {
                           '_blank'
                         )
                       }
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-4 py-3 font-medium text-gray-700 transition-colors hover:border-seu-blue hover:text-seu-blue"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-4 py-3 font-medium text-gray-700 transition-colors hover:border-primary hover:text-primary"
                     >
                       التحقق من الشهادة
                     </button>
@@ -180,7 +207,7 @@ export default function CertificatesPage() {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

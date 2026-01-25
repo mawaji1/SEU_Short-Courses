@@ -9,7 +9,7 @@ interface Message {
   subject: string;
   message: string;
   sentAt: string;
-  instructorName: string;
+  instructorName?: string;
   isRead: boolean;
 }
 
@@ -40,9 +40,12 @@ export function MessagesTab({ messages, onMarkAsRead }: MessagesTabProps) {
 
   if (messages.length === 0) {
     return (
-      <div className="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
-        <Mail className="mx-auto h-16 w-16 text-gray-300" aria-hidden="true" />
-        <p className="mt-4 text-gray-500">لا توجد رسائل حتى الآن</p>
+      <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
+        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+          <Mail className="h-10 w-10 text-gray-400" aria-hidden="true" />
+        </div>
+        <h3 className="mb-2 text-lg font-bold text-gray-900">لا توجد رسائل</h3>
+        <p className="text-gray-500">ستظهر رسائل المدرب هنا عند إرسالها</p>
       </div>
     );
   }
@@ -57,21 +60,21 @@ export function MessagesTab({ messages, onMarkAsRead }: MessagesTabProps) {
             onClick={() => handleMessageClick(message)}
             className={`w-full cursor-pointer rounded-xl border-2 p-4 text-right transition-all ${
               selectedMessage?.id === message.id
-                ? 'border-seu-blue bg-seu-blue/5'
+                ? 'border-primary bg-primary/5'
                 : message.isRead
                   ? 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                  : 'border-seu-blue/30 bg-seu-blue/5 hover:border-seu-blue/50'
+                  : 'border-primary/30 bg-primary/5 hover:border-primary/50'
             }`}
           >
             <div className="flex items-start gap-3">
               {message.isRead ? (
                 <MailOpen className="mt-1 h-5 w-5 text-gray-400" aria-hidden="true" />
               ) : (
-                <Mail className="mt-1 h-5 w-5 text-seu-blue" aria-hidden="true" />
+                <Mail className="mt-1 h-5 w-5 text-primary" aria-hidden="true" />
               )}
               <div className="min-w-0 flex-1">
                 <p className={`truncate font-semibold ${
-                  message.isRead ? 'text-gray-700' : 'text-seu-navy'
+                  message.isRead ? 'text-gray-700' : 'text-primary-dark'
                 }`}>
                   {message.subject}
                 </p>
@@ -94,9 +97,10 @@ export function MessagesTab({ messages, onMarkAsRead }: MessagesTabProps) {
             className="rounded-xl border border-gray-200 bg-white p-6"
           >
             <div className="mb-6 border-b border-gray-200 pb-4">
-              <h2 className="text-xl font-bold text-seu-navy">{selectedMessage.subject}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{selectedMessage.subject}</h2>
               <p className="mt-2 text-sm text-gray-600">
-                من: {selectedMessage.instructorName} • {formatDate(selectedMessage.sentAt)}
+                {selectedMessage.instructorName && `من: ${selectedMessage.instructorName} • `}
+                {formatDate(selectedMessage.sentAt)}
               </p>
             </div>
             <div className="whitespace-pre-wrap leading-relaxed text-gray-700">
