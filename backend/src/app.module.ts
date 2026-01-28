@@ -10,9 +10,9 @@ import { AuthModule } from './modules/auth';
 import { RegistrationModule } from './modules/registration';
 import { PaymentModule } from './modules/payment';
 import { NotificationModule } from './modules/notification';
-import { BlackboardModule } from './modules/blackboard';
 import { CertificateModule } from './modules/certificate';
 import { AuditModule } from './modules/audit';
+// Note: BlackboardModule was removed from scope (Decision D-I03, 2026-01-23)
 
 /**
  * SEU Short Courses Platform — App Module
@@ -40,7 +40,6 @@ import { AuditModule } from './modules/audit';
     RegistrationModule,
     PaymentModule,
     NotificationModule,
-    BlackboardModule,
     CertificateModule,
     AuditModule,
   ],

@@ -20,7 +20,6 @@ interface Cohort {
   enrolledCount: number;
   availableSeats: number;
   status: 'UPCOMING' | 'OPEN' | 'FULL' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  blackboardCourseId: string | null;
   instructorId: string | null;
   program?: {
     id: string;

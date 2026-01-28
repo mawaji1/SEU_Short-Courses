@@ -19,8 +19,8 @@ export interface CohortResponseDto {
   enrolledCount: number;
   availableSeats: number;
   status: CohortStatus;
-  blackboardCourseId: string | null;
   instructorId: string | null;
+  // Note: blackboardCourseId removed - Blackboard integration was removed from scope (D-I03)
   program?: {
     id: string;
     titleAr: string;
@@ -69,7 +69,6 @@ export class CohortService {
         registrationStartDate: new Date(dto.registrationStartDate),
         registrationEndDate: new Date(dto.registrationEndDate),
         capacity: dto.capacity,
-        blackboardCourseId: dto.blackboardCourseId,
         status: CohortStatus.UPCOMING,
       },
       include: {
@@ -174,7 +173,6 @@ export class CohortService {
           : undefined,
         capacity: dto.capacity,
         status: dto.status,
-        blackboardCourseId: dto.blackboardCourseId,
       },
       include: {
         program: true,
@@ -299,7 +297,6 @@ export class CohortService {
       enrolledCount: cohort.enrolledCount,
       availableSeats: Math.max(0, cohort.capacity - cohort.enrolledCount),
       status: cohort.status,
-      blackboardCourseId: cohort.blackboardCourseId,
       program: cohort.program
         ? {
             id: cohort.program.id,

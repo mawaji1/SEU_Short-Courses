@@ -1,8 +1,8 @@
 # SEU Short Courses Platform — Decision Log
 
-**Document Type:** Planning Artifact  
-**Status:** Living Document  
-**Last Updated:** 2026-01-23
+**Document Type:** Planning Artifact
+**Status:** Living Document
+**Last Updated:** 2026-01-28
 
 ---
 
@@ -23,7 +23,7 @@ This document tracks all significant decisions related to the SEU Short Courses 
 | Strategic | 7 | 0 | 0 |
 | Integration | 6 | 2 | 1 |
 | Product | 8 | 2 | 2 |
-| Technical | 7 | 0 | 3 |
+| Technical | 8 | 0 | 3 |
 | UX/Design | 6 | 0 | 0 |
 
 > [!IMPORTANT]
@@ -75,11 +75,12 @@ This document tracks all significant decisions related to the SEU Short Courses 
 |----|----------|-----------|------|-------|
 | D-T01 | **Modern cloud-ready web architecture** | SPA-capable frontend, API-driven backend, stateless services, externalized integrations | 2026-01-03 | Architecture |
 | D-T02 | **SEU-approved government/hybrid cloud hosting** | Compliant with Saudi data residency; exact environment (on-prem/private/hybrid) finalized by SEU IT | 2026-01-03 | Infrastructure |
-| D-T03 | **Platform-managed authentication (email/password)** | Fastest MVP path; RBAC with separate learner/coordinator roles | 2026-01-03 | Architecture |
+| D-T03 | **~~Platform-managed authentication (email/password)~~ Better Auth** | Custom Passport.js had bugs (session desync, no token refresh); Better Auth provides production-ready auth with OAuth, 2FA, session management | 2026-01-28 | Architecture |
 | D-T04 | **Frontend: Next.js (React)** | Best SSR/SSG support, largest ecosystem, excellent RTL support | 2026-01-03 | Architecture |
 | D-T05 | **Backend: NestJS (TypeScript)** | Enterprise patterns, modular structure, TypeScript-native, frontend synergy | 2026-01-03 | Architecture |
 | D-T06 | **Database: PostgreSQL** | ACID-compliant, excellent JSON support, mature ecosystem | 2026-01-03 | Architecture |
 | D-T07 | **Architecture: Modular Monolith (MVP)** | Faster MVP delivery, simpler operations, designed for future extraction | 2026-01-03 | Architecture |
+| D-T08 | **Authentication Library: Better Auth** | Replaces custom Passport.js+JWT; provides session management, token rotation, OAuth, 2FA out-of-box; use `@thallesp/nestjs-better-auth` for NestJS | 2026-01-28 | Architecture |
 
 ### UX/Design Decisions
 
@@ -171,6 +172,7 @@ This document tracks all significant decisions related to the SEU Short Courses 
 | Backend Framework | NestJS (TypeScript) | D-T05 |
 | Database | PostgreSQL | D-T06 |
 | Architecture Pattern | Modular Monolith (MVP) | D-T07 |
+| Authentication Library | Better Auth | D-T08 |
 | Component Library | platformscode-new-react | D-U06 |
 | Design System | Token strategy with SEU brand overlay | design-system-tokens.md |
 

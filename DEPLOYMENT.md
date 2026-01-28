@@ -31,13 +31,7 @@ AWS_ACCESS_KEY_ID="your-aws-access-key"
 AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
 AWS_SES_FROM_EMAIL="noreply@seu.edu.sa"
 
-# Blackboard Integration
-BLACKBOARD_API_URL="https://blackboard.seu.edu.sa/api"
-BLACKBOARD_API_KEY="your-blackboard-api-key"
-BLACKBOARD_CLIENT_ID="your-client-id"
-BLACKBOARD_CLIENT_SECRET="your-client-secret"
-
-# Payment Gateway (Tabby/Tamara)
+# Payment Gateway - BNPL (Tabby/Tamara)
 TABBY_API_KEY="your-tabby-api-key"
 TABBY_MERCHANT_CODE="your-merchant-code"
 TAMARA_API_KEY="your-tamara-api-key"

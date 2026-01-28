@@ -183,37 +183,8 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Send Blackboard access instructions
-   */
-  async sendBlackboardAccess(
-    userId: string,
-    email: string,
-    data: {
-      userName: string;
-      programName: string;
-      cohortName: string;
-      blackboardUrl: string;
-      blackboardUsername: string;
-      blackboardPassword: string;
-    },
-    locale: string = 'ar',
-  ): Promise<NotificationResult> {
-    return this.sendNotification({
-      userId,
-      type: NotificationType.BLACKBOARD_ACCESS,
-      channel: NotificationChannel.EMAIL,
-      recipient: email,
-      subject:
-        locale === 'ar'
-          ? 'معلومات الدخول إلى المنصة التعليمية'
-          : 'LMS Access Information',
-      templateId: 'blackboard-access',
-      templateData: data,
-      locale,
-      priority: NotificationPriority.HIGH,
-    });
-  }
+  // Note: Blackboard integration was removed from scope (D-I03).
+  // Zoom session notifications will be added when Zoom integration is implemented.
 
   /**
    * Send admin alert for system issues

@@ -828,7 +828,7 @@ export class RegistrationService {
     );
     const upcomingSessions = totalSessions - completedSessions;
 
-    // Attendance percentage (use completionPercentage from Blackboard sync)
+    // Attendance percentage (will be tracked via Zoom attendance webhooks)
     const attendancePercentage =
       enrollment.completionPercentage || enrollment.progress;
 
@@ -909,7 +909,7 @@ export class RegistrationService {
   /**
    * Get attendance summary for an enrollment
    * Returns calculated attendance based on progress and sessions
-   * Note: This is calculated data - will be replaced with actual attendance from Blackboard
+   * Note: This is calculated data - will be replaced with actual attendance from Zoom webhooks
    */
   async getAttendanceSummary(
     userId: string,

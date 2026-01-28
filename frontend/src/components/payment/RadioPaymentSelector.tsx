@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, CreditCard } from 'lucide-react';
-import { MoyasarPaymentForm } from './MoyasarPaymentForm';
-import { createPayment } from '@/services/payment';
+import { Loader2, CreditCard, AlertCircle } from 'lucide-react';
 import { createBNPLCheckout, BNPLProvider } from '@/services/payment/bnpl.service';
 
 interface RadioPaymentSelectorProps {
@@ -20,7 +18,9 @@ type PaymentMethod = 'card' | 'tabby' | 'tamara';
 
 /**
  * Radio Button Payment Selector
- * Matches Tabby's official documentation pattern
+ *
+ * MIGRATION NOTE: Card payments (Moyasar) removed - HyperPay implementation pending (D-I01)
+ * Currently only BNPL options (Tabby/Tamara) are available
  */
 export function RadioPaymentSelector({
   registrationId,
@@ -30,47 +30,27 @@ export function RadioPaymentSelector({
   onSuccess,
   onError,
 }: RadioPaymentSelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
+  // Default to tabby since card payments are unavailable
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('tabby');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentId, setPaymentId] = useState<string | null>(null);
-  const [publishableKey, setPublishableKey] = useState<string>('');
 
   const handlePlaceOrder = async () => {
     if (selectedMethod === 'card') {
-      await handleCreateCardPayment();
-    } else if (selectedMethod === 'tabby' || selectedMethod === 'tamara') {
-      await handleBNPLCheckout(selectedMethod);
+      // Card payments temporarily unavailable
+      onError?.(language === 'ar'
+        ? 'الدفع بالبطاقة غير متاح حالياً. يرجى استخدام تابي أو تمارا.'
+        : 'Card payment temporarily unavailable. Please use Tabby or Tamara.');
+      return;
     }
-  };
 
-  const handleCreateCardPayment = async () => {
-    setIsProcessing(true);
-    
-    try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) {
-        onError?.('يرجى تسجيل الدخول أولاً');
-        return;
-      }
-
-      const auth = JSON.parse(authData);
-      const paymentData = await createPayment(
-        { registrationId, amount, currency },
-        auth.accessToken,
-      );
-
-      setPaymentId(paymentData.paymentId);
-      setPublishableKey(paymentData.publishableKey);
-    } catch (err: any) {
-      onError?.(err.message || 'فشل إنشاء عملية الدفع');
-    } finally {
-      setIsProcessing(false);
+    if (selectedMethod === 'tabby' || selectedMethod === 'tamara') {
+      await handleBNPLCheckout(selectedMethod);
     }
   };
 
   const handleBNPLCheckout = async (provider: 'tabby' | 'tamara') => {
     setIsProcessing(true);
-    
+
     try {
       const authData = localStorage.getItem('seu_auth');
       if (!authData) {
@@ -98,48 +78,14 @@ export function RadioPaymentSelector({
     }
   };
 
-  // If card payment is created, show Moyasar form
-  if (selectedMethod === 'card' && paymentId) {
-    return (
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6 text-center">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setPaymentId(null);
-            }}
-            className="text-sm"
-          >
-            ← العودة لاختيار طريقة دفع أخرى
-          </Button>
-        </div>
-        
-        <MoyasarPaymentForm
-          amount={amount}
-          currency={currency}
-          publishableKey={publishableKey}
-          onSuccess={(moyasarPaymentId) => {
-            onSuccess?.(paymentId);
-          }}
-          onError={(error) => {
-            onError?.(error);
-            setPaymentId(null);
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-2xl mx-auto">
       <h3 className="text-xl font-bold text-gray-900 mb-6">طريقة الدفع</h3>
 
       <div className="space-y-4 mb-8">
-        {/* Card Payment Option */}
+        {/* Card Payment Option - Temporarily Unavailable */}
         <label
-          className={`flex items-start gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-            selectedMethod === 'card' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'
-          }`}
+          className="flex items-start gap-4 p-4 border-2 rounded-lg cursor-not-allowed transition-all border-gray-200 bg-gray-50 opacity-60"
         >
           <input
             type="radio"
@@ -147,18 +93,22 @@ export function RadioPaymentSelector({
             value="card"
             checked={selectedMethod === 'card'}
             onChange={() => setSelectedMethod('card')}
-            className="mt-1 w-5 h-5 text-primary"
+            className="mt-1 w-5 h-5 text-gray-400"
+            disabled
           />
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-gray-600" />
+            <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-6 h-6 text-gray-400" />
             </div>
             <div className="flex-1">
-              <div className="font-bold text-gray-900 mb-1">
+              <div className="font-bold text-gray-500 mb-1 flex items-center gap-2">
                 {language === 'ar' ? 'بطاقة الائتمان/الخصم المباشر' : 'Debit / Credit card'}
+                <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+                  {language === 'ar' ? 'قريباً' : 'Coming Soon'}
+                </span>
               </div>
-              <div className="text-sm text-gray-600">
-                {language === 'ar' ? 'ادفع باستخدام بطاقات ماستركارد/فيزا/أميكس' : 'Visa, Mastercard, Mada'}
+              <div className="text-sm text-gray-400">
+                {language === 'ar' ? 'غير متاح حالياً - يرجى استخدام تابي أو تمارا' : 'Temporarily unavailable - Please use Tabby or Tamara'}
               </div>
             </div>
           </div>
@@ -179,9 +129,9 @@ export function RadioPaymentSelector({
             className="mt-1 w-5 h-5 text-primary"
           />
           <div className="flex items-center gap-3 flex-1">
-            <img 
+            <img
               src="/images/Tabby_Logo.png"
-              alt="Tabby" 
+              alt="Tabby"
               className="h-8 w-auto"
             />
             <div className="flex-1">
@@ -210,9 +160,9 @@ export function RadioPaymentSelector({
             className="mt-1 w-5 h-5 text-primary"
           />
           <div className="flex items-center gap-3 flex-1">
-            <img 
+            <img
               src="/images/Tamara_Logo.png"
-              alt="Tamara" 
+              alt="Tamara"
               className="h-8 w-auto"
             />
             <div className="flex-1">
@@ -231,7 +181,7 @@ export function RadioPaymentSelector({
         size="lg"
         className="w-full"
         onClick={handlePlaceOrder}
-        disabled={isProcessing}
+        disabled={isProcessing || selectedMethod === 'card'}
       >
         {isProcessing ? (
           <>

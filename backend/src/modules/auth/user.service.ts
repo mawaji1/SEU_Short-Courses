@@ -50,8 +50,6 @@ export class UserService {
         emailVerified: true,
         createdAt: true,
         updatedAt: true,
-        blackboardUserId: true,
-        blackboardProvisionStatus: true,
       },
     });
 

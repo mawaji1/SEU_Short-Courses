@@ -50,10 +50,8 @@ export class CreateCohortDto {
   @IsOptional()
   @IsString()
   instructorId?: string;
-
-  @IsOptional()
-  @IsString()
-  blackboardCourseId?: string;
+  // Note: blackboardCourseId removed - Blackboard integration was removed from scope (D-I03)
+  // Zoom integration will add session-related fields when implemented
 }
 
 /**
@@ -100,10 +98,6 @@ export class UpdateCohortDto {
   @IsOptional()
   @IsString()
   instructorId?: string;
-
-  @IsOptional()
-  @IsString()
-  blackboardCourseId?: string;
 }
 
 /**

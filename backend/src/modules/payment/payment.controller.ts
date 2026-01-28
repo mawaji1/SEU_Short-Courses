@@ -43,13 +43,14 @@ export class PaymentController {
   }
 
   /**
-   * Confirm payment after Moyasar callback
-   * POST /api/payments/:moyasarPaymentId/confirm
+   * Confirm payment after provider callback
+   * POST /api/payments/:providerPaymentId/confirm
+   * TODO: Update when HyperPay is implemented
    */
-  @Post(':moyasarPaymentId/confirm')
+  @Post(':providerPaymentId/confirm')
   @HttpCode(HttpStatus.OK)
-  async confirmPayment(@Param('moyasarPaymentId') moyasarPaymentId: string) {
-    return this.paymentService.confirmPayment(moyasarPaymentId);
+  async confirmPayment(@Param('providerPaymentId') providerPaymentId: string) {
+    return this.paymentService.confirmPayment(providerPaymentId);
   }
 
   /**
@@ -84,8 +85,9 @@ export class PaymentController {
   }
 
   /**
-   * Moyasar webhook handler
+   * Payment webhook handler (HyperPay)
    * POST /api/payments/webhook
+   * TODO: Implement when HyperPay is integrated
    */
   @Post('webhook')
   @HttpCode(HttpStatus.OK)

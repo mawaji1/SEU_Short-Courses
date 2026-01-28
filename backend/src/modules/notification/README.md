@@ -60,7 +60,6 @@ The Notification Module is a production-ready, scalable email notification syste
 - `REGISTRATION_CONFIRMATION` - After user registers
 - `PAYMENT_RECEIPT` - After successful payment
 - `PAYMENT_FAILED` - When payment fails
-- `BLACKBOARD_ACCESS` - LMS credentials
 - `COURSE_REMINDER` - Course start reminders
 - `CERTIFICATE_READY` - Certificate generation
 - `ENROLLMENT_CONFIRMED` - Enrollment confirmation
@@ -167,23 +166,6 @@ await notificationService.sendPaymentReceipt(
 );
 ```
 
-#### Blackboard Access
-```typescript
-await notificationService.sendBlackboardAccess(
-  userId,
-  email,
-  {
-    userName: 'أحمد محمد',
-    programName: 'أساسيات الذكاء الاصطناعي',
-    cohortName: 'الموعد الأول',
-    blackboardUrl: 'https://lms.seu.edu.sa',
-    blackboardUsername: 'ahmad.mohammed',
-    blackboardPassword: 'temp_password_123',
-  },
-  'ar',
-);
-```
-
 ### Custom Notifications
 ```typescript
 await notificationService.sendNotification({
@@ -211,7 +193,6 @@ Templates are located in `src/modules/notification/templates/{locale}/{template-
 - `ar/registration-confirmation.hbs`
 - `ar/payment-receipt.hbs`
 - `ar/payment-failed.hbs`
-- `ar/blackboard-access.hbs`
 
 ### Creating New Templates
 

@@ -95,7 +95,6 @@ export interface Program {
     learningOutcomesEn: string[];
     targetAudienceAr?: string;
     targetAudienceEn?: string;
-    blackboardCourseId?: string;
     certificateEnabled: boolean;
     certificateAttendanceThreshold: number;
     isFeatured: boolean;
@@ -124,7 +123,6 @@ export interface Cohort {
     capacity: number;
     enrolledCount: number;
     status: CohortStatus;
-    blackboardCourseId?: string;
     createdAt: string;
     updatedAt: string;
 }

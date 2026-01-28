@@ -1,8 +1,25 @@
 # SEU Short Courses Platform — Conceptual Integration Strategy
 
-**Document Type:** Planning Artifact  
-**Status:** Draft for Review  
+**Document Type:** Planning Artifact
+**Status:** ⚠️ PARTIALLY OUTDATED - See Scope Changes Below
 **Last Updated:** 2026-01-03
+
+---
+
+> ## ⚠️ IMPORTANT SCOPE CHANGES (Updated 2026-01-28)
+>
+> This document was created during initial planning. The following changes have been made:
+>
+> | Integration | Original Status | Current Status | Decision Reference |
+> |-------------|-----------------|----------------|---------------------|
+> | **Blackboard** | Planned | **REMOVED** - Learning delivery is now in-platform via Zoom | D-I03 |
+> | **Moyasar** | Planned | **REMOVED** - Replaced by HyperPay (pending implementation) | D-I01 |
+> | **Tabby** | Planned | ✅ Active | - |
+> | **Tamara** | Planned | ✅ Active | - |
+> | **HyperPay** | Not planned | **NEW** - Card payments (pending implementation) | D-I01 |
+> | **Zoom** | Not planned | **NEW** - Live session delivery (pending implementation) | - |
+>
+> **Sections 3 (Blackboard) and 4 (Moyasar) below are OBSOLETE and retained only for historical reference.**
 
 ---
 
@@ -321,28 +338,37 @@ This document defines the **conceptual integration strategy** for the SEU Short 
 
 ## 8. Integration Summary Matrix
 
-| Integration | Direction | Data Concept | SoR | Critical Path |
-|-------------|-----------|--------------|-----|---------------|
-| Blackboard | Bidirectional | Users, Enrollments, Completion | Split | Yes |
-| Moyasar | Bidirectional | Payments, Refunds | Split | Yes |
-| Tabby | Bidirectional | BNPL Payments | Split | Yes |
-| Tamara | Bidirectional | BNPL Payments | Split | Yes |
-| Email Provider | Outbound + Status | Notifications | Platform | No |
-| SMS Provider | Outbound + Status | Notifications | Platform | No |
+> **Updated 2026-01-28** - Reflects current scope after decision-log changes
+
+| Integration | Direction | Data Concept | SoR | Status |
+|-------------|-----------|--------------|-----|--------|
+| ~~Blackboard~~ | ~~Bidirectional~~ | ~~Users, Enrollments, Completion~~ | ~~Split~~ | ❌ REMOVED (D-I03) |
+| ~~Moyasar~~ | ~~Bidirectional~~ | ~~Payments, Refunds~~ | ~~Split~~ | ❌ REMOVED (D-I01) |
+| **HyperPay** | Bidirectional | Card Payments, Refunds | Split | 🟡 Pending Implementation |
+| **Tabby** | Bidirectional | BNPL Payments | Split | ✅ Active |
+| **Tamara** | Bidirectional | BNPL Payments | Split | ✅ Active |
+| **Zoom** | Bidirectional | Live Sessions, Recordings | Split | 🟡 Pending Implementation |
+| Email Provider | Outbound + Status | Notifications | Platform | ✅ Active |
+| SMS Provider | Outbound + Status | Notifications | Platform | 🟡 Pending |
 
 ---
 
 ## 9. Open Decisions Summary
 
+> **Updated 2026-01-28** - Many decisions have been resolved
+
 | # | Decision | Status | Impact |
 |---|----------|--------|--------|
-| 1 | Blackboard integration method (REST/LTI/BB) | Pending | Architecture |
-| 2 | BNPL eligibility rules | Pending | Product configuration |
-| 3 | Email provider selection | Pending | Implementation |
+| ~~1~~ | ~~Blackboard integration method~~ | ❌ N/A - Removed from scope | - |
+| 2 | BNPL eligibility rules | Resolved | Product configuration |
+| 3 | Email provider selection | Resolved - AWS SES | Implementation |
 | 4 | SMS provider selection | Pending | Implementation |
 | 5 | WhatsApp channel scope | Deferred | Phase 2+ |
-| 6 | Blackboard API access confirmation | Pending | Critical path |
+| ~~6~~ | ~~Blackboard API access confirmation~~ | ❌ N/A - Removed from scope | - |
+| 7 | HyperPay integration implementation | Pending | Critical path |
+| 8 | Zoom integration implementation | Pending | Learning delivery |
 
 ---
 
 *This document is a planning artifact and does not constitute implementation direction.*
+*For current scope decisions, see `/Planning/docs/decision-log.md`.*

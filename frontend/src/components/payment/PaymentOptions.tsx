@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { MoyasarPaymentForm } from './MoyasarPaymentForm';
+import { CreditCard, AlertCircle } from 'lucide-react';
 import BNPLOptions from './BNPLOptions';
-import { createPayment } from '@/services/payment';
 
 interface PaymentOptionsProps {
   registrationId: string;
@@ -18,8 +16,11 @@ interface PaymentOptionsProps {
 
 /**
  * Unified Payment Options Component
- * Shows all available payment methods: Card (Moyasar) + BNPL (Tabby/Tamara)
+ * Shows all available payment methods: Card + BNPL (Tabby/Tamara)
  * Used in both checkout page and standalone payment page for consistency
+ *
+ * MIGRATION NOTE: Card payments (Moyasar) removed - HyperPay implementation pending (D-I01)
+ * Card option is shown as disabled until HyperPay is integrated
  */
 export default function PaymentOptions({
   registrationId,
@@ -29,92 +30,39 @@ export default function PaymentOptions({
   onSuccess,
   onError,
 }: PaymentOptionsProps) {
-  const [paymentId, setPaymentId] = useState<string | null>(null);
-  const [publishableKey, setPublishableKey] = useState<string>('');
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
-
-  const handleCreateCardPayment = async () => {
-    setIsCreatingPayment(true);
-    onError('');
-
-    try {
-      const authData = localStorage.getItem('seu_auth');
-      if (!authData) {
-        onError('يرجى تسجيل الدخول أولاً');
-        return;
-      }
-
-      const auth = JSON.parse(authData);
-      const token = auth.accessToken;
-
-      const paymentData = await createPayment(
-        {
-          registrationId,
-          amount,
-          currency,
-        },
-        token,
-      );
-
-      setPaymentId(paymentData.paymentId);
-      setPublishableKey(paymentData.publishableKey);
-    } catch (err: any) {
-      console.error('Payment creation error:', err);
-      onError(err.message || 'فشل إنشاء عملية الدفع');
-    } finally {
-      setIsCreatingPayment(false);
-    }
-  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      {/* Card Payment Section */}
+      {/* Card Payment Section - Temporarily Unavailable */}
       <div>
         <h3 className="text-lg font-semibold mb-4 text-center">الدفع ببطاقة الائتمان</h3>
-        {!paymentId ? (
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={handleCreateCardPayment}
-            disabled={isCreatingPayment}
-          >
-            {isCreatingPayment ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin ml-2" />
-                جاري التحضير...
-              </>
-            ) : (
-              'الدفع ببطاقة الائتمان'
-            )}
-          </Button>
-        ) : (
-          <MoyasarPaymentForm
-            amount={amount}
-            currency={currency}
-            publishableKey={publishableKey}
-            onSuccess={(moyasarPaymentId) => {
-              onSuccess(paymentId);
-            }}
-            onError={(error) => {
-              onError(error);
-              setPaymentId(null);
-            }}
-          />
-        )}
+        <div className="p-4 border-2 border-gray-200 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-center gap-3 text-gray-500">
+            <CreditCard className="w-6 h-6" />
+            <div className="text-center">
+              <p className="font-medium">غير متاح حالياً</p>
+              <p className="text-sm text-gray-400">
+                سيتوفر قريباً - يرجى استخدام تابي أو تمارا
+              </p>
+            </div>
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+              قريباً
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* BNPL Payment Options */}
-      {!paymentId && (
-        <BNPLOptions
-          registrationId={registrationId}
-          amount={amount}
-          onCheckoutStart={() => setIsCreatingPayment(true)}
-        />
-      )}
+      <BNPLOptions
+        registrationId={registrationId}
+        amount={amount}
+        onCheckoutStart={() => setIsCreatingPayment(true)}
+      />
 
       {/* Info Text */}
       <p className="text-sm text-gray-500 text-center">
-        متاح: الدفع بالبطاقة أو تقسيط عبر Tabby و Tamara
+        متاح حالياً: تقسيط عبر Tabby و Tamara
       </p>
     </div>
   );

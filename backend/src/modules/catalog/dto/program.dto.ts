@@ -126,10 +126,6 @@ export class CreateProgramDto {
   @IsOptional()
   targetAudienceEn?: string;
 
-  @IsString()
-  @IsOptional()
-  blackboardCourseId?: string;
-
   @IsBoolean()
   @IsOptional()
   isFeatured?: boolean;
@@ -250,10 +246,6 @@ export class UpdateProgramDto {
   @IsString()
   @IsOptional()
   targetAudienceEn?: string;
-
-  @IsString()
-  @IsOptional()
-  blackboardCourseId?: string;
 
   @IsBoolean()
   @IsOptional()

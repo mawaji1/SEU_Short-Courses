@@ -165,7 +165,7 @@ function PaymentSuccessPageContent() {
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <span className="text-blue-600 mt-1">✓</span>
-                                    <span>سيتم إنشاء حسابك على منصة Blackboard تلقائياً</span>
+                                    <span>ستتمكن من الوصول للمحتوى التدريبي قبل موعد بدء الدورة</span>
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <span className="text-blue-600 mt-1">✓</span>

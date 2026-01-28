@@ -47,7 +47,7 @@ export interface CreatePaymentRequest {
 
 export interface CreatePaymentResponse {
     paymentId: string;
-    moyasarPaymentId: string;
+    providerPaymentId: string;  // Will be HyperPay payment ID when implemented
     amount: number;
     currency: string;
     publishableKey: string;
@@ -99,10 +99,11 @@ export async function getPayment(
 }
 
 /**
- * Confirm payment after Moyasar callback
+ * Confirm payment after provider callback
+ * TODO: Update when HyperPay is implemented
  */
-export async function confirmPayment(moyasarPaymentId: string): Promise<any> {
-    const response = await fetch(`${API_BASE}/api/payments/${moyasarPaymentId}/confirm`, {
+export async function confirmPayment(providerPaymentId: string): Promise<any> {
+    const response = await fetch(`${API_BASE}/api/payments/${providerPaymentId}/confirm`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

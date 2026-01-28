@@ -25,11 +25,12 @@ export interface EmailTemplateData {
   amount?: string;
   paymentId?: string;
   registrationId?: string;
-  blackboardUrl?: string;
-  blackboardUsername?: string;
-  blackboardPassword?: string;
   certificateUrl?: string;
   verificationCode?: string;
+  // Zoom session fields (for live training notifications)
+  zoomJoinUrl?: string;
+  sessionDate?: string;
+  sessionTime?: string;
   [key: string]: any;
 }
 

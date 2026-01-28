@@ -24,13 +24,6 @@ enum UserRole {
   PROGRAM_MANAGER        // Program managers
 }
 
-enum BlackboardProvisionStatus {
-  NOT_PROVISIONED
-  PENDING
-  PROVISIONED
-  FAILED
-}
-
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
@@ -45,12 +38,6 @@ model User {
   emailVerified  Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  // Blackboard Integration
-  blackboardUserId           String?                    @unique
-  blackboardProvisionStatus  BlackboardProvisionStatus  @default(NOT_PROVISIONED)
-  blackboardProvisionedAt    DateTime?
-  blackboardProvisionError   String?
 
   organization           Organization?              @relation(fields: [organizationId], references: [id])
   registrations          Registration[]
@@ -230,7 +217,6 @@ model Program {
   learningOutcomesEn String[]      @default([])
   targetAudienceAr   String?
   targetAudienceEn   String?
-  blackboardCourseId String?
   isFeatured         Boolean       @default(false)
   sortOrder          Int           @default(0)
   
@@ -420,7 +406,6 @@ model Cohort {
   capacity              Int
   enrolledCount         Int          @default(0)
   status                CohortStatus @default(UPCOMING)
-  blackboardCourseId    String?      @unique
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 
@@ -492,12 +477,6 @@ model Enrollment {
   userId                 String
   cohortId               String
   status                 EnrollmentStatus @default(PENDING)
-  blackboardEnrollmentId String?          @unique
-  blackboardCourseId     String?
-  blackboardRole         String?          // Student, Instructor, TeachingAssistant
-  blackboardSyncStatus   String?          // PENDING, SYNCED, FAILED
-  blackboardSyncError    String?
-  blackboardSyncedAt     DateTime?
   progress               Int              @default(0) // 0-100 percentage
   completionStatus       String?          // NOT_STARTED, IN_PROGRESS, COMPLETED, FAILED
   completionPercentage   Int?             // From Blackboard
@@ -677,7 +656,6 @@ enum NotificationType {
   REGISTRATION_CONFIRMATION
   PAYMENT_RECEIPT
   PAYMENT_FAILED
-  BLACKBOARD_ACCESS
   SYSTEM_ALERT
   COURSE_REMINDER
   CERTIFICATE_READY
