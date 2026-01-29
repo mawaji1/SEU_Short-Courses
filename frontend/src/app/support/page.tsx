@@ -139,6 +139,7 @@ export default function SupportPage() {
                 {/* Support Options */}
                 <section className="py-16">
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
+                        <h2 className="sr-only">خيارات الدعم المتاحة</h2>
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {supportOptions.map((option, index) => (
                                 <Link

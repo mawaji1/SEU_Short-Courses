@@ -118,6 +118,7 @@ export default function ContactPage() {
                 {/* Contact Info Cards */}
                 <section className="py-12 bg-white">
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
+                        <h2 className="sr-only">معلومات التواصل</h2>
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {contactInfo.map((info, index) => (
                                 <div
