@@ -123,13 +123,14 @@ function RegisterPageContent() {
                         {/* Name Row */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
+                                <label htmlFor="firstName" className="block text-sm font-bold text-gray-900 mb-2">
                                     الاسم الأول
                                 </label>
                                 <div className="relative">
                                     <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                     <input
                                         type="text"
+                                        id="firstName"
                                         name="firstName"
                                         value={formData.firstName}
                                         onChange={handleChange}
@@ -140,11 +141,12 @@ function RegisterPageContent() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-2">
+                                <label htmlFor="lastName" className="block text-sm font-bold text-gray-900 mb-2">
                                     اسم العائلة
                                 </label>
                                 <input
                                     type="text"
+                                    id="lastName"
                                     name="lastName"
                                     value={formData.lastName}
                                     onChange={handleChange}
@@ -157,13 +159,14 @@ function RegisterPageContent() {
 
                         {/* Email */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-2">
+                            <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-2">
                                 البريد الإلكتروني
                             </label>
                             <div className="relative">
                                 <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="email"
+                                    id="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
@@ -176,13 +179,14 @@ function RegisterPageContent() {
 
                         {/* Phone */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-2">
+                            <label htmlFor="phone" className="block text-sm font-bold text-gray-900 mb-2">
                                 رقم الجوال
                             </label>
                             <div className="relative">
                                 <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="tel"
+                                    id="phone"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
@@ -195,13 +199,14 @@ function RegisterPageContent() {
 
                         {/* Password */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-2">
+                            <label htmlFor="password" className="block text-sm font-bold text-gray-900 mb-2">
                                 كلمة المرور
                             </label>
                             <div className="relative">
                                 <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="password"
+                                    id="password"
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
@@ -216,13 +221,14 @@ function RegisterPageContent() {
 
                         {/* Confirm Password */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-2">
+                            <label htmlFor="confirmPassword" className="block text-sm font-bold text-gray-900 mb-2">
                                 تأكيد كلمة المرور
                             </label>
                             <div className="relative">
                                 <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="password"
+                                    id="confirmPassword"
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}

@@ -74,13 +74,14 @@ function LoginPageContent() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Email */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-900 mb-2">
+                            <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-2">
                                 البريد الإلكتروني
                             </label>
                             <div className="relative">
                                 <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="email"
+                                    id="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="example@email.com"
@@ -93,7 +94,7 @@ function LoginPageContent() {
                         {/* Password */}
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <label className="block text-sm font-bold text-gray-900">
+                                <label htmlFor="password" className="block text-sm font-bold text-gray-900">
                                     كلمة المرور
                                 </label>
                                 <Link href="/forgot-password" className="text-sm text-accent hover:underline">
@@ -104,6 +105,7 @@ function LoginPageContent() {
                                 <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="password"
+                                    id="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"

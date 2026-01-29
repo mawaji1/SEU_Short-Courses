@@ -24,6 +24,7 @@ export function Header() {
                             width={120}
                             height={50}
                             className="h-12 w-auto"
+                            priority={true}
                         />
                         <div className="hidden sm:block h-8 w-px bg-gray-200" />
                         <span className="hidden sm:block text-lg font-bold text-primary"></span>

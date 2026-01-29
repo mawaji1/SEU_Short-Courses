@@ -136,6 +136,7 @@ export default function FAQPage() {
                                     placeholder="ابحث عن سؤال..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    aria-label="ابحث عن سؤال"
                                     className="w-full h-14 pr-12 pl-4 rounded-2xl border-0 text-gray-900 focus:ring-2 focus:ring-accent outline-none"
                                 />
                             </div>

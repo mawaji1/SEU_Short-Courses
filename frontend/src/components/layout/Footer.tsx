@@ -96,6 +96,7 @@ export function Footer() {
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <XIcon className="w-5 h-5" />
+                                <span className="sr-only">X (formerly Twitter)</span>
                             </a>
                             <a
                                 href="https://instagram.com/rsi_seu"
@@ -105,15 +106,17 @@ export function Footer() {
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Instagram className="w-5 h-5" />
+                                <span className="sr-only">Instagram</span>
                             </a>
                             <a
-                                href="https://linkedin.com/company/rsi-seu"
+                                href="https://www.linkedin.com/in/rsidts/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="لينكد إن"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Linkedin className="w-5 h-5" />
+                                <span className="sr-only">LinkedIn</span>
                             </a>
                         </div>
                     </div>

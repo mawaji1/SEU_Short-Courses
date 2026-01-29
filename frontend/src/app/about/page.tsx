@@ -5,7 +5,7 @@ import { GraduationCap, Users, Award, FileText, Target, Lightbulb, CheckCircle, 
 import Image from "next/image";
 
 export const metadata: Metadata = {
-    title: "عن المعهد | معهد البحوث والدراسات الاستشارية - الجامعة السعودية الإلكترونية",
+    title: "عن المعهد | معهد البحوث والدراسات الاستشارية",
     description: "تعرف على معهد البحوث والدراسات الاستشارية بالجامعة السعودية الإلكترونية - الذراع الاستثماري للجامعة والجهة التعاقدية للعمل مع القطاعات العامة والخاصة.",
     openGraph: {
         title: "عن المعهد | معهد البحوث والدراسات - SEU",

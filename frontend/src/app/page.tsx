@@ -80,7 +80,7 @@ function Hero() {
           >
             <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-2 rounded-full mb-6">
               <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-              <span className="text-sm font-medium">التعليم التنفيذي - الجامعة السعودية الإلكترونية</span>
+              <span className="text-sm font-medium">التعليم التنفيذي -  معهد البحوث والدراسات</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -89,7 +89,7 @@ function Hero() {
             </h1>
 
             <p className="text-xl text-gray-200 mb-6 leading-relaxed">
-              برامج تعليمية وتدريبية متخصصة معتمدة من الجامعة السعودية الإلكترونية.
+              برامج تعليمية وتدريبية متخصصة معتمدة من  معهد البحوث والدراسات بالجامعة السعودية الإلكترونية.
               طوّر مهاراتك القيادية والمهنية مع نخبة من الخبراء المتخصصين.
             </p>
 
@@ -123,6 +123,7 @@ function Hero() {
                   <input
                     type="text"
                     placeholder="ابحث عن برنامج تدريبي..."
+                    aria-label="ابحث عن برنامج تدريبي"
                     className="flex-1 py-3 outline-none text-gray-900 placeholder:text-gray-400"
                   />
                 </div>
