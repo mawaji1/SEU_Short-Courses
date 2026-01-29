@@ -53,6 +53,50 @@ If you find yourself:
 - Creating a state management solution → Use React Context + SWR
 - Writing date formatting utilities → Use date-fns
 - Building UI components from scratch → Check shadcn/ui first
+- Writing `setTimeout` to "simulate API" → **STOP - implement properly or don't commit**
+- Using `mailto:` for contact forms → Use backend notification module
+- Writing `// TODO` or `// placeholder` → **DO NOT COMMIT - implement it first**
+
+## 🚫 ZERO TOLERANCE: No Placeholders in Production Code
+
+**NEVER commit code with:**
+- `// TODO: implement later`
+- `// Simulate API call`
+- `await new Promise(resolve => setTimeout(resolve, 1500))` as fake functionality
+- `mailto:` hacks when proper backend endpoints should be used
+- Hardcoded mock data pretending to be real
+
+**If a feature isn't ready, either:**
+1. Implement it properly using existing infrastructure
+2. Don't include it in the commit
+3. Flag it clearly and ask before proceeding
+
+### Before Building Any New Feature
+
+**MANDATORY CHECKLIST:**
+1. [ ] Does the backend already have infrastructure for this? (Check `/backend/src/modules/`)
+2. [ ] Is there an existing service that handles similar functionality?
+3. [ ] Can this be done with existing tools (notification module, Bull queues, etc.)?
+4. [ ] Have I searched the codebase for existing patterns?
+
+**Existing Backend Infrastructure (USE THESE):**
+| Feature | Existing Module | Location |
+|---------|-----------------|----------|
+| Email sending | NotificationService + Bull queue | `backend/src/modules/notification/` |
+| User messaging | MessageService | `backend/src/modules/registration/messages.service.ts` |
+| PDF generation | CertificateService | `backend/src/modules/certificate/` |
+| Job processing | Bull queues | Already configured |
+| Validation | class-validator DTOs | Standard pattern |
+
+### Contact Form / Inquiry Pattern (CORRECT WAY)
+
+When implementing contact forms, inquiries, or any user submission:
+1. Create a database model to store submissions (for tracking & follow-up)
+2. Create a public endpoint in backend (no auth required if public)
+3. Use NotificationService to send email notification to staff
+4. Return success/failure to frontend with proper error handling
+
+**DO NOT use mailto: links, client-side email services, or fake submissions.**
 
 ## Architecture
 

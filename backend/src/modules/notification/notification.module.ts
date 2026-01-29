@@ -49,6 +49,6 @@ import { PrismaService } from '../../common/prisma.service';
   ],
   controllers: [NotificationController],
   providers: [NotificationService, EmailProcessor, PrismaService],
-  exports: [NotificationService],
+  exports: [NotificationService, MailerModule],
 })
 export class NotificationModule {}

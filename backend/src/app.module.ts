@@ -13,6 +13,7 @@ import { PaymentModule } from './modules/payment';
 import { NotificationModule } from './modules/notification';
 import { CertificateModule } from './modules/certificate';
 import { AuditModule } from './modules/audit';
+import { ContactModule } from './modules/contact';
 // Note: BlackboardModule was removed from scope (Decision D-I03, 2026-01-23)
 
 /**
@@ -44,6 +45,7 @@ import { AuditModule } from './modules/audit';
     NotificationModule,
     CertificateModule,
     AuditModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],

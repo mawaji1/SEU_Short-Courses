@@ -63,31 +63,30 @@ export default function ContactPage() {
         setError(null);
 
         try {
-            // Get subject label for the email
-            const subjectLabel = subjects.find(s => s.value === formData.subject)?.label || formData.subject;
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone || undefined,
+                    subject: formData.subject.toUpperCase(), // API expects enum value
+                    message: formData.message,
+                }),
+            });
 
-            // Construct email body
-            const emailBody = `
-الاسم: ${formData.name}
-البريد الإلكتروني: ${formData.email}
-رقم الجوال: ${formData.phone || "غير محدد"}
-الموضوع: ${subjectLabel}
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "فشل إرسال الرسالة");
+            }
 
-الرسالة:
-${formData.message}
-            `.trim();
-
-            // Open mailto link
-            const mailtoLink = `mailto:INFO.RSI@seu.edu.sa?subject=${encodeURIComponent(`[تواصل معنا] ${subjectLabel}`)}&body=${encodeURIComponent(emailBody)}`;
-
-            window.location.href = mailtoLink;
-
-            // Show success after a brief delay
-            await new Promise((resolve) => setTimeout(resolve, 500));
             setIsSubmitted(true);
             setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
         } catch (err) {
-            setError("حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.");
+            const message = err instanceof Error ? err.message : "حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.";
+            setError(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -156,12 +155,10 @@ ${formData.message}
                                         <CheckCircle className="w-10 h-10 text-green-600" />
                                     </div>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                                        تم تجهيز رسالتك
+                                        تم استلام رسالتك بنجاح
                                     </h3>
                                     <p className="text-gray-600 mb-6">
-                                        يرجى إرسال البريد الإلكتروني من برنامج البريد الذي فُتح لديك.
-                                        <br />
-                                        سنرد عليك في أقرب وقت ممكن.
+                                        شكراً لتواصلك معنا. سنرد عليك في أقرب وقت ممكن.
                                     </p>
                                     <Button onClick={() => setIsSubmitted(false)}>
                                         إرسال رسالة أخرى

@@ -863,3 +863,51 @@ model Organization {
 
   @@map("organizations")
 }
+
+// =============================================================================
+// CONTACT INQUIRIES
+// =============================================================================
+
+enum InquiryStatus {
+  NEW        // Just submitted
+  IN_PROGRESS // Being handled
+  RESOLVED   // Resolved/Responded
+  CLOSED     // Closed without action
+}
+
+enum InquirySubject {
+  GENERAL        // استفسار عام
+  REGISTRATION   // استفسار عن التسجيل
+  PAYMENT        // استفسار عن الدفع
+  CERTIFICATES   // استفسار عن الشهادات
+  CORPORATE      // تدريب مؤسسي / B2B
+  PARTNERSHIP    // شراكات وتعاون
+  COMPLAINT      // شكوى أو اقتراح
+}
+
+model ContactInquiry {
+  id        String         @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   InquirySubject
+  message   String         @db.Text
+  status    InquiryStatus  @default(NEW)
+
+  // For tracking and follow-up
+  assignedTo   String?     // Staff member handling this
+  internalNote String?     @db.Text
+  resolvedAt   DateTime?
+
+  // Metadata
+  ipAddress    String?
+  userAgent    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([subject])
+  @@index([createdAt])
+  @@map("contact_inquiries")
+}
