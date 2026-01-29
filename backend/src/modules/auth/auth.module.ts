@@ -1,32 +1,23 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { JwtStrategy, LocalStrategy } from './strategies';
 import { PrismaService } from '../../common/prisma.service';
 
 /**
- * Auth Module
+ * Auth Module (Legacy)
  *
- * Handles user authentication and authorization:
- * - User registration
- * - Login with email/password
- * - JWT token management
- * - Password management
- * - RBAC guards
+ * NOTE: Authentication is now handled by BetterAuthModule.
+ * This module provides:
+ * - UserService for user management
+ * - RolesGuard for RBAC
+ * - Legacy auth endpoints (may be removed in future)
  * - Rate limiting for brute-force protection
  */
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'jwt-secret',
-      signOptions: { expiresIn: '15m' },
-    }),
     // Rate limiting configuration
     ThrottlerModule.forRoot([
       {
@@ -45,10 +36,8 @@ import { PrismaService } from '../../common/prisma.service';
   providers: [
     AuthService,
     UserService,
-    JwtStrategy,
-    LocalStrategy,
     PrismaService,
   ],
-  exports: [AuthService, UserService, JwtModule],
+  exports: [AuthService, UserService],
 })
 export class AuthModule {}
