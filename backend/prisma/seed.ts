@@ -401,48 +401,75 @@ async function main() {
     console.log(`   ✅ Created ${promoCodes.length} promo codes`);
 
     // =========================================================================
-    // 6. TEST USERS
+    // 6. TEST USERS (Better Auth compatible)
     // =========================================================================
     console.log('👤 Creating test users...');
 
+    // Better Auth stores passwords in the Account table, not User table
     const passwordHash = await bcrypt.hash('Test@123', 10);
 
+    // Helper function to create user with Better Auth Account
+    async function createBetterAuthUser(data: {
+        email: string;
+        firstName: string;
+        lastName: string;
+        role: UserRole;
+    }) {
+        const userId = `user_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+        const accountId = `acc_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+        // Check if user already exists
+        const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
+        if (existingUser) {
+            return existingUser;
+        }
+
+        // Create user
+        const user = await prisma.user.create({
+            data: {
+                id: userId,
+                email: data.email,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                name: `${data.firstName} ${data.lastName}`,
+                role: data.role,
+                emailVerified: true,
+                isActive: true,
+            },
+        });
+
+        // Create Better Auth Account with password
+        await prisma.account.create({
+            data: {
+                id: accountId,
+                userId: user.id,
+                accountId: user.id, // For credential provider, accountId = userId
+                providerId: 'credential',
+                password: passwordHash,
+            },
+        });
+
+        return user;
+    }
+
     const users = await Promise.all([
-        prisma.user.upsert({
-            where: { email: 'admin@seu.edu.sa' },
-            update: {},
-            create: {
-                email: 'admin@seu.edu.sa',
-                passwordHash,
-                firstName: 'مدير',
-                lastName: 'النظام',
-                role: UserRole.ADMIN,
-                emailVerified: true,
-            },
+        createBetterAuthUser({
+            email: 'admin@seu.edu.sa',
+            firstName: 'مدير',
+            lastName: 'النظام',
+            role: UserRole.ADMIN,
         }),
-        prisma.user.upsert({
-            where: { email: 'learner@seu.edu.sa' },
-            update: {},
-            create: {
-                email: 'learner@seu.edu.sa',
-                passwordHash,
-                firstName: 'محمد',
-                lastName: 'المتدرب',
-                role: UserRole.LEARNER,
-                emailVerified: true,
-            },
+        createBetterAuthUser({
+            email: 'learner@seu.edu.sa',
+            firstName: 'محمد',
+            lastName: 'المتدرب',
+            role: UserRole.LEARNER,
         }),
-        prisma.user.upsert({
-            where: { email: 'coordinator@seu.edu.sa' },
-            update: {},
-            create: {
-                email: 'coordinator@seu.edu.sa',
-                passwordHash,
-                firstName: 'أحمد',
-                lastName: 'المنسق',
-                role: UserRole.CORPORATE_COORDINATOR,
-                emailVerified: true,
-            },
+        createBetterAuthUser({
+            email: 'coordinator@seu.edu.sa',
+            firstName: 'أحمد',
+            lastName: 'المنسق',
+            role: UserRole.CORPORATE_COORDINATOR,
         }),
     ]);
 
