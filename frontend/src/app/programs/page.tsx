@@ -85,10 +85,20 @@ export default function ProgramsPage() {
         return (
             <div className="min-h-screen flex flex-col bg-gray-50">
                 <Header />
-                <main className="flex-1 flex items-center justify-center">
-                    <div className="text-center">
-                        <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
-                        <p className="text-gray-600">جاري تحميل البرامج...</p>
+                <main className="flex-1">
+                    <div className="bg-gradient-to-br from-primary to-primary-dark text-white py-16">
+                        <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
+                            <h1 className="text-4xl font-bold mb-4">تصفح البرامج</h1>
+                            <p className="text-xl text-gray-200">
+                                اكتشف البرامج التدريبية المعتمدة من الجامعة السعودية الإلكترونية
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center py-20">
+                        <div className="text-center">
+                            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+                            <p className="text-gray-600">جاري تحميل البرامج...</p>
+                        </div>
                     </div>
                 </main>
                 <Footer />
