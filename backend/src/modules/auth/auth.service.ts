@@ -92,7 +92,7 @@ export class AuthService {
       throw new UnauthorizedException('الحساب غير مفعل');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = user.passwordHash ? await bcrypt.compare(password, user.passwordHash) : false;
     if (!isPasswordValid) {
       throw new UnauthorizedException('بيانات الدخول غير صحيحة');
     }
@@ -133,6 +133,10 @@ export class AuthService {
 
     if (!user) {
       throw new BadRequestException('المستخدم غير موجود');
+    }
+
+    if (!user.passwordHash) {
+      throw new BadRequestException('لا يمكن تغيير كلمة المرور - يرجى استخدام إعادة تعيين كلمة المرور');
     }
 
     const isCurrentPasswordValid = await bcrypt.compare(
