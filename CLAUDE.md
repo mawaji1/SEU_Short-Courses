@@ -10,6 +10,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - No legacy compatibility concerns - we can refactor freely
 - Technical debt should be paid NOW, not deferred
 
+## 🚨 CRITICAL: No Assumptions - Verify Everything
+
+**NEVER make assumptions about what exists or doesn't exist in this codebase.**
+
+Before claiming ANYTHING about implementation status:
+
+| ❌ DON'T | ✅ DO |
+|----------|-------|
+| "This file exists so it must be in use" | Run `grep` to check what actually imports it |
+| "The plan says X is pending" | Check `git log` - it may already be done |
+| "I remember this was..." | Read the actual current file contents |
+| "This module probably..." | Check `app.module.ts` imports and controller guards |
+| Trust stale plan files in `~/.claude/plans/` | Check git history and actual code state |
+
+**MANDATORY verification before status claims:**
+```bash
+# Check what's actually imported/used
+grep -r "SomeModule\|SomeGuard" backend/src --include="*.ts"
+
+# Check recent changes
+git log --oneline -10
+
+# Check what modules are active
+grep -A 30 "imports:" backend/src/app.module.ts
+```
+
+**If you're too lazy to verify, say "I don't know - let me check" instead of guessing.**
+
+Assumptions waste the user's time and destroy trust. Do the work.
+
 ## Project Overview
 
 SEU Short Courses Platform - A comprehensive learning management platform for Saudi Electronic University's short courses. The platform handles the **complete learning lifecycle**: course catalog, registration, payments, **live training delivery via Zoom**, attendance tracking, and certificate management.
