@@ -12,7 +12,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { CatalogService } from './catalog.service';
 import {
   CreateCategoryDto,
@@ -115,7 +115,7 @@ export class CatalogController {
    * Requires authentication
    */
   @Post('programs/:id/interest')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async registerInterest(@Param('id') id: string, @Request() req: any) {
     return this.catalogService.registerProgramInterest(id, req.user.id);

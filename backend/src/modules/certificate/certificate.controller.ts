@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { CertificateService } from './certificate.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
@@ -28,7 +28,7 @@ export class CertificateController {
    * Admin/Operations only
    */
   @Get('eligible-enrollments')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.OPERATIONS)
   async getEligibleEnrollments() {
     return this.certificateService.getEligibleEnrollments();
@@ -39,7 +39,7 @@ export class CertificateController {
    * Admin/Operations only
    */
   @Post('generate')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.OPERATIONS)
   @HttpCode(HttpStatus.CREATED)
   async generateCertificate(
@@ -53,7 +53,7 @@ export class CertificateController {
    * Authenticated users only
    */
   @Get('my-certificates')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getMyCertificates(@Request() req: any) {
     return this.certificateService.getUserCertificates(req.user.sub);
   }
@@ -63,7 +63,7 @@ export class CertificateController {
    * Authenticated users only
    */
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getCertificate(@Param('id') id: string) {
     return this.certificateService.getUserCertificates(id);
   }
@@ -73,7 +73,7 @@ export class CertificateController {
    * Authenticated users only
    */
   @Get(':id/download')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async downloadCertificate(@Param('id') id: string, @Res() res: Response) {
     // Get certificate details
     const certificate = await this.certificateService.getUserCertificates(id);
@@ -115,7 +115,7 @@ export class CertificateController {
    * Admin only
    */
   @Post('reissue')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async reissueCertificate(
@@ -132,7 +132,7 @@ export class CertificateController {
    * Admin only
    */
   @Post('revoke/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async revokeCertificate(

@@ -53,7 +53,9 @@ export class RegistrationService {
     userId: string,
     dto: InitiateRegistrationDto,
   ): Promise<RegistrationResponseDto> {
-    this.logger.debug(`initiateRegistration called for user ${userId}, cohort ${dto.cohortId}`);
+    this.logger.debug(
+      `initiateRegistration called for user ${userId}, cohort ${dto.cohortId}`,
+    );
 
     if (!userId) {
       this.logger.error('initiateRegistration: userId is undefined or null');

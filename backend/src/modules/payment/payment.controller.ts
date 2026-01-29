@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { BNPLService } from './bnpl.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { BNPLProvider } from './interfaces/bnpl.interface';
 
 @Controller('payments')
@@ -29,7 +29,7 @@ export class PaymentController {
    * POST /api/payments
    */
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async createPayment(
     @Request() req: any,
     @Body() body: { registrationId: string; amount: number; currency?: string },
@@ -58,7 +58,7 @@ export class PaymentController {
    * GET /api/payments/:paymentId
    */
   @Get(':paymentId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getPayment(@Request() req: any, @Param('paymentId') paymentId: string) {
     return this.paymentService.getPayment(req.user.id, paymentId);
   }
@@ -70,7 +70,7 @@ export class PaymentController {
    * If amount is not provided, full refund is processed
    */
   @Put(':paymentId/refund')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async refundPayment(
     @Request() req: any,
     @Param('paymentId') paymentId: string,
@@ -100,7 +100,7 @@ export class PaymentController {
    * GET /api/payments/bnpl/eligibility/:registrationId
    */
   @Get('bnpl/eligibility/:registrationId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async checkBNPLEligibility(@Param('registrationId') registrationId: string) {
     return this.bnplService.checkEligibility(registrationId);
   }
@@ -110,7 +110,7 @@ export class PaymentController {
    * POST /api/payments/bnpl/checkout
    */
   @Post('bnpl/checkout')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async createBNPLCheckout(
     @Body() body: { registrationId: string; provider: BNPLProvider },
   ) {

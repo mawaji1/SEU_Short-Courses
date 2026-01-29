@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { CommonModule } from './common';
 import { CatalogModule } from './modules/catalog';
 import { AuthModule } from './modules/auth';
+import { BetterAuthModule } from './modules/better-auth';
 import { RegistrationModule } from './modules/registration';
 import { PaymentModule } from './modules/payment';
 import { NotificationModule } from './modules/notification';
@@ -37,6 +38,7 @@ import { AuditModule } from './modules/audit';
     }),
     CatalogModule,
     AuthModule,
+    BetterAuthModule,
     RegistrationModule,
     PaymentModule,
     NotificationModule,

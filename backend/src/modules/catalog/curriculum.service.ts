@@ -124,7 +124,7 @@ export class CurriculumService {
   // =========================================================================
 
   async createSession(dto: CreateSessionDto) {
-    return this.prisma.session.create({
+    return this.prisma.curriculumSession.create({
       data: {
         moduleId: dto.moduleId,
         titleAr: dto.titleAr,
@@ -138,14 +138,14 @@ export class CurriculumService {
   }
 
   async getSessionsByModule(moduleId: string) {
-    return this.prisma.session.findMany({
+    return this.prisma.curriculumSession.findMany({
       where: { moduleId },
       orderBy: { sortOrder: 'asc' },
     });
   }
 
   async getSession(id: string) {
-    const session = await this.prisma.session.findUnique({
+    const session = await this.prisma.curriculumSession.findUnique({
       where: { id },
       include: {
         module: {
@@ -167,7 +167,7 @@ export class CurriculumService {
   }
 
   async updateSession(id: string, dto: UpdateSessionDto) {
-    const session = await this.prisma.session.findUnique({
+    const session = await this.prisma.curriculumSession.findUnique({
       where: { id },
     });
 
@@ -175,14 +175,14 @@ export class CurriculumService {
       throw new NotFoundException('Session not found');
     }
 
-    return this.prisma.session.update({
+    return this.prisma.curriculumSession.update({
       where: { id },
       data: dto,
     });
   }
 
   async deleteSession(id: string) {
-    const session = await this.prisma.session.findUnique({
+    const session = await this.prisma.curriculumSession.findUnique({
       where: { id },
     });
 
@@ -190,7 +190,7 @@ export class CurriculumService {
       throw new NotFoundException('Session not found');
     }
 
-    await this.prisma.session.delete({
+    await this.prisma.curriculumSession.delete({
       where: { id },
     });
 
@@ -199,7 +199,7 @@ export class CurriculumService {
 
   async reorderSessions(moduleId: string, sessionIds: string[]) {
     const updates = sessionIds.map((id, index) =>
-      this.prisma.session.update({
+      this.prisma.curriculumSession.update({
         where: { id },
         data: { sortOrder: index },
       }),

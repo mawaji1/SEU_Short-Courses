@@ -26,7 +26,7 @@ import {
   CreatePromoCodeDto,
   AssignInstructorDto,
 } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
@@ -54,7 +54,7 @@ export class RegistrationController {
   // =========================================================================
 
   @Post('registrations')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async initiateRegistration(
     @Request() req: any,
@@ -64,19 +64,19 @@ export class RegistrationController {
   }
 
   @Get('registrations')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getUserRegistrations(@Request() req: any) {
     return this.registrationService.getUserRegistrations(req.user.id);
   }
 
   @Get('registrations/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getRegistrationById(@Request() req: any, @Param('id') id: string) {
     return this.registrationService.getRegistrationById(req.user.id, id);
   }
 
   @Put('registrations/:id/confirm')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async confirmRegistration(
     @Request() req: any,
     @Param('id') id: string,
@@ -89,7 +89,7 @@ export class RegistrationController {
   }
 
   @Put('registrations/:id/cancel')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async cancelRegistration(
     @Request() req: any,
     @Param('id') id: string,
@@ -133,7 +133,7 @@ export class RegistrationController {
   // =========================================================================
 
   @Post('cohorts')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS')
   @HttpCode(HttpStatus.CREATED)
   async createCohort(@Body() dto: CreateCohortDto) {
@@ -141,28 +141,28 @@ export class RegistrationController {
   }
 
   @Put('cohorts/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS')
   async updateCohort(@Param('id') id: string, @Body() dto: UpdateCohortDto) {
     return this.cohortService.updateCohort(id, dto);
   }
 
   @Put('cohorts/:id/open')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS')
   async openCohortRegistration(@Param('id') id: string) {
     return this.cohortService.openRegistration(id);
   }
 
   @Put('cohorts/:id/close')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS')
   async closeCohortRegistration(@Param('id') id: string) {
     return this.cohortService.closeRegistration(id);
   }
 
   @Delete('cohorts/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCohort(@Param('id') id: string) {
@@ -170,7 +170,7 @@ export class RegistrationController {
   }
 
   @Put('cohorts/:id/instructor')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS')
   async assignInstructor(
     @Param('id') id: string,
@@ -180,7 +180,7 @@ export class RegistrationController {
   }
 
   @Delete('cohorts/:id/instructor')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS')
   async removeInstructor(@Param('id') id: string) {
     return this.cohortService.removeInstructor(id);
@@ -202,14 +202,14 @@ export class RegistrationController {
   }
 
   @Get('promo-codes')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'OPERATIONS', 'MARKETING')
   async findAllPromoCodes(@Query('includeInactive') includeInactive?: boolean) {
     return this.promoCodeService.findAllPromoCodes(includeInactive || false);
   }
 
   @Post('promo-codes')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'MARKETING')
   @HttpCode(HttpStatus.CREATED)
   async createPromoCode(@Body() dto: CreatePromoCodeDto) {
@@ -217,7 +217,7 @@ export class RegistrationController {
   }
 
   @Put('promo-codes/:id/deactivate')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(BetterAuthGuard, RolesGuard)
   @Roles('ADMIN', 'MARKETING')
   async deactivatePromoCode(@Param('id') id: string) {
     return this.promoCodeService.deactivatePromoCode(id);
@@ -228,20 +228,20 @@ export class RegistrationController {
   // =========================================================================
 
   @Post('waitlist')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async joinWaitlist(@Request() req: any, @Body() body: { cohortId: string }) {
     return this.waitlistService.joinWaitlist(req.user.id, body.cohortId);
   }
 
   @Get('waitlist')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getUserWaitlistEntries(@Request() req: any) {
     return this.waitlistService.getUserWaitlistEntries(req.user.id);
   }
 
   @Get('waitlist/cohort/:cohortId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getWaitlistPosition(
     @Request() req: any,
     @Param('cohortId') cohortId: string,
@@ -250,7 +250,7 @@ export class RegistrationController {
   }
 
   @Delete('waitlist/cohort/:cohortId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async leaveWaitlist(
     @Request() req: any,
@@ -274,7 +274,7 @@ export class RegistrationController {
    * Returns all enrollments with course and progress information
    */
   @Get('enrollments/my-courses')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getMyEnrollments(@Request() req: any) {
     return this.registrationService.getMyEnrollments(req.user.id);
   }
@@ -284,7 +284,7 @@ export class RegistrationController {
    * Includes modules, sessions, instructor, and certificate
    */
   @Get('enrollments/:id/details')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getCourseDetail(@Request() req: any, @Param('id') id: string) {
     return this.registrationService.getCourseDetail(req.user.id, id);
   }
@@ -294,7 +294,7 @@ export class RegistrationController {
    * Includes attendance, session statistics, and completion data
    */
   @Get('enrollments/:id/progress')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getProgressOverview(@Request() req: any, @Param('id') id: string) {
     return this.registrationService.getProgressOverview(req.user.id, id);
   }
@@ -304,7 +304,7 @@ export class RegistrationController {
    * Returns all downloadable materials and links
    */
   @Get('enrollments/:id/materials')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getCourseMaterials(@Request() req: any, @Param('id') id: string) {
     return this.registrationService.getCourseMaterials(req.user.id, id);
   }
@@ -314,7 +314,7 @@ export class RegistrationController {
    * Returns attendance records and overall statistics
    */
   @Get('enrollments/:id/attendance')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getAttendanceSummary(@Request() req: any, @Param('id') id: string) {
     return this.registrationService.getAttendanceSummary(req.user.id, id);
   }
@@ -328,7 +328,7 @@ export class RegistrationController {
    * Returns instructor announcements and messages
    */
   @Get('cohorts/:cohortId/messages')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getCohortMessages(
     @Request() req: any,
     @Param('cohortId') cohortId: string,
@@ -340,7 +340,7 @@ export class RegistrationController {
    * Get unread message count for a cohort
    */
   @Get('cohorts/:cohortId/messages/unread-count')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async getUnreadCount(
     @Request() req: any,
     @Param('cohortId') cohortId: string,
@@ -356,7 +356,7 @@ export class RegistrationController {
    * Mark a message as read
    */
   @Put('messages/:messageId/read')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   async markMessageAsRead(
     @Request() req: any,
     @Param('messageId') messageId: string,

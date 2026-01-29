@@ -1,10 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { CohortStatus } from '@prisma/client';
-import {
-  CreateCohortDto,
-  UpdateCohortDto,
-} from './dto';
+import { CreateCohortDto, UpdateCohortDto } from './dto';
 
 export interface CohortResponseDto {
   id: string;

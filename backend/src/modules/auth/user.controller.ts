@@ -9,7 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { CurrentUser } from './decorators';
@@ -20,7 +20,7 @@ import { UserRole } from '@prisma/client';
  * Admin-only endpoints for managing users
  */
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(BetterAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -30,7 +30,7 @@ export class UserController {
    * Available to all authenticated users
    */
   @Patch('profile')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BetterAuthGuard)
   @Roles() // No role restriction - all authenticated users
   @HttpCode(HttpStatus.OK)
   async updateProfile(

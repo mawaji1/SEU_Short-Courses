@@ -479,7 +479,7 @@ export class CatalogService {
 
       // Clone sessions for this module
       for (const session of module.sessions) {
-        await this.prisma.session.create({
+        await this.prisma.curriculumSession.create({
           data: {
             moduleId: clonedModule.id,
             titleAr: session.titleAr,

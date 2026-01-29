@@ -27,9 +27,11 @@ enum UserRole {
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
-  passwordHash   String
+  passwordHash   String   // Legacy field - will be migrated to Account.password
   firstName      String
   lastName       String
+  name           String?  // Better Auth requires this (computed from firstName + lastName)
+  image          String?  // For future OAuth avatars
   phone          String?
   nationalId     String?  @unique
   role           UserRole @default(LEARNER)
@@ -39,6 +41,11 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  // Better Auth relations
+  sessions       Session[]
+  accounts       Account[]
+
+  // Existing relations
   organization           Organization?              @relation(fields: [organizationId], references: [id])
   registrations          Registration[]
   enrollments            Enrollment[]
@@ -89,6 +96,62 @@ model EmailVerificationToken {
   @@map("email_verification_tokens")
 }
 
+// =============================================================================
+// BETTER AUTH TABLES
+// =============================================================================
+
+// Session - Better Auth session storage
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  token     String   @unique  // Better Auth session token
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("session")
+}
+
+// Account - Better Auth account storage (for OAuth and email/password)
+model Account {
+  id                   String    @id
+  userId               String
+  accountId            String    // User's unique ID with the provider
+  providerId           String    // "credential" for email/password, or OAuth provider ID
+  accessToken          String?   @db.Text
+  refreshToken         String?   @db.Text
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                String?
+  password             String?   // Stores hashed password for "credential" provider
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([providerId, accountId])
+  @@map("account")
+}
+
+// Verification - Better Auth verification tokens (email verification, password reset, etc.)
+model Verification {
+  id         String   @id
+  identifier String   // Email or other identifier
+  value      String   // Token value
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
 
 // Audit Logs - Track admin actions for security and compliance
 model AuditLog {
@@ -278,14 +341,14 @@ model ProgramModule {
 
   // Relations
   program  Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
-  sessions Session[]
+  sessions CurriculumSession[]
 
   @@index([programId])
   @@index([sortOrder])
   @@map("program_modules")
 }
 
-model Session {
+model CurriculumSession {
   id          String   @id @default(cuid())
   moduleId    String
   titleAr     String

@@ -3,65 +3,36 @@ import type { NextRequest } from 'next/server';
 
 /**
  * Middleware for route protection and role-based access control
- * 
- * Protects admin routes and ensures only authorized users can access them
+ *
+ * Protects admin routes and ensures only authorized users can access them.
+ * Uses Better Auth session cookie for authentication.
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Admin routes protection
   if (pathname.startsWith('/admin')) {
-    const accessToken = request.cookies.get('access_token')?.value;
+    // Better Auth uses 'better-auth.session_token' cookie by default
+    const sessionToken = request.cookies.get('better-auth.session_token')?.value;
 
     // Not logged in - redirect to login
-    if (!accessToken) {
+    if (!sessionToken) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    try {
-      // Decode JWT to check role
-      const user = parseJwt(accessToken);
-
-      // Check if user has admin/operations/finance role
-      const allowedRoles = ['ADMIN', 'OPERATIONS', 'FINANCE', 'PROGRAM_MANAGER'];
-
-      if (!allowedRoles.includes(user.role)) {
-        // Unauthorized - redirect to home
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-
-      // Authorized - allow access
-      return NextResponse.next();
-    } catch (error) {
-      // Invalid token - redirect to login
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+    // Note: Role verification happens on the server side via BetterAuthGuard.
+    // The session token is validated by the backend on each API request.
+    // For additional client-side role checks, we could decode the session
+    // or make an API call, but this adds latency.
+    //
+    // For now, we allow access and let the backend enforce role-based access.
+    // If the user doesn't have permission, the API will return 403.
+    return NextResponse.next();
   }
 
   return NextResponse.next();
-}
-
-/**
- * Parse JWT token (without verification - verification happens on backend)
- */
-function parseJwt(token: string) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(''),
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    throw new Error('Invalid token');
-  }
 }
 
 /**

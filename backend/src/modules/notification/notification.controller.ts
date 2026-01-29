@@ -7,7 +7,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { NotificationService } from './notification.service';
 import { SendNotificationDto } from './dto/send-notification.dto';
 
@@ -16,7 +16,7 @@ import { SendNotificationDto } from './dto/send-notification.dto';
  * Handles notification-related endpoints
  */
 @Controller('notifications')
-@UseGuards(JwtAuthGuard)
+@UseGuards(BetterAuthGuard)
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 

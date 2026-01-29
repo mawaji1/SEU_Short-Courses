@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CurriculumService } from './curriculum.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { BetterAuthGuard } from '../better-auth/better-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
@@ -23,7 +23,7 @@ import {
 } from './dto/module.dto';
 
 @Controller('curriculum')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(BetterAuthGuard, RolesGuard)
 export class CurriculumController {
   constructor(private readonly curriculumService: CurriculumService) {}
 

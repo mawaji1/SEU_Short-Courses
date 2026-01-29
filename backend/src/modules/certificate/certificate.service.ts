@@ -267,7 +267,9 @@ export class CertificateService {
       .fontSize(16)
       .font('Helvetica')
       .fillColor('#334155')
-      .text('تشهد الجامعة السعودية الإلكترونية بأن', 0, 260, { align: 'center' });
+      .text('تشهد الجامعة السعودية الإلكترونية بأن', 0, 260, {
+        align: 'center',
+      });
 
     // User name
     doc

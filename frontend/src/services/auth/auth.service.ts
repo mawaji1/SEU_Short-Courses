@@ -1,11 +1,13 @@
 /**
- * SEU Short Courses — Auth Service
- * 
- * Security: Tokens are stored in HttpOnly cookies (server-set, not accessible via JavaScript).
- * This service only caches user data locally, tokens are managed by the browser automatically.
+ * SEU Short Courses - Auth Service
+ *
+ * This service provides a compatibility layer for components that haven't
+ * migrated to use useAuth() hook directly. It wraps Better Auth methods.
+ *
+ * Security: Sessions are managed via HttpOnly cookies by Better Auth.
  */
 
-import { apiClient } from '@/lib';
+import { signIn, signUp, signOut, getSession } from '@/lib/auth-client';
 import { AuthResponse, RegisterData, LoginData, User } from './types';
 
 const USER_STORAGE_KEY = 'seu_user';
@@ -13,36 +15,102 @@ const USER_STORAGE_KEY = 'seu_user';
 export const authService = {
     /**
      * Register a new user
-     * Tokens are set as HttpOnly cookies by the server
+     * Uses Better Auth sign-up
      */
     async register(data: RegisterData): Promise<AuthResponse> {
-        const response = await apiClient.post<AuthResponse>('/api/auth/register', data);
-        // Only cache user data (tokens are in HttpOnly cookies)
-        this.saveUser(response.user);
-        return response;
+        const { data: result, error } = await signUp.email({
+            email: data.email,
+            password: data.password,
+            name: `${data.firstName} ${data.lastName}`.trim(),
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone,
+        } as any);
+
+        if (error) {
+            throw new Error(error.message || 'Registration failed');
+        }
+
+        const user: User = {
+            id: result!.user.id,
+            email: result!.user.email,
+            firstName: (result!.user as any).firstName || result!.user.name?.split(' ')[0] || '',
+            lastName: (result!.user as any).lastName || result!.user.name?.split(' ').slice(1).join(' ') || '',
+            role: (result!.user as any).role || 'LEARNER',
+        };
+
+        // Cache user data for backwards compatibility
+        this.saveUser(user);
+
+        return {
+            user,
+            accessToken: '', // Better Auth manages tokens via cookies
+            refreshToken: '',
+            expiresIn: 60 * 60 * 24 * 7, // 7 days
+        };
     },
 
     /**
      * Login with email and password
-     * Tokens are set as HttpOnly cookies by the server
+     * Uses Better Auth sign-in
      */
     async login(data: LoginData): Promise<AuthResponse> {
-        const response = await apiClient.post<AuthResponse>('/api/auth/login', data);
-        // Only cache user data (tokens are in HttpOnly cookies)
-        this.saveUser(response.user);
-        return response;
+        const { data: result, error } = await signIn.email({
+            email: data.email,
+            password: data.password,
+        });
+
+        if (error) {
+            throw new Error(error.message || 'Login failed');
+        }
+
+        const user: User = {
+            id: result!.user.id,
+            email: result!.user.email,
+            firstName: (result!.user as any).firstName || result!.user.name?.split(' ')[0] || '',
+            lastName: (result!.user as any).lastName || result!.user.name?.split(' ').slice(1).join(' ') || '',
+            role: (result!.user as any).role || 'LEARNER',
+        };
+
+        // Cache user data for backwards compatibility
+        this.saveUser(user);
+
+        return {
+            user,
+            accessToken: '', // Better Auth manages tokens via cookies
+            refreshToken: '',
+            expiresIn: 60 * 60 * 24 * 7, // 7 days
+        };
     },
 
     /**
-     * Refresh access token
-     * Refresh token is sent automatically via HttpOnly cookie
+     * Refresh session
+     * Better Auth handles session refresh automatically via cookies
      */
     async refresh(): Promise<AuthResponse | null> {
         try {
-            // No need to send refreshToken - it's in HttpOnly cookie
-            const response = await apiClient.post<AuthResponse>('/api/auth/refresh', {});
-            this.saveUser(response.user);
-            return response;
+            const session = await getSession();
+            if (!session?.data?.user) {
+                this.clearAuth();
+                return null;
+            }
+
+            const user: User = {
+                id: session.data.user.id,
+                email: session.data.user.email,
+                firstName: (session.data.user as any).firstName || session.data.user.name?.split(' ')[0] || '',
+                lastName: (session.data.user as any).lastName || session.data.user.name?.split(' ').slice(1).join(' ') || '',
+                role: (session.data.user as any).role || 'LEARNER',
+            };
+
+            this.saveUser(user);
+
+            return {
+                user,
+                accessToken: '',
+                refreshToken: '',
+                expiresIn: 60 * 60 * 24 * 7,
+            };
         } catch {
             this.clearAuth();
             return null;
@@ -50,12 +118,22 @@ export const authService = {
     },
 
     /**
-     * Get current user profile
-     * Access token is sent automatically via HttpOnly cookie
+     * Get current user profile from session
      */
     async getProfile(): Promise<User | null> {
         try {
-            return await apiClient.get<User>('/api/auth/me');
+            const session = await getSession();
+            if (!session?.data?.user) {
+                return null;
+            }
+
+            return {
+                id: session.data.user.id,
+                email: session.data.user.email,
+                firstName: (session.data.user as any).firstName || session.data.user.name?.split(' ')[0] || '',
+                lastName: (session.data.user as any).lastName || session.data.user.name?.split(' ').slice(1).join(' ') || '',
+                role: (session.data.user as any).role || 'LEARNER',
+            };
         } catch {
             return null;
         }
@@ -63,11 +141,11 @@ export const authService = {
 
     /**
      * Logout user
-     * Server clears HttpOnly cookies
+     * Uses Better Auth sign-out
      */
     async logout(): Promise<void> {
         try {
-            await apiClient.post('/api/auth/logout', {});
+            await signOut();
         } catch {
             // Ignore errors - we're logging out anyway
         }
@@ -76,7 +154,7 @@ export const authService = {
     },
 
     /**
-     * Save user data to localStorage (NOT tokens - those are in HttpOnly cookies)
+     * Save user data to localStorage (for backwards compatibility)
      */
     saveUser(user: User): void {
         if (typeof window !== 'undefined') {
@@ -95,7 +173,6 @@ export const authService = {
 
     /**
      * Clear all auth data from localStorage
-     * (Cookies are cleared by server on logout)
      */
     clearAuth(): void {
         if (typeof window !== 'undefined') {
@@ -105,7 +182,7 @@ export const authService = {
 
     /**
      * Check if user is authenticated
-     * Note: This checks cached user, actual auth is via HttpOnly cookies
+     * Note: This checks cached user; actual auth is via Better Auth session
      */
     isAuthenticated(): boolean {
         return !!this.getCurrentUser();
@@ -113,21 +190,44 @@ export const authService = {
 
     /**
      * Request password reset
+     * Note: This still uses the old endpoint - Better Auth doesn't handle this yet
      */
     async forgotPassword(email: string): Promise<{ message: string }> {
-        return apiClient.post<{ message: string }>('/api/auth/forgot-password', { email });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send password reset email');
+        }
+
+        return response.json();
     },
 
     /**
      * Reset password with token
+     * Note: This still uses the old endpoint - Better Auth doesn't handle this yet
      */
     async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
-        return apiClient.post<{ message: string }>('/api/auth/reset-password', { token, newPassword });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword }),
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to reset password');
+        }
+
+        return response.json();
     },
 
     // ============================================
-    // DEPRECATED - Kept for backwards compatibility during migration
-    // These will be removed in a future version
+    // DEPRECATED - Kept for backwards compatibility
     // ============================================
 
     /** @deprecated Use getCurrentUser() instead */
@@ -138,7 +238,7 @@ export const authService = {
 
     /** @deprecated Tokens are now in HttpOnly cookies */
     getAccessToken(): string | null {
-        console.warn('getAccessToken() is deprecated - tokens are now in HttpOnly cookies');
+        console.warn('getAccessToken() is deprecated - tokens are now managed by Better Auth');
         return null;
     },
 
@@ -149,4 +249,3 @@ export const authService = {
 };
 
 export default authService;
-
