@@ -31,8 +31,8 @@ export function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/trainers" className="text-gray-300 hover:text-accent transition-colors">
-                                    المدربون الخبراء
+                                <Link href="/about" className="text-gray-300 hover:text-accent transition-colors">
+                                    عن المنصة
                                 </Link>
                             </li>
                             <li>
@@ -42,7 +42,7 @@ export function Footer() {
                             </li>
                             <li>
                                 <Link href="/contact" className="text-gray-300 hover:text-accent transition-colors">
-                                    اتصل بنا
+                                    تواصل معنا
                                 </Link>
                             </li>
                         </ul>
@@ -53,7 +53,7 @@ export function Footer() {
                         <h3 className="text-lg font-bold mb-4">للمتدربين</h3>
                         <ul className="space-y-2">
                             <li>
-                                <Link href="/auth/register" className="text-gray-300 hover:text-accent transition-colors">
+                                <Link href="/register" className="text-gray-300 hover:text-accent transition-colors">
                                     التسجيل
                                 </Link>
                             </li>
@@ -83,24 +83,34 @@ export function Footer() {
                                 href="https://twitter.com/seu_ksa"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label="تويتر"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Twitter className="w-5 h-5" />
                             </a>
                             <a
-                                href="#"
+                                href="https://instagram.com/seu_ksa"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="انستقرام"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Instagram className="w-5 h-5" />
                             </a>
                             <a
-                                href="#"
+                                href="https://linkedin.com/school/saudi-electronic-university"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="لينكد إن"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Linkedin className="w-5 h-5" />
                             </a>
                             <a
-                                href="#"
+                                href="https://youtube.com/@SEikiSA"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="يوتيوب"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Youtube className="w-5 h-5" />

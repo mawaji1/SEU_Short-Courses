@@ -38,28 +38,31 @@ export function Header() {
                             البرامج التدريبية
                         </Link>
                         <Link
-                            href="/trainers"
-                            className="text-base font-medium text-gray-700 hover:text-accent transition-colors"
-                        >
-                            المدربون
-                        </Link>
-                        <Link
                             href="/about"
                             className="text-base font-medium text-gray-700 hover:text-accent transition-colors"
                         >
                             عن المنصة
                         </Link>
                         <Link
-                            href="/support"
+                            href="/faq"
                             className="text-base font-medium text-gray-700 hover:text-accent transition-colors"
                         >
-                            الدعم
+                            الأسئلة الشائعة
+                        </Link>
+                        <Link
+                            href="/contact"
+                            className="text-base font-medium text-gray-700 hover:text-accent transition-colors"
+                        >
+                            تواصل معنا
                         </Link>
                     </nav>
 
                     {/* Actions */}
                     <div className="flex items-center gap-4">
-                        <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
+                        <button
+                            aria-label="بحث"
+                            className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
                             <Search className="w-5 h-5 text-gray-700" />
                         </button>
 
@@ -133,6 +136,8 @@ export function Header() {
 
                         {/* Mobile menu button */}
                         <button
+                            aria-label={mobileMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+                            aria-expanded={mobileMenuOpen}
                             className="md:hidden flex items-center justify-center w-10 h-10"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
@@ -156,22 +161,22 @@ export function Header() {
                                 البرامج التدريبية
                             </Link>
                             <Link
-                                href="/trainers"
-                                className="text-base font-medium text-gray-700 hover:text-accent transition-colors py-2"
-                            >
-                                المدربون
-                            </Link>
-                            <Link
                                 href="/about"
                                 className="text-base font-medium text-gray-700 hover:text-accent transition-colors py-2"
                             >
                                 عن المنصة
                             </Link>
                             <Link
-                                href="/support"
+                                href="/faq"
                                 className="text-base font-medium text-gray-700 hover:text-accent transition-colors py-2"
                             >
-                                الدعم
+                                الأسئلة الشائعة
+                            </Link>
+                            <Link
+                                href="/contact"
+                                className="text-base font-medium text-gray-700 hover:text-accent transition-colors py-2"
+                            >
+                                تواصل معنا
                             </Link>
 
                             {isAuthenticated && user ? (
