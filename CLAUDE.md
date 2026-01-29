@@ -110,7 +110,7 @@ npm run render         # Render to MP4
 
 **Backend:** NestJS 11, Prisma 6, PostgreSQL, Bull (Redis queues), class-validator
 **Frontend:** Next.js 16, React 19, Tailwind CSS, shadcn/ui (Radix), Framer Motion, SWR, next-intl
-**Authentication:** Better Auth (migration pending)
+**Authentication:** Better Auth (session-based, DB-backed)
 **Payments:** HyperPay (cards), Tabby/Tamara (BNPL)
 **Live Training:** Zoom Meeting SDK + API
 **Email:** TBD (pending decision D-I10)
@@ -125,7 +125,7 @@ npm run render         # Render to MP4
 | **Moyasar** | ✅ DELETED | Code removed 2026-01-28 (D-I01) |
 | **HyperPay** | 🟡 PENDING | Card payments - needs implementation |
 | **Zoom** | 🟡 PENDING | Live training - needs implementation |
-| **Authentication** | 🟡 PENDING | Better Auth migration planned (D-T08) |
+| **Authentication** | ✅ COMPLETE | Better Auth migration done 2026-01-28 |
 
 **Key Scope Changes (per decision-log.md dated 2026-01-23):**
 - ✅ Blackboard integration REMOVED - Code deleted, learning delivery is now in-platform via Zoom
@@ -190,6 +190,50 @@ Frontend requires: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_ZOOM_SDK_KEY`
 - Backend unit tests: `*.spec.ts` files alongside source
 - Backend E2E tests: `test/*.e2e-spec.ts`
 - Test with realistic data volumes to catch N+1 queries
+
+## 🚨 MANDATORY: Verification Before Committing
+
+**DO NOT commit until you have verified your changes actually work.** This is non-negotiable.
+
+### Required Verification Steps
+
+1. **Search for all usages of changed code**
+   ```bash
+   grep -r "fieldName" --include="*.ts" --include="*.tsx"
+   ```
+   If you change a field, function, or interface - find and update ALL usages. No exceptions.
+
+2. **Test BOTH paths when changing data models**
+   - **Migration path**: Do existing records still work?
+   - **Fresh install path**: Run `npm run db:seed` - do new records work?
+
+3. **Actually run the application**
+   - Start backend: `npm run start:dev`
+   - Start frontend: `npm run dev`
+   - Manually test the feature you changed
+
+4. **Run the test suite**
+   ```bash
+   cd backend && npm run test
+   cd backend && npm run test:e2e
+   ```
+
+### Schema Change Checklist
+
+When modifying `prisma/schema.prisma`:
+- [ ] Made field optional? → Update ALL code that reads this field to handle `null`
+- [ ] Renamed a model? → Update ALL references (services, controllers, seed, migrations)
+- [ ] Added new required field? → Update seed file and migration scripts
+- [ ] Changed where data is stored? → Update BOTH read and write paths
+
+### Why This Matters
+
+Incomplete verification leads to:
+- Fixup commits that pollute git history
+- Bugs discovered by users instead of developers
+- Wasted time debugging issues that should have been caught
+
+**If you're tempted to skip verification because you're "pretty sure it works" - that's exactly when bugs slip through.**
 
 ## 🧠 Decision-Making Guidelines
 
