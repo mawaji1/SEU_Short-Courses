@@ -63,8 +63,27 @@ export default function ContactPage() {
         setError(null);
 
         try {
-            // Simulate API call - replace with actual API endpoint
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            // Get subject label for the email
+            const subjectLabel = subjects.find(s => s.value === formData.subject)?.label || formData.subject;
+
+            // Construct email body
+            const emailBody = `
+الاسم: ${formData.name}
+البريد الإلكتروني: ${formData.email}
+رقم الجوال: ${formData.phone || "غير محدد"}
+الموضوع: ${subjectLabel}
+
+الرسالة:
+${formData.message}
+            `.trim();
+
+            // Open mailto link
+            const mailtoLink = `mailto:INFO.RSI@seu.edu.sa?subject=${encodeURIComponent(`[تواصل معنا] ${subjectLabel}`)}&body=${encodeURIComponent(emailBody)}`;
+
+            window.location.href = mailtoLink;
+
+            // Show success after a brief delay
+            await new Promise((resolve) => setTimeout(resolve, 500));
             setIsSubmitted(true);
             setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
         } catch (err) {
@@ -137,10 +156,12 @@ export default function ContactPage() {
                                         <CheckCircle className="w-10 h-10 text-green-600" />
                                     </div>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                                        تم إرسال رسالتك بنجاح
+                                        تم تجهيز رسالتك
                                     </h3>
                                     <p className="text-gray-600 mb-6">
-                                        شكراً لتواصلك معنا. سنرد عليك في أقرب وقت ممكن.
+                                        يرجى إرسال البريد الإلكتروني من برنامج البريد الذي فُتح لديك.
+                                        <br />
+                                        سنرد عليك في أقرب وقت ممكن.
                                     </p>
                                     <Button onClick={() => setIsSubmitted(false)}>
                                         إرسال رسالة أخرى
@@ -269,18 +290,18 @@ export default function ContactPage() {
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
                         <div className="text-center mb-10">
                             <h2 className="text-2xl font-bold text-gray-900 mb-3">موقعنا</h2>
-                            <p className="text-gray-600">الجامعة السعودية الإلكترونية - الرياض</p>
+                            <p className="text-gray-600">معهد البحوث والدراسات الاستشارية - الرياض</p>
                         </div>
                         <div className="rounded-3xl overflow-hidden h-[400px] bg-gray-200">
                             <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.674394831744!2d46.6752!3d24.7136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f03890d489399%3A0xba974d1c98e79fd5!2sSaudi%20Electronic%20University!5e0!3m2!1sen!2ssa!4v1620000000000!5m2!1sen!2ssa"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3625.1!2d46.6841976!3d24.777492!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2ee3002df9fab9%3A0x13db0a362846df55!2z2YXYudi52K8g2KfZhNio2K3ZiNirINmI2KfZhNiv2LHYp9iz2KfYqiDYqNin2YTYrNin2YXYudipINin2YTYs9i52YjYr9mK2Kkg2KfZhNin2YTZg9iq2LHZiNmG2YrYqQ!5e0!3m2!1sar!2ssa!4v1706500000000!5m2!1sar!2ssa"
                                 width="100%"
                                 height="100%"
                                 style={{ border: 0 }}
                                 allowFullScreen
                                 loading="lazy"
                                 referrerPolicy="no-referrer-when-downgrade"
-                                title="موقع الجامعة السعودية الإلكترونية"
+                                title="موقع معهد البحوث والدراسات الاستشارية"
                             />
                         </div>
                     </div>
