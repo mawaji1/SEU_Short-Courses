@@ -309,6 +309,31 @@ Saudi Electronic University (SEU) intends to establish a **centralized digital p
 | ADM-03 | Audit logs for all sensitive actions | P0 |
 | ADM-04 | System configuration (payment, email templates) | P1 |
 | ADM-05 | Zoom license management | P1 |
+| ADM-06 | Contact inquiry management (view, assign, respond, resolve) | P1 |
+
+#### ADM-06: Contact Inquiry Management
+
+**Description:** Admin interface to manage contact form submissions from the public website.
+
+**Lifecycle:**
+```
+NEW → IN_PROGRESS → RESOLVED → CLOSED
+         ↓
+      (reassign)
+```
+
+**Features:**
+- List all inquiries with filters (status, subject, date range)
+- View inquiry details (name, email, phone, message, metadata)
+- Assign to staff member
+- Add internal notes (not visible to sender)
+- Mark as resolved with resolution notes
+- Close without action (spam, duplicate, etc.)
+- Reply via email (opens email client or sends via platform)
+
+**Bot Protection (TODO):**
+- [ ] Add honeypot field (simple anti-bot)
+- [ ] Integrate Cloudflare Turnstile for production
 
 ---
 

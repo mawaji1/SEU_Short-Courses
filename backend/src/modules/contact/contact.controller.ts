@@ -15,6 +15,11 @@ import { CreateContactInquiryDto, ContactInquiryResponseDto } from './dto/contac
 /**
  * Contact Controller
  * Public endpoint for contact form submissions (no auth required)
+ *
+ * TODO: Bot Protection (ADM-06)
+ * - [ ] Add honeypot field validation
+ * - [ ] Integrate Cloudflare Turnstile for production
+ * See: Planning/docs/BRD.md section 5.13 ADM-06
  */
 @Controller('contact')
 export class ContactController {
