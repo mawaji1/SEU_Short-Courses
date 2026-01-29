@@ -109,7 +109,7 @@ export function Footer() {
                                 <span className="sr-only">Instagram</span>
                             </a>
                             <a
-                                href="https://www.linkedin.com/in/rsidts/"
+                                href="https://www.linkedin.com/company/معهد-البحوث-والدراسات-بالجامعة-السعودية-الإلكترونية/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="لينكد إن"
