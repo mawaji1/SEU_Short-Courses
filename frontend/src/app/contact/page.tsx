@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+
+// Metadata is handled in layout or head for client components
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
 
@@ -10,20 +12,20 @@ const contactInfo = [
     {
         icon: Phone,
         title: "الهاتف",
-        value: "920015555",
+        value: "0112613789",
         description: "الأحد - الخميس، 8 ص - 4 م",
     },
     {
         icon: Mail,
         title: "البريد الإلكتروني",
-        value: "executive@seu.edu.sa",
+        value: "INFO.RSI@seu.edu.sa",
         description: "نرد خلال 24 ساعة",
     },
     {
         icon: MapPin,
         title: "العنوان",
         value: "الرياض، المملكة العربية السعودية",
-        description: "الجامعة السعودية الإلكترونية",
+        description: "معهد البحوث والدراسات - الجامعة السعودية الإلكترونية",
     },
     {
         icon: Clock,

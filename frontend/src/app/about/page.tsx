@@ -1,56 +1,64 @@
 import { Metadata } from "next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { GraduationCap, Users, Award, Globe, Target, Lightbulb, CheckCircle } from "lucide-react";
+import { GraduationCap, Users, Award, FileText, Target, Lightbulb, CheckCircle, Handshake, Building2 } from "lucide-react";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-    title: "عن المنصة | التعليم التنفيذي - الجامعة السعودية الإلكترونية",
-    description: "تعرف على منصة التعليم التنفيذي بالجامعة السعودية الإلكترونية - رؤيتنا ورسالتنا وأهدافنا في تقديم برامج تدريبية معتمدة لتطوير الكفاءات المهنية.",
+    title: "عن المعهد | معهد البحوث والدراسات الاستشارية - الجامعة السعودية الإلكترونية",
+    description: "تعرف على معهد البحوث والدراسات الاستشارية بالجامعة السعودية الإلكترونية - الذراع الاستثماري للجامعة والجهة التعاقدية للعمل مع القطاعات العامة والخاصة.",
     openGraph: {
-        title: "عن المنصة | التعليم التنفيذي - SEU",
-        description: "منصة التعليم التنفيذي بالجامعة السعودية الإلكترونية - برامج تدريبية معتمدة لتطوير المهارات المهنية",
+        title: "عن المعهد | معهد البحوث والدراسات - SEU",
+        description: "معهد البحوث والدراسات الاستشارية - الذراع الاستثماري للجامعة السعودية الإلكترونية",
         type: "website",
     },
 };
 
 const stats = [
-    { icon: Users, value: "10,000+", label: "متدرب" },
-    { icon: GraduationCap, value: "50+", label: "برنامج تدريبي" },
-    { icon: Award, value: "95%", label: "نسبة الرضا" },
-    { icon: Globe, value: "13", label: "منطقة" },
+    { icon: Users, value: "63", label: "مستشار" },
+    { icon: GraduationCap, value: "72", label: "برنامج تدريبي" },
+    { icon: Award, value: "6,000+", label: "متدرب" },
+    { icon: FileText, value: "104", label: "عقد جديد" },
 ];
 
 const values = [
     {
-        icon: Target,
-        title: "الجودة",
-        description: "نلتزم بأعلى معايير الجودة في تصميم وتقديم البرامج التدريبية",
+        icon: Award,
+        title: "التميز",
+        description: "نلتزم بأعلى معايير الجودة في تقديم خدماتنا البحثية والاستشارية والتدريبية",
     },
     {
         icon: Lightbulb,
         title: "الابتكار",
-        description: "نوظف أحدث التقنيات والأساليب التعليمية لتقديم تجربة تعلم متميزة",
+        description: "نوظف أحدث المنهجيات والحلول الرقمية لتلبية احتياجات شركائنا",
     },
     {
-        icon: Users,
-        title: "الشراكة",
-        description: "نعمل مع أفضل الخبراء والمؤسسات لضمان مواكبة متطلبات سوق العمل",
+        icon: CheckCircle,
+        title: "النزاهة",
+        description: "نعمل بشفافية ومصداقية في جميع تعاملاتنا مع الشركاء والعملاء",
     },
     {
-        icon: Award,
-        title: "التميز",
-        description: "نسعى دائماً لتحقيق التميز في كل ما نقدمه من برامج وخدمات",
+        icon: Handshake,
+        title: "التعاون",
+        description: "نبني شراكات استراتيجية مع أفضل المؤسسات المحلية والدولية",
     },
 ];
 
-const features = [
-    "شهادات معتمدة من الجامعة السعودية الإلكترونية",
-    "مدربون خبراء ومعتمدون دولياً",
-    "مرونة في التعلم - حضوري أو عن بُعد",
-    "محتوى تدريبي محدث ومواكب لسوق العمل",
-    "دعم فني متواصل طوال فترة التدريب",
-    "شبكة خريجين واسعة للتواصل المهني",
+const services = [
+    "تقديم الدراسات والبحوث التطبيقية",
+    "الخدمات الاستشارية المتخصصة",
+    "برامج التدريب والتطوير المهني",
+    "الحلول الرقمية والتقنية",
+    "دعم الكفاءة المؤسسية",
+    "خدمات المعرفة المتخصصة",
+];
+
+const partners = [
+    "Ohio University",
+    "Deloitte",
+    "PwC",
+    "Roland Berger",
+    "Strategy&",
 ];
 
 export default function AboutPage() {
@@ -64,12 +72,12 @@ export default function AboutPage() {
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
                         <div className="max-w-3xl">
                             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                                عن منصة التعليم التنفيذي
+                                معهد البحوث والدراسات الاستشارية
                             </h1>
                             <p className="text-xl text-gray-200 leading-relaxed">
-                                منصة التعليم التنفيذي هي المنصة الرسمية للجامعة السعودية الإلكترونية
-                                لتقديم برامج التطوير المهني والتدريب التنفيذي المعتمدة،
-                                بهدف تمكين الكوادر الوطنية وتطوير مهاراتهم لمواكبة متطلبات سوق العمل.
+                                الذراع الاستثماري للجامعة السعودية الإلكترونية والجهة التعاقدية
+                                للعمل مع القطاعات العامة والخاصة والثالث، نسعى لتقديم حلول مبتكرة
+                                تدعم التنمية الوطنية وتحقيق أهداف رؤية 2030.
                             </p>
                         </div>
                     </div>
@@ -104,9 +112,8 @@ export default function AboutPage() {
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-900 mb-4">رؤيتنا</h2>
                                 <p className="text-gray-600 leading-relaxed text-lg">
-                                    أن نكون المنصة الرائدة في التعليم التنفيذي والتطوير المهني
-                                    في المملكة العربية السعودية والمنطقة، ونساهم في تحقيق رؤية
-                                    المملكة 2030 من خلال بناء كوادر وطنية مؤهلة ومنافسة عالمياً.
+                                    الخيار الأول للقطاعات في تقديم البحوث والدراسات والاستشارات
+                                    وخدمات التدريب والحلول الرقمية.
                                 </p>
                             </div>
                             <div className="bg-white rounded-3xl p-8 md:p-10 border border-gray-200">
@@ -115,9 +122,9 @@ export default function AboutPage() {
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-900 mb-4">رسالتنا</h2>
                                 <p className="text-gray-600 leading-relaxed text-lg">
-                                    تقديم برامج تدريبية وتطويرية عالية الجودة تلبي احتياجات
-                                    سوق العمل، وتمكن المتدربين من اكتساب المهارات والمعارف
-                                    اللازمة للتميز في مسيرتهم المهنية.
+                                    تقديم الدراسات والخدمات الاستشارية والتعليمية والتدريبية
+                                    التي تلبي احتياجات القطاعات المختلفة وتساهم في تحقيق
+                                    أهداف التنمية الوطنية.
                                 </p>
                             </div>
                         </div>
@@ -152,23 +159,23 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                {/* Why Choose Us */}
+                {/* Services */}
                 <section className="py-20">
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
                         <div className="grid lg:grid-cols-2 gap-12 items-center">
                             <div>
                                 <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                                    لماذا تختار التعليم التنفيذي؟
+                                    خدماتنا
                                 </h2>
                                 <p className="text-gray-600 text-lg mb-8">
-                                    نقدم لك تجربة تعليمية متكاملة تجمع بين الجودة الأكاديمية
-                                    والتطبيق العملي، مع مرونة تناسب جدولك المهني.
+                                    نقدم مجموعة متكاملة من الخدمات البحثية والاستشارية والتدريبية
+                                    التي تلبي احتياجات القطاعات المختلفة.
                                 </p>
                                 <ul className="space-y-4">
-                                    {features.map((feature, index) => (
+                                    {services.map((service, index) => (
                                         <li key={index} className="flex items-start gap-3">
                                             <CheckCircle className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
-                                            <span className="text-gray-700">{feature}</span>
+                                            <span className="text-gray-700">{service}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -188,10 +195,33 @@ export default function AboutPage() {
                     </div>
                 </section>
 
+                {/* Partners */}
+                <section className="py-20 bg-white">
+                    <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">شركاؤنا</h2>
+                            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                                نفخر بشراكاتنا الاستراتيجية مع نخبة من المؤسسات العالمية الرائدة
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-8">
+                            {partners.map((partner, index) => (
+                                <div
+                                    key={index}
+                                    className="px-8 py-4 bg-gray-50 rounded-xl text-gray-700 font-medium"
+                                >
+                                    {partner}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* About SEU */}
                 <section className="py-20 bg-primary text-white">
                     <div className="container mx-auto px-6 lg:px-12 max-w-[1400px]">
                         <div className="max-w-3xl mx-auto text-center">
+                            <Building2 className="w-16 h-16 mx-auto mb-6 opacity-75" />
                             <h2 className="text-3xl font-bold mb-6">عن الجامعة السعودية الإلكترونية</h2>
                             <p className="text-gray-200 text-lg leading-relaxed mb-8">
                                 الجامعة السعودية الإلكترونية هي مؤسسة حكومية للتعليم العالي
@@ -200,13 +230,15 @@ export default function AboutPage() {
                                 المؤسسات التعليمية الرائدة في مجال التعلم الإلكتروني والتعليم المدمج.
                             </p>
                             <a
-                                href="https://seu.edu.sa"
+                                href="https://seu.edu.sa/ar/institutes/research-and-studies/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 text-accent hover:text-accent-light transition-colors"
                             >
-                                زيارة موقع الجامعة
-                                <Globe className="w-5 h-5" />
+                                زيارة صفحة المعهد
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
                             </a>
                         </div>
                     </div>

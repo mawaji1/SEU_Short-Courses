@@ -1,6 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Instagram, Linkedin, Youtube } from "lucide-react";
+
+// X (formerly Twitter) icon
+function XIcon({ className }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+    );
+}
 
 export function Footer() {
     return (
@@ -17,7 +26,7 @@ export function Footer() {
                             className="h-12 w-auto brightness-0 invert mb-4"
                         />
                         <p className="text-gray-300 text-sm leading-relaxed">
-                            التعليم التنفيذي والتطوير المهني - الجامعة السعودية الإلكترونية
+                            معهد البحوث والدراسات الاستشارية - الجامعة السعودية الإلكترونية
                         </p>
                     </div>
 
@@ -80,16 +89,16 @@ export function Footer() {
                         <h3 className="text-lg font-bold mb-4">تواصل معنا</h3>
                         <div className="flex gap-3">
                             <a
-                                href="https://twitter.com/seu_ksa"
+                                href="https://x.com/rsi_seu"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                aria-label="تويتر"
+                                aria-label="إكس"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
-                                <Twitter className="w-5 h-5" />
+                                <XIcon className="w-5 h-5" />
                             </a>
                             <a
-                                href="https://instagram.com/seu_ksa"
+                                href="https://instagram.com/rsi_seu"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="انستقرام"
@@ -98,22 +107,13 @@ export function Footer() {
                                 <Instagram className="w-5 h-5" />
                             </a>
                             <a
-                                href="https://linkedin.com/school/saudi-electronic-university"
+                                href="https://linkedin.com/company/rsi-seu"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="لينكد إن"
                                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
                             >
                                 <Linkedin className="w-5 h-5" />
-                            </a>
-                            <a
-                                href="https://youtube.com/@SEikiSA"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label="يوتيوب"
-                                className="w-10 h-10 rounded-lg bg-white/10 hover:bg-accent transition-colors flex items-center justify-center"
-                            >
-                                <Youtube className="w-5 h-5" />
                             </a>
                         </div>
                     </div>
@@ -122,7 +122,7 @@ export function Footer() {
                 {/* Bottom Bar */}
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-gray-300 text-sm">
-                        © 2026 الجامعة السعودية الإلكترونية. جميع الحقوق محفوظة.
+                        © 2026 معهد البحوث والدراسات الاستشارية - الجامعة السعودية الإلكترونية. جميع الحقوق محفوظة.
                     </p>
                     <div className="flex gap-6 text-sm">
                         <Link href="/terms" className="text-gray-300 hover:text-accent transition-colors">
