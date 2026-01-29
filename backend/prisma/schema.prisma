@@ -27,7 +27,7 @@ enum UserRole {
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
-  passwordHash   String   // Legacy field - will be migrated to Account.password
+  passwordHash   String?  // Legacy field - Better Auth stores passwords in Account table
   firstName      String
   lastName       String
   name           String?  // Better Auth requires this (computed from firstName + lastName)
