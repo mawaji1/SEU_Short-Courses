@@ -98,6 +98,20 @@ When implementing contact forms, inquiries, or any user submission:
 
 **DO NOT use mailto: links, client-side email services, or fake submissions.**
 
+### New Page SEO/Accessibility Checklist
+
+When creating or modifying pages:
+
+| Requirement | How |
+|-------------|-----|
+| Unique title (<60 chars) | Server component: `export const metadata` / Client: add `layout.tsx` |
+| Meta description (120-160 chars) | Same as above |
+| H1 on every page | One per page, visible on initial render (including loading states) |
+| Heading hierarchy | H1 → H2 → H3 (no skipping levels) |
+| Form inputs | `htmlFor` on labels, `id` on inputs, `aria-label` where needed |
+| Images | `alt` text, `priority` for above-fold |
+| Icon-only links | Add `<span className="sr-only">` for screen readers |
+
 ## Architecture
 
 **Monorepo Structure:**
