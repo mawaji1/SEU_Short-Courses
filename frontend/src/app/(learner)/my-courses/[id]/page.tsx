@@ -4,8 +4,9 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { BookOpen, TrendingUp, Mail, FileText, Loader2, ChevronRight } from 'lucide-react';
-import { CourseHeader, CourseTabs, OverviewTab, ProgressTab, MessagesTab, MaterialsTab } from '@/components/learner/course';
+import { BookOpen, TrendingUp, Mail, FileText, Video, Loader2, ChevronRight } from 'lucide-react';
+import { CourseHeader, CourseTabs, OverviewTab, ProgressTab, MessagesTab, MaterialsTab, SessionsTab } from '@/components/learner/course';
+import { TrainingSession, sessionService } from '@/services/session';
 
 interface CourseDetail {
   id: string;
@@ -66,6 +67,7 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
   const [attendance, setAttendance] = useState<AttendanceData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -101,11 +103,12 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
           setMaterials(await materialsRes.json());
         }
 
-        // Fetch messages using cohortId from detail
+        // Fetch messages and sessions using cohortId from detail
         const cohortId = detailData.cohort.id;
-        const [messagesRes, unreadRes] = await Promise.all([
+        const [messagesRes, unreadRes, sessionsRes] = await Promise.all([
           fetch(`${apiUrl}/api/cohorts/${cohortId}/messages`, { credentials: 'include' }),
           fetch(`${apiUrl}/api/cohorts/${cohortId}/messages/unread-count`, { credentials: 'include' }),
+          fetch(`${apiUrl}/api/cohorts/${cohortId}/sessions`, { credentials: 'include' }),
         ]);
 
         if (messagesRes.ok) {
@@ -115,6 +118,10 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
         if (unreadRes.ok) {
           const { count } = await unreadRes.json();
           setUnreadCount(count);
+        }
+
+        if (sessionsRes.ok) {
+          setSessions(await sessionsRes.json());
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ');
@@ -141,6 +148,17 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
       // Silent fail
+    }
+  };
+
+  const handleJoinSession = async (sessionId: string) => {
+    try {
+      const joinUrl = await sessionService.getJoinUrl(sessionId);
+      // Open Zoom in a new tab
+      window.open(joinUrl, '_blank', 'noopener,noreferrer');
+    } catch {
+      // Show error toast (for now just alert)
+      alert('فشل في الحصول على رابط الانضمام. يرجى المحاولة مرة أخرى.');
     }
   };
 
@@ -180,6 +198,11 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
   const instructorName = instructor?.nameAr;
   const hasInstructor = !!instructorName;
 
+  // Count upcoming sessions for badge
+  const upcomingSessionsCount = sessions.filter(
+    (s) => s.status === 'SCHEDULED' || s.status === 'IN_PROGRESS'
+  ).length;
+
   const tabs = [
     {
       id: 'overview',
@@ -195,6 +218,18 @@ export default function CourseHubPage({ params }: { params: Promise<{ id: string
           instructorBio={instructor?.bio}
           instructorImage={instructor?.imageUrl}
           hasInstructor={hasInstructor}
+        />
+      ),
+    },
+    {
+      id: 'sessions',
+      label: 'الجلسات المباشرة',
+      icon: Video,
+      badge: upcomingSessionsCount || undefined,
+      content: (
+        <SessionsTab
+          sessions={sessions}
+          onJoinSession={handleJoinSession}
         />
       ),
     },

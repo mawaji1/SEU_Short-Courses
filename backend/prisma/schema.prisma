@@ -16,22 +16,22 @@ datasource db {
 
 enum UserRole {
   LEARNER
-  CORPORATE_COORDINATOR  // B2B corporate clients
-  OPERATIONS             // Internal operations staff
-  FINANCE                // Internal finance staff
-  ADMIN                  // Platform administrators
-  INSTRUCTOR             // Course instructors
-  PROGRAM_MANAGER        // Program managers
+  CORPORATE_COORDINATOR // B2B corporate clients
+  OPERATIONS // Internal operations staff
+  FINANCE // Internal finance staff
+  ADMIN // Platform administrators
+  INSTRUCTOR // Course instructors
+  PROGRAM_MANAGER // Program managers
 }
 
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
-  passwordHash   String?  // Legacy field - Better Auth stores passwords in Account table
+  passwordHash   String? // Legacy field - Better Auth stores passwords in Account table
   firstName      String
   lastName       String
-  name           String?  // Better Auth requires this (computed from firstName + lastName)
-  image          String?  // For future OAuth avatars
+  name           String? // Better Auth requires this (computed from firstName + lastName)
+  image          String? // For future OAuth avatars
   phone          String?
   nationalId     String?  @unique
   role           UserRole @default(LEARNER)
@@ -41,23 +41,31 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  // Zoom integration (for instructors)
+  zoomUserId String? @unique
+
   // Better Auth relations
-  sessions       Session[]
-  accounts       Account[]
+  sessions Session[]
+  accounts Account[]
 
   // Existing relations
-  organization           Organization?              @relation(fields: [organizationId], references: [id])
-  registrations          Registration[]
-  enrollments            Enrollment[]
-  payments               Payment[]
-  certificates           Certificate[]
-  passwordResets         PasswordResetToken[]
+  organization            Organization?            @relation(fields: [organizationId], references: [id])
+  registrations           Registration[]
+  enrollments             Enrollment[]
+  payments                Payment[]
+  certificates            Certificate[]
+  passwordResets          PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
-  notifications          Notification[]
-  auditLogs              AuditLog[]
-  programInterests       ProgramInterest[]
-  messageReadReceipts    MessageReadReceipt[]
-  waitlistEntries        WaitlistEntry[]
+  notifications           Notification[]
+  auditLogs               AuditLog[]
+  programInterests        ProgramInterest[]
+  messageReadReceipts     MessageReadReceipt[]
+  waitlistEntries         WaitlistEntry[]
+
+  // Zoom training sessions (for instructors)
+  instructedSessions   TrainingSession[]     @relation("InstructorSessions")
+  sessionRegistrations SessionRegistration[]
+  sessionAttendances   SessionAttendance[]
 
   @@map("users")
 }
@@ -107,7 +115,7 @@ model Session {
   expiresAt DateTime
   ipAddress String?
   userAgent String?
-  token     String   @unique  // Better Auth session token
+  token     String   @unique // Better Auth session token
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -120,18 +128,18 @@ model Session {
 
 // Account - Better Auth account storage (for OAuth and email/password)
 model Account {
-  id                   String    @id
-  userId               String
-  accountId            String    // User's unique ID with the provider
-  providerId           String    // "credential" for email/password, or OAuth provider ID
-  accessToken          String?   @db.Text
-  refreshToken         String?   @db.Text
-  accessTokenExpiresAt DateTime?
+  id                    String    @id
+  userId                String
+  accountId             String // User's unique ID with the provider
+  providerId            String // "credential" for email/password, or OAuth provider ID
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                String?
-  password             String?   // Stores hashed password for "credential" provider
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  scope                 String?
+  password              String? // Stores hashed password for "credential" provider
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -143,8 +151,8 @@ model Account {
 // Verification - Better Auth verification tokens (email verification, password reset, etc.)
 model Verification {
   id         String   @id
-  identifier String   // Email or other identifier
-  value      String   // Token value
+  identifier String // Email or other identifier
+  value      String // Token value
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -243,10 +251,10 @@ enum ProgramType {
 // Availability status - computed from cohorts
 // Used to show learners: متاح للتسجيل / قريباً / يبدأ قريباً / مكتمل
 enum AvailabilityStatus {
-  COMING_SOON    // قريباً - Published but no cohorts
-  UPCOMING       // يبدأ قريباً - Has future cohorts
-  AVAILABLE      // متاح للتسجيل - Has open cohorts
-  SOLD_OUT       // مكتمل - All cohorts full
+  COMING_SOON // قريباً - Published but no cohorts
+  UPCOMING // يبدأ قريباً - Has future cohorts
+  AVAILABLE // متاح للتسجيل - Has open cohorts
+  SOLD_OUT // مكتمل - All cohorts full
 }
 
 enum DeliveryMode {
@@ -282,23 +290,23 @@ model Program {
   targetAudienceEn   String?
   isFeatured         Boolean       @default(false)
   sortOrder          Int           @default(0)
-  
+
   // Computed availability (updated when cohorts change)
   availabilityStatus AvailabilityStatus @default(COMING_SOON)
-  
+
   // Certificate settings
-  certificateEnabled          Boolean @default(true)
-  certificateAttendanceThreshold Int  @default(80)
-  
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  certificateEnabled             Boolean @default(true)
+  certificateAttendanceThreshold Int     @default(80)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  category    Category          @relation(fields: [categoryId], references: [id])
-  cohorts     Cohort[]
-  modules     ProgramModule[]
-  interests   ProgramInterest[]
-  materials   CourseMaterial[]
+  category  Category          @relation(fields: [categoryId], references: [id])
+  cohorts   Cohort[]
+  modules   ProgramModule[]
+  interests ProgramInterest[]
+  materials CourseMaterial[]
 
   @@index([status])
   @@index([categoryId])
@@ -308,15 +316,15 @@ model Program {
 
 // "أعلمني عند التوفر" - Notify me when available
 model ProgramInterest {
-  id        String   @id @default(cuid())
-  programId String
-  userId    String
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  programId  String
+  userId     String
+  createdAt  DateTime  @default(now())
   notifiedAt DateTime?
-  
-  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([programId, userId])
   @@index([programId])
   @@index([userId])
@@ -328,19 +336,19 @@ model ProgramInterest {
 // =============================================================================
 
 model ProgramModule {
-  id          String   @id @default(cuid())
-  programId   String
-  titleAr     String
-  titleEn     String
-  descriptionAr String? @db.Text
-  descriptionEn String? @db.Text
+  id            String   @id @default(cuid())
+  programId     String
+  titleAr       String
+  titleEn       String
+  descriptionAr String?  @db.Text
+  descriptionEn String?  @db.Text
   durationHours Int?
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
-  program  Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  program  Program             @relation(fields: [programId], references: [id], onDelete: Cascade)
   sessions CurriculumSession[]
 
   @@index([programId])
@@ -349,16 +357,16 @@ model ProgramModule {
 }
 
 model CurriculumSession {
-  id          String   @id @default(cuid())
-  moduleId    String
-  titleAr     String
-  titleEn     String
-  descriptionAr String? @db.Text
-  descriptionEn String? @db.Text
+  id              String   @id @default(cuid())
+  moduleId        String
+  titleAr         String
+  titleEn         String
+  descriptionAr   String?  @db.Text
+  descriptionEn   String?  @db.Text
   durationMinutes Int?
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
   module ProgramModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
@@ -389,7 +397,7 @@ model CourseMaterial {
   type          MaterialType @default(DOCUMENT)
   fileUrl       String?
   externalLink  String?
-  fileSize      Int?         // in bytes
+  fileSize      Int? // in bytes
   fileName      String?
   sortOrder     Int          @default(0)
   isPublic      Boolean      @default(false)
@@ -407,18 +415,18 @@ model CourseMaterial {
 }
 
 model CohortMessage {
-  id          String   @id @default(cuid())
-  cohortId    String
+  id           String   @id @default(cuid())
+  cohortId     String
   instructorId String?
-  subject     String
-  message     String   @db.Text
-  sentAt      DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  subject      String
+  message      String   @db.Text
+  sentAt       DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
-  cohort      Cohort      @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  instructor  Instructor? @relation(fields: [instructorId], references: [id])
+  cohort       Cohort               @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  instructor   Instructor?          @relation(fields: [instructorId], references: [id])
   readReceipts MessageReadReceipt[]
 
   @@index([cohortId])
@@ -427,15 +435,15 @@ model CohortMessage {
 }
 
 model MessageReadReceipt {
-  id         String   @id @default(cuid())
-  messageId  String
-  userId     String
-  readAt     DateTime @default(now())
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  readAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 
   // Relations
   message CohortMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user    User         @relation(fields: [userId], references: [id])
+  user    User          @relation(fields: [userId], references: [id])
 
   @@unique([messageId, userId])
   @@index([messageId])
@@ -473,13 +481,14 @@ model Cohort {
   updatedAt             DateTime     @updatedAt
 
   // Relations
-  program       Program        @relation(fields: [programId], references: [id])
-  instructor    Instructor?    @relation(fields: [instructorId], references: [id])
-  registrations Registration[]
-  enrollments   Enrollment[]
-  certificates  Certificate[]
-  messages      CohortMessage[]
-  waitlist      WaitlistEntry[]
+  program          Program           @relation(fields: [programId], references: [id])
+  instructor       Instructor?       @relation(fields: [instructorId], references: [id])
+  registrations    Registration[]
+  enrollments      Enrollment[]
+  certificates     Certificate[]
+  messages         CohortMessage[]
+  waitlist         WaitlistEntry[]
+  trainingSessions TrainingSession[]
 
   @@index([programId])
   @@index([status])
@@ -535,19 +544,19 @@ enum EnrollmentStatus {
 }
 
 model Enrollment {
-  id                     String           @id @default(cuid())
-  registrationId         String           @unique
-  userId                 String
-  cohortId               String
-  status                 EnrollmentStatus @default(PENDING)
-  progress               Int              @default(0) // 0-100 percentage
-  completionStatus       String?          // NOT_STARTED, IN_PROGRESS, COMPLETED, FAILED
-  completionPercentage   Int?             // From Blackboard
-  lastActivityAt         DateTime?        // Last activity in Blackboard
-  completedAt            DateTime?
-  certificateEligible    Boolean          @default(false)
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  id                   String           @id @default(cuid())
+  registrationId       String           @unique
+  userId               String
+  cohortId             String
+  status               EnrollmentStatus @default(PENDING)
+  progress             Int              @default(0) // 0-100 percentage
+  completionStatus     String? // NOT_STARTED, IN_PROGRESS, COMPLETED, FAILED
+  completionPercentage Int? // From Blackboard
+  lastActivityAt       DateTime? // Last activity in Blackboard
+  completedAt          DateTime?
+  certificateEligible  Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
   // Relations
   registration Registration @relation(fields: [registrationId], references: [id])
@@ -633,20 +642,20 @@ enum CertificateStatus {
 }
 
 model Certificate {
-  id                String            @id @default(cuid())
-  enrollmentId      String            @unique
-  userId            String
-  cohortId          String
-  number            String            @unique
-  issuedAt          DateTime          @default(now())
-  expiryDate        DateTime?
-  status            CertificateStatus @default(PENDING)
-  verificationCode  String            @unique @default(cuid())
-  pdfUrl            String?
-  revokedAt         DateTime?
-  revocationReason  String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id               String            @id @default(cuid())
+  enrollmentId     String            @unique
+  userId           String
+  cohortId         String
+  number           String            @unique
+  issuedAt         DateTime          @default(now())
+  expiryDate       DateTime?
+  status           CertificateStatus @default(PENDING)
+  verificationCode String            @unique @default(cuid())
+  pdfUrl           String?
+  revokedAt        DateTime?
+  revocationReason String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   // Relations
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
@@ -869,39 +878,39 @@ model Organization {
 // =============================================================================
 
 enum InquiryStatus {
-  NEW        // Just submitted
+  NEW // Just submitted
   IN_PROGRESS // Being handled
-  RESOLVED   // Resolved/Responded
-  CLOSED     // Closed without action
+  RESOLVED // Resolved/Responded
+  CLOSED // Closed without action
 }
 
 enum InquirySubject {
-  GENERAL        // استفسار عام
-  REGISTRATION   // استفسار عن التسجيل
-  PAYMENT        // استفسار عن الدفع
-  CERTIFICATES   // استفسار عن الشهادات
-  CORPORATE      // تدريب مؤسسي / B2B
-  PARTNERSHIP    // شراكات وتعاون
-  COMPLAINT      // شكوى أو اقتراح
+  GENERAL // استفسار عام
+  REGISTRATION // استفسار عن التسجيل
+  PAYMENT // استفسار عن الدفع
+  CERTIFICATES // استفسار عن الشهادات
+  CORPORATE // تدريب مؤسسي / B2B
+  PARTNERSHIP // شراكات وتعاون
+  COMPLAINT // شكوى أو اقتراح
 }
 
 model ContactInquiry {
-  id        String         @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   InquirySubject
-  message   String         @db.Text
-  status    InquiryStatus  @default(NEW)
+  id      String         @id @default(cuid())
+  name    String
+  email   String
+  phone   String?
+  subject InquirySubject
+  message String         @db.Text
+  status  InquiryStatus  @default(NEW)
 
   // For tracking and follow-up
-  assignedTo   String?     // Staff member handling this
-  internalNote String?     @db.Text
+  assignedTo   String? // Staff member handling this
+  internalNote String?   @db.Text
   resolvedAt   DateTime?
 
   // Metadata
-  ipAddress    String?
-  userAgent    String?
+  ipAddress String?
+  userAgent String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -910,4 +919,90 @@ model ContactInquiry {
   @@index([subject])
   @@index([createdAt])
   @@map("contact_inquiries")
+}
+
+// =============================================================================
+// ZOOM TRAINING SESSIONS
+// =============================================================================
+
+enum TrainingSessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model TrainingSession {
+  id           String                @id @default(cuid())
+  cohortId     String
+  instructorId String
+  title        String
+  description  String?
+  startTime    DateTime
+  duration     Int // minutes
+  status       TrainingSessionStatus @default(SCHEDULED)
+
+  // Zoom data
+  zoomMeetingId String? @unique
+  zoomJoinUrl   String? // Generic join URL
+  zoomStartUrl  String? // Host start URL (for instructor)
+  zoomPassword  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cohort        Cohort                @relation(fields: [cohortId], references: [id])
+  instructor    User                  @relation("InstructorSessions", fields: [instructorId], references: [id])
+  registrations SessionRegistration[]
+  attendances   SessionAttendance[]
+
+  @@index([cohortId])
+  @@index([instructorId])
+  @@index([status])
+  @@index([startTime])
+  @@map("training_sessions")
+}
+
+model SessionRegistration {
+  id               String   @id @default(cuid())
+  sessionId        String
+  userId           String
+  zoomRegistrantId String?  @unique // Zoom's registrant ID
+  zoomJoinUrl      String? // Unique join URL for this registrant
+  registeredAt     DateTime @default(now())
+
+  // Relations
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@index([userId])
+  @@map("session_registrations")
+}
+
+model SessionAttendance {
+  id         String    @id @default(cuid())
+  sessionId  String
+  userId     String
+  joinTime   DateTime?
+  leaveTime  DateTime?
+  duration   Int? // Total seconds attended (accumulated)
+  isPresent  Boolean   @default(false)
+  isOverride Boolean   @default(false)
+  overrideBy String?
+  overrideAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@index([userId])
+  @@map("session_attendances")
 }

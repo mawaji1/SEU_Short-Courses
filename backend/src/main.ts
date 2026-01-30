@@ -4,7 +4,10 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    // Enable raw body for webhook signature verification (Zoom, payment providers)
+    rawBody: true,
+  });
 
   // Enable cookie parsing for HttpOnly cookie-based auth
   app.use(cookieParser());

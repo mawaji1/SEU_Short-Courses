@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RegistrationController } from './registration.controller';
 import { RegistrationService } from './registration.service';
 import { PromoCodeService } from './promo-code.service';
@@ -8,9 +8,10 @@ import { MessageService } from './messages.service';
 import { PrismaService } from '../../common/prisma.service';
 import { RegistrationCleanupService } from './registration-cleanup.service';
 import { NotificationModule } from '../notification';
+import { SessionModule } from '../session';
 
 @Module({
-  imports: [NotificationModule],
+  imports: [NotificationModule, forwardRef(() => SessionModule)],
   controllers: [RegistrationController],
   providers: [
     RegistrationService,

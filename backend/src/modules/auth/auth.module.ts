@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserController } from './user.controller';
@@ -31,6 +32,11 @@ import { PrismaService } from '../../common/prisma.service';
         limit: 10, // 10 requests per 60 seconds for other endpoints
       },
     ]),
+    // JWT for legacy auth endpoints
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'jwt-secret',
+      signOptions: { expiresIn: '15m' },
+    }),
   ],
   controllers: [AuthController, UserController],
   providers: [

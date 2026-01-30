@@ -4,6 +4,8 @@ import {
   NotFoundException,
   Logger,
   ConflictException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { RegistrationStatus, CohortStatus } from '@prisma/client';
@@ -23,6 +25,7 @@ import {
 } from './dto';
 import { NotificationService } from '../notification/notification.service';
 import { WaitlistService } from './waitlist.service';
+import { SessionService } from '../session/session.service';
 
 /**
  * Registration Service
@@ -44,6 +47,8 @@ export class RegistrationService {
     private prisma: PrismaService,
     private notificationService: NotificationService,
     private waitlistService: WaitlistService,
+    @Inject(forwardRef(() => SessionService))
+    private sessionService: SessionService,
   ) {}
 
   /**
@@ -323,6 +328,35 @@ export class RegistrationService {
         where: { id: cohort.id },
         data: { status: CohortStatus.FULL },
       });
+    }
+
+    // Register learner for all scheduled training sessions in this cohort
+    try {
+      const sessions = await this.prisma.trainingSession.findMany({
+        where: {
+          cohortId: registration.cohortId,
+          status: 'SCHEDULED',
+        },
+      });
+
+      for (const session of sessions) {
+        try {
+          await this.sessionService.registerLearnerForSession(
+            session.id,
+            userId,
+          );
+        } catch (sessionError) {
+          this.logger.warn(
+            `Failed to register user ${userId} for session ${session.id}: ${sessionError}`,
+          );
+          // Don't fail the registration if session registration fails
+        }
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Failed to register user ${userId} for sessions: ${error}`,
+      );
+      // Don't fail the registration if session lookup fails
     }
 
     return this.formatRegistrationResponse(

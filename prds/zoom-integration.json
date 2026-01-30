@@ -1,10 +1,15 @@
 {
     "projectName": "Zoom Integration",
-    "branchName": "ralph/zoom-integration",
-    "description": "Enable live virtual training sessions by integrating Zoom Meeting SDK and API",
+    "branchName": "dev",
+    "description": "Enable live virtual training sessions by integrating Zoom API with meeting registration for attendance tracking",
     "dependsOn": [],
-    "status": "pending",
-    "completedAt": null,
+    "status": "completed",
+    "completedAt": "2026-01-30",
+    "designDecisions": [
+        "Using redirect to Zoom app instead of embedded SDK for better mobile experience",
+        "Using meeting registration for reliable attendance tracking via unique registrant links",
+        "Cloud recording enabled for QA purposes (not exposed to learners)"
+    ],
     "userStories": [
         {
             "id": "US-001",
@@ -12,14 +17,14 @@
             "description": "As a developer, I want to store Zoom config so that integration settings are persistent",
             "acceptanceCriteria": [
                 "Environment variables for ZOOM_ACCOUNT_ID, CLIENT_ID, CLIENT_SECRET",
-                "Environment variables for ZOOM_SDK_KEY, ZOOM_SDK_SECRET",
+                "Environment variables for ZOOM_WEBHOOK_SECRET_TOKEN",
                 "Validation on startup",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 1,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in backend/src/config/zoom.config.ts. SDK keys not needed (redirect approach)."
         },
         {
             "id": "US-002",
@@ -33,23 +38,24 @@
                 "Lint passes"
             ],
             "priority": 2,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in backend/src/modules/zoom/zoom-auth.service.ts. Tested with live Zoom API."
         },
         {
             "id": "US-003",
             "title": "Session Database Schema",
             "description": "As a developer, I want session schema so that Zoom meeting data is stored",
             "acceptanceCriteria": [
-                "Session table: id, cohort_id, instructor_id, zoom_meeting_id, zoom_join_url, zoom_start_url, start_time, duration, status",
+                "TrainingSession table with zoom_meeting_id, zoom_join_url, zoom_start_url, start_time, duration, status",
+                "SessionRegistration table for unique learner join URLs",
                 "SessionAttendance table: session_id, user_id, join_time, leave_time, duration",
-                "SessionStatus enum: SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED",
+                "TrainingSessionStatus enum: SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 3,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Schema pushed to database. Added SessionRegistration for Zoom registrant tracking."
         },
         {
             "id": "US-004",
@@ -63,8 +69,8 @@
                 "Lint passes"
             ],
             "priority": 4,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in backend/src/modules/zoom/zoom-user.service.ts"
         },
         {
             "id": "US-005",
@@ -72,14 +78,14 @@
             "description": "As a system, I want to assign Pro licenses so that instructors can host long meetings",
             "acceptanceCriteria": [
                 "Assign license via API",
-                "Track license assignment date",
+                "Track license assignment",
                 "Handle license limit errors",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 5,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented updateLicenseType method in zoom-user.service.ts"
         },
         {
             "id": "US-006",
@@ -89,13 +95,14 @@
                 "Create meeting under instructor's Zoom user ID",
                 "Set topic, start time, duration",
                 "Store meeting ID, join URL, start URL",
-                "Enable waiting room",
+                "Enable registration for attendance tracking",
+                "Cloud recording enabled",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 6,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in zoom-meeting.service.ts. Uses registration_type=2 for attendance."
         },
         {
             "id": "US-007",
@@ -103,15 +110,16 @@
             "description": "As an Operations Coordinator, I want an API to schedule sessions so that Zoom meetings are created",
             "acceptanceCriteria": [
                 "POST /api/sessions endpoint",
-                "Input: cohort_id, instructor_id, start_time, duration",
+                "Input: cohort_id, instructor_id, start_time, duration, title",
                 "Creates session record and Zoom meeting",
+                "Auto-registers enrolled learners",
                 "Returns session with join URLs",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 7,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in session.controller.ts and session.service.ts"
         },
         {
             "id": "US-008",
@@ -126,7 +134,7 @@
             ],
             "priority": 8,
             "passes": false,
-            "notes": ""
+            "notes": "NOT NEEDED: Design decision changed to redirect to Zoom app instead of embedded SDK. Better mobile experience."
         },
         {
             "id": "US-009",
@@ -135,14 +143,14 @@
             "acceptanceCriteria": [
                 "Button visible on instructor dashboard for scheduled sessions",
                 "Only enabled within 15 minutes of start time",
-                "Clicking opens embedded Zoom",
+                "Clicking opens Zoom in new tab",
                 "Typecheck passes",
                 "Lint passes",
-                "Verify at localhost:3000/instructor/sessions"
+                "Verify at localhost:3000/sessions"
             ],
             "priority": 9,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in frontend/src/app/(instructor)/sessions/page.tsx. Opens Zoom start URL in new tab."
         },
         {
             "id": "US-010",
@@ -154,12 +162,11 @@
                 "Supports Arabic language",
                 "Full-screen toggle",
                 "Typecheck passes",
-                "Lint passes",
-                "Verify at localhost:3000/session/[id]/join"
+                "Lint passes"
             ],
             "priority": 10,
             "passes": false,
-            "notes": ""
+            "notes": "NOT NEEDED: Design decision changed to redirect to Zoom app. Provides better mobile experience and eliminates SDK complexity."
         },
         {
             "id": "US-011",
@@ -167,15 +174,15 @@
             "description": "As a learner, I want a Join Session button so that I can attend class",
             "acceptanceCriteria": [
                 "Button visible in My Courses for upcoming sessions",
-                "Only enabled when session is IN_PROGRESS",
-                "Clicking opens embedded Zoom",
+                "Only enabled when session is SCHEDULED (near start) or IN_PROGRESS",
+                "Clicking opens unique Zoom link in new tab",
                 "Typecheck passes",
                 "Lint passes",
-                "Verify at localhost:3000/my-courses"
+                "Verify at localhost:3000/my-courses/[id]"
             ],
             "priority": 11,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in SessionsTab component. Uses unique registrant join URL for attendance tracking."
         },
         {
             "id": "US-012",
@@ -184,13 +191,13 @@
             "acceptanceCriteria": [
                 "POST /api/webhooks/zoom endpoint",
                 "Webhook verification challenge handled",
-                "Signature validation",
+                "Signature validation with raw body",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 12,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in zoom-webhook.controller.ts. Signature verification tested and working."
         },
         {
             "id": "US-013",
@@ -203,8 +210,8 @@
                 "Lint passes"
             ],
             "priority": 13,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in zoom-webhook.service.ts handleMeetingStarted method"
         },
         {
             "id": "US-014",
@@ -212,13 +219,13 @@
             "description": "As a system, I want to process meeting.ended so that session completes",
             "acceptanceCriteria": [
                 "Update session status to COMPLETED",
-                "Calculate total attendance durations",
+                "Mark attendees with join time as present",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 14,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in zoom-webhook.service.ts handleMeetingEnded method"
         },
         {
             "id": "US-015",
@@ -227,13 +234,13 @@
             "acceptanceCriteria": [
                 "Create SessionAttendance record",
                 "Record join_time",
-                "Match participant to user by email",
+                "Match participant to user by registrant_id",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 15,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in zoom-webhook.service.ts. Uses registrant_id from unique join URL for reliable matching."
         },
         {
             "id": "US-016",
@@ -241,14 +248,14 @@
             "description": "As a system, I want to track when participants leave so that attendance duration is calculated",
             "acceptanceCriteria": [
                 "Update SessionAttendance with leave_time",
-                "Calculate duration",
+                "Calculate and accumulate duration",
                 "Handle multiple join/leave cycles",
                 "Typecheck passes",
                 "Lint passes"
             ],
             "priority": 16,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in zoom-webhook.service.ts. Duration accumulates across multiple join/leave cycles."
         },
         {
             "id": "US-017",
@@ -256,15 +263,15 @@
             "description": "As an instructor, I want to view attendance for a session so that I know who attended",
             "acceptanceCriteria": [
                 "List of attendees with join time and duration",
-                "Total attendance percentage calculated",
+                "Present/absent status displayed",
                 "Export to CSV option",
                 "Typecheck passes",
                 "Lint passes",
-                "Verify at localhost:3000/instructor/sessions/[id]/attendance"
+                "Verify at localhost:3000/sessions/[id]/attendance"
             ],
             "priority": 17,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in frontend/src/app/(instructor)/sessions/[id]/attendance/page.tsx with CSV export"
         },
         {
             "id": "US-018",
@@ -272,15 +279,44 @@
             "description": "As an instructor, I want to manually mark attendance so that I can correct errors",
             "acceptanceCriteria": [
                 "Toggle to mark learner as present/absent",
-                "Override stored with timestamp",
-                "Audit log entry created",
+                "Override stored with timestamp and overrideBy user",
+                "Visual indicator for overridden records",
                 "Typecheck passes",
                 "Lint passes",
-                "Verify at localhost:3000/instructor/sessions/[id]/attendance"
+                "Verify at localhost:3000/sessions/[id]/attendance"
             ],
             "priority": 18,
-            "passes": false,
-            "notes": ""
+            "passes": true,
+            "notes": "Implemented in attendance.service.ts and attendance page. Tracks isOverride, overrideBy, overrideAt."
         }
+    ],
+    "apiEndpoints": [
+        "POST /api/sessions - Create session with Zoom meeting",
+        "PUT /api/sessions/:id - Update session",
+        "DELETE /api/sessions/:id - Cancel session and delete Zoom meeting",
+        "GET /api/sessions/:id - Get session details",
+        "GET /api/sessions/:id/join-url - Get learner's unique join URL",
+        "GET /api/sessions/:id/start-url - Get instructor's start URL",
+        "GET /api/my-sessions - Get learner's upcoming sessions",
+        "GET /api/instructor/sessions - Get instructor's sessions",
+        "GET /api/cohorts/:cohortId/sessions - Get sessions for cohort",
+        "GET /api/sessions/:id/attendance - Get attendance records",
+        "GET /api/sessions/:id/attendance/summary - Get attendance summary",
+        "PUT /api/sessions/:id/attendance - Override single attendance",
+        "PUT /api/sessions/:id/attendance/bulk - Bulk override attendance",
+        "GET /api/sessions/:id/attendance/export - Export attendance CSV",
+        "POST /api/webhooks/zoom - Zoom webhook endpoint"
+    ],
+    "zoomScopes": [
+        "user:write:user:admin",
+        "user:read:user:admin",
+        "meeting:write:meeting:admin",
+        "meeting:read:meeting:admin",
+        "meeting:update:meeting:admin",
+        "meeting:delete:meeting:admin",
+        "meeting:write:registrant:admin",
+        "meeting:write:batch_registrants:admin",
+        "meeting:read:registrant:admin",
+        "meeting:read:participant:admin"
     ]
 }

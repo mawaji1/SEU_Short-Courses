@@ -21,4 +21,18 @@ export const API_ENDPOINTS = {
 
     // Registration (future)
     registrations: '/api/registrations',
+
+    // Sessions
+    sessions: '/api/sessions',
+    sessionById: (id: string) => `/api/sessions/${id}`,
+    sessionJoinUrl: (id: string) => `/api/sessions/${id}/join-url`,
+    sessionStartUrl: (id: string) => `/api/sessions/${id}/start-url`,
+    sessionAttendance: (id: string) => `/api/sessions/${id}/attendance`,
+    sessionAttendanceSummary: (id: string) => `/api/sessions/${id}/attendance/summary`,
+    sessionAttendanceExport: (id: string) => `/api/sessions/${id}/attendance/export`,
+    sessionAttendanceBulk: (id: string) => `/api/sessions/${id}/attendance/bulk`,
+    mySessions: '/api/my-sessions',
+    instructorSessions: '/api/instructor/sessions',
+    cohortSessions: (cohortId: string) => `/api/cohorts/${cohortId}/sessions`,
+    userCohortAttendance: (userId: string, cohortId: string) => `/api/users/${userId}/cohorts/${cohortId}/attendance`,
 } as const;
