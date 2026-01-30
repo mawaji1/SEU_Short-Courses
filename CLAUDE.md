@@ -82,6 +82,13 @@ npm run build          # Production build
 
 See `Planning/docs/decision-log.md` for details.
 
+## Configuration Pattern
+
+**Secrets** (API keys, credentials) → `.env` (developer-managed)
+**Operational config** (enable/disable, limits, display settings) → Database + Admin UI (admin-managed)
+
+See decision D-T09 in `Planning/docs/decision-log.md`.
+
 ## Quality Standards
 
 ### Before Writing Code

@@ -2,7 +2,7 @@
 
 **Document Type:** Planning Artifact
 **Status:** Living Document
-**Last Updated:** 2026-01-28
+**Last Updated:** 2026-01-30
 
 ---
 
@@ -23,7 +23,7 @@ This document tracks all significant decisions related to the SEU Short Courses 
 | Strategic | 7 | 0 | 0 |
 | Integration | 6 | 2 | 1 |
 | Product | 8 | 2 | 2 |
-| Technical | 8 | 0 | 3 |
+| Technical | 9 | 0 | 3 |
 | UX/Design | 6 | 0 | 0 |
 
 > [!IMPORTANT]
@@ -81,6 +81,7 @@ This document tracks all significant decisions related to the SEU Short Courses 
 | D-T06 | **Database: PostgreSQL** | ACID-compliant, excellent JSON support, mature ecosystem | 2026-01-03 | Architecture |
 | D-T07 | **Architecture: Modular Monolith (MVP)** | Faster MVP delivery, simpler operations, designed for future extraction | 2026-01-03 | Architecture |
 | D-T08 | **Authentication Library: Better Auth** | Replaces custom Passport.js+JWT; provides session management, token rotation, OAuth, 2FA out-of-box; use `@thallesp/nestjs-better-auth` for NestJS | 2026-01-28 | Architecture |
+| D-T09 | **Admin-managed vs Developer-managed configuration** | Secrets (API keys, credentials) stay in `.env` (developer-managed); operational config (enable/disable features, limits, display settings) stored in database with Admin UI (admin-managed). This separates security concerns from daily operations. | 2026-01-30 | Architecture |
 
 ### UX/Design Decisions
 
